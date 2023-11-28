@@ -1,0 +1,16 @@
+[package]
+name = "playground"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+crypto = { path = "../narwhal/crypto", package = "narwhal-crypto" }
+config = { path = "../narwhal/config", package = "narwhal-config" }
+storage = { path = "../narwhal/storage", package = "narwhal-storage" }
+network = { path = "../narwhal/network", package = "narwhal-network" }
+node = { path = "../narwhal/node", package = "narwhal-node" }
+fastcrypto.workspace = true
+sui-keys.workspace = true
+sui-types.workspace = true
+rand.workspace = true
+tokio.workspace = true
