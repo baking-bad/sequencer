@@ -7,7 +7,7 @@ use config::Epoch;
 use fastcrypto::hash::Digest;
 use mysten_common::sync::notify_once::NotifyOnce;
 use std::sync::Arc;
-use store::StoreError;
+use typed_store::StoreError;
 use thiserror::Error;
 
 #[cfg(test)]

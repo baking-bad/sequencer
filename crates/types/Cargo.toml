@@ -37,7 +37,7 @@ anemo.workspace = true
 sui-protocol-config.workspace = true
 once_cell.workspace = true
 
-store.workspace = true
+typed-store.workspace = true
 mysten-metrics.workspace = true
 mysten-common.workspace = true
 mysten-network.workspace = true

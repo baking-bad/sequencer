@@ -12,9 +12,9 @@ use config::{AuthorityIdentifier, WorkerId};
 use std::num::NonZeroUsize;
 use std::sync::Arc;
 use std::time::Duration;
-use store::metrics::SamplingInterval;
-use store::reopen;
-use store::rocks::{default_db_options, open_cf_opts, DBMap, MetricConf, ReadWriteOptions};
+use typed_store::metrics::SamplingInterval;
+use typed_store::reopen;
+use typed_store::rocks::{default_db_options, open_cf_opts, DBMap, MetricConf, ReadWriteOptions};
 use types::{
     Batch, BatchDigest, Certificate, CertificateDigest, CommittedSubDagShell, ConsensusCommit,
     Header, Round, SequenceNumber, VoteInfo,

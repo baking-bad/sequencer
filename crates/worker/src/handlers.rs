@@ -10,7 +10,7 @@ use fastcrypto::hash::Hash;
 use itertools::Itertools;
 use network::{client::NetworkClient, WorkerToPrimaryClient};
 use std::{collections::HashSet, time::Duration};
-use store::{rocks::DBMap, Map};
+use typed_store::{rocks::DBMap, Map};
 use sui_protocol_config::ProtocolConfig;
 use tracing::{debug, trace};
 use types::{

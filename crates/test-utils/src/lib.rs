@@ -29,9 +29,9 @@ use std::{
     num::NonZeroUsize,
     ops::RangeInclusive,
 };
-use store::rocks::DBMap;
-use store::rocks::MetricConf;
-use store::rocks::ReadWriteOptions;
+use typed_store::rocks::DBMap;
+use typed_store::rocks::MetricConf;
+use typed_store::rocks::ReadWriteOptions;
 use sui_protocol_config::{Chain, ProtocolConfig, ProtocolVersion};
 use tokio::sync::mpsc::{channel, Receiver, Sender};
 use tracing::info;

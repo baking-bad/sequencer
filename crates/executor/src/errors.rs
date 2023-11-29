@@ -3,7 +3,7 @@
 
 use config::WorkerId;
 use std::fmt::Debug;
-use store::StoreError;
+use typed_store::StoreError;
 use thiserror::Error;
 use types::CertificateDigest;
 

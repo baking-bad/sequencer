@@ -2,6 +2,8 @@
 resolver = "2"
 
 members = [
+    "playground",
+
     "crates/config",
     "crates/crypto",
     "crates/executor",
@@ -9,9 +11,9 @@ members = [
     "crates/node",
     "crates/primary",
     "crates/storage",
+    "crates/test-utils",
     "crates/types",
     "crates/worker",
-    "crates/test-utils",
 ]
 
 [workspace.package]
@@ -180,12 +182,12 @@ narwhal-types = { path = "crates/types" }
 narwhal-worker = { path = "crates/worker" }
 
 # Mysten crates
-mysten-network = { git = "https://github.com/mystenlabs/sui.git" }
-shared-crypto = { git = "https://github.com/mystenlabs/sui.git" }
-mysten-metrics = { git = "https://github.com/mystenlabs/sui.git" }
-sui-protocol-config = { git = "https://github.com/mystenlabs/sui.git" }
-telemetry-subscribers = { git = "https://github.com/mystenlabs/sui.git" }
-mysten-common = { git = "https://github.com/mystenlabs/sui.git" }
-sui-macros = { git = "https://github.com/mystenlabs/sui.git" }
-workspace-hack = { git = "https://github.com/mystenlabs/sui.git" }
-store = { git = "https://github.com/mystenlabs/sui.git", package = "typed-store" }
+mysten-network = { git = "https://github.com/mystenlabs/sui.git", rev = "1d63dfc26b5ce2af1af029d06682b363c9b7e358" }
+shared-crypto = { git = "https://github.com/mystenlabs/sui.git", rev = "1d63dfc26b5ce2af1af029d06682b363c9b7e358" }
+mysten-metrics = { git = "https://github.com/mystenlabs/sui.git", rev = "1d63dfc26b5ce2af1af029d06682b363c9b7e358" }
+sui-protocol-config = { git = "https://github.com/mystenlabs/sui.git", rev = "1d63dfc26b5ce2af1af029d06682b363c9b7e358" }
+telemetry-subscribers = { git = "https://github.com/mystenlabs/sui.git", rev = "1d63dfc26b5ce2af1af029d06682b363c9b7e358" }
+mysten-common = { git = "https://github.com/mystenlabs/sui.git", rev = "1d63dfc26b5ce2af1af029d06682b363c9b7e358" }
+sui-macros = { git = "https://github.com/mystenlabs/sui.git", rev = "1d63dfc26b5ce2af1af029d06682b363c9b7e358" }
+workspace-hack = { git = "https://github.com/mystenlabs/sui.git", rev = "1d63dfc26b5ce2af1af029d06682b363c9b7e358" }
+typed-store = { git = "https://github.com/mystenlabs/sui.git", rev = "1d63dfc26b5ce2af1af029d06682b363c9b7e358" }

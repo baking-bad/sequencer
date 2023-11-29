@@ -14,7 +14,10 @@ use fastcrypto::{
     bls12381, ed25519,
     error::FastCryptoError,
     hash::{Blake2b256, HashFunction},
-    traits::{AggregateAuthenticator, Signer, VerifyingKey},
+    traits::{
+        AggregateAuthenticator, Signer, VerifyingKey,
+        KeyPair as KeyPairTraits, ToFromBytes, SigningKey
+    },
 };
 
 // This re-export allows using the trait-defined APIs
@@ -131,9 +134,26 @@ pub fn to_intent_message<T>(value: T) -> IntentMessage<T> {
 }
 
 /// Generate a keypair from the specified RNG (useful for testing with seedable rngs).
-pub fn get_key_pair_from_rng<KP: traits::KeyPair, R>(csprng: &mut R) -> KP
+pub fn get_key_pair_from_rng<KP: KeyPairTraits, R>(csprng: &mut R) -> KP
 where
     R: rand::CryptoRng + rand::RngCore
 {
     KP::generate(&mut StdRng::from_rng(csprng).unwrap())
+}
+
+/// Generate a keypair from bytes (private key bytes concatenated with public key bytes).
+pub fn get_key_pair_from_bytes<KP: KeyPairTraits>(bytes: &[u8]) -> Result<KP, FastCryptoError>
+{
+    let priv_length = KP::PrivKey::LENGTH;
+    let pub_key_length = KP::PubKey::LENGTH;
+    if bytes.len() != priv_length + pub_key_length {
+        return Err(FastCryptoError::InputLengthWrong(priv_length + pub_key_length));
+    }
+    let sk = KP::PrivKey::from_bytes(
+        bytes
+            .get(..priv_length)
+            .ok_or(FastCryptoError::InvalidInput)?,
+    )?;
+    let kp: KP = sk.into();
+    Ok(kp)
 }

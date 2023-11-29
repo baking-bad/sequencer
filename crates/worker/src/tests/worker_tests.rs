@@ -18,9 +18,9 @@ use primary::{Primary, CHANNEL_CAPACITY, NUM_SHUTDOWN_RECEIVERS};
 use prometheus::Registry;
 use std::time::Duration;
 use storage::NodeStorage;
-use store::rocks;
-use store::rocks::MetricConf;
-use store::rocks::ReadWriteOptions;
+use typed_store::rocks;
+use typed_store::rocks::MetricConf;
+use typed_store::rocks::ReadWriteOptions;
 use test_utils::{
     batch, latest_protocol_version, temp_dir, test_network, transaction, CommitteeFixture,
 };

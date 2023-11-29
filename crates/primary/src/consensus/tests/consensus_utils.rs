@@ -4,8 +4,8 @@ use std::num::NonZeroUsize;
 use config::AuthorityIdentifier;
 use std::sync::Arc;
 use storage::{CertificateStore, CertificateStoreCache, ConsensusStore};
-use store::rocks::MetricConf;
-use store::{reopen, rocks, rocks::DBMap, rocks::ReadWriteOptions};
+use typed_store::rocks::MetricConf;
+use typed_store::{reopen, rocks, rocks::DBMap, rocks::ReadWriteOptions};
 use types::{Certificate, CertificateDigest, ConsensusCommit, Round, SequenceNumber};
 
 pub(crate) const NUM_SUB_DAGS_PER_SCHEDULE: u64 = 100;

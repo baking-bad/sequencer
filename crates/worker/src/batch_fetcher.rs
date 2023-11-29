@@ -17,7 +17,7 @@ use itertools::Itertools;
 use network::WorkerRpc;
 use prometheus::IntGauge;
 use rand::{rngs::ThreadRng, seq::SliceRandom};
-use store::{rocks::DBMap, Map};
+use typed_store::{rocks::DBMap, Map};
 use sui_protocol_config::ProtocolConfig;
 use tokio::{
     select,

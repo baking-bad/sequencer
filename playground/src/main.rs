@@ -6,15 +6,14 @@ use config::WorkerCache;
 use config::WorkerIndex;
 use config::WorkerInfo;
 use config::{ChainIdentifier, Committee, CommitteeBuilder};
-use crypto::NetworkKeyPair;
-use fastcrypto::traits::KeyPair as _;
+use crypto::{NetworkKeyPair, AuthorityKeyPair, get_key_pair_from_bytes};
 use node::primary_node::PrimaryNode;
 use node::execution_state::SimpleExecutionState;
+use fastcrypto::traits::KeyPair as _;
 use network::client::NetworkClient;
 use node::worker_node::WorkerNode;
 use storage::NodeStorage;
-use sui_types::multiaddr::Multiaddr;
-use sui_types::crypto::{get_key_pair_from_bytes, AuthorityKeyPair};
+use mysten_network::Multiaddr;
 use sui_protocol_config::{Chain, ProtocolConfig, ProtocolVersion};
 use mysten_metrics::RegistryService;
 use prometheus::Registry;
@@ -38,10 +37,10 @@ async fn main() {
 }
 
 async fn start_worker(id: u32) -> WorkerNode {
-    let primary_key = get_key_pair_from_bytes::<AuthorityKeyPair>([1; 128].as_slice()).unwrap().1;
-    let network_key = get_key_pair_from_bytes::<NetworkKeyPair>([1; 64].as_slice()).unwrap().1;
+    let primary_key = get_key_pair_from_bytes::<AuthorityKeyPair>([1; 128].as_slice()).unwrap();
+    let network_key = get_key_pair_from_bytes::<NetworkKeyPair>([1; 64].as_slice()).unwrap();
     
-    let worker_key = get_key_pair_from_bytes::<NetworkKeyPair>([11; 64].as_slice()).unwrap().1;
+    let worker_key = get_key_pair_from_bytes::<NetworkKeyPair>([11; 64].as_slice()).unwrap();
 
     let committee = generate_committee();
     //println!("{:?}", committee);
@@ -80,8 +79,8 @@ async fn start_worker(id: u32) -> WorkerNode {
 }
 
 async fn start_primary() -> PrimaryNode {
-    let primary_key = get_key_pair_from_bytes::<AuthorityKeyPair>([1; 128].as_slice()).unwrap().1;
-    let network_key = get_key_pair_from_bytes::<NetworkKeyPair>([1; 64].as_slice()).unwrap().1;
+    let primary_key = get_key_pair_from_bytes::<AuthorityKeyPair>([1; 128].as_slice()).unwrap();
+    let network_key = get_key_pair_from_bytes::<NetworkKeyPair>([1; 64].as_slice()).unwrap();
 
     let committee = generate_committee();
     //println!("{:?}", committee);
@@ -120,24 +119,24 @@ async fn start_primary() -> PrimaryNode {
 fn generate_committee() -> Committee {
     CommitteeBuilder::new(0)
         .add_authority(
-            get_key_pair_from_bytes::<AuthorityKeyPair>([1; 128].as_slice()).unwrap().1.public().clone(),
+            get_key_pair_from_bytes::<AuthorityKeyPair>([1; 128].as_slice()).unwrap().public().clone(),
             100,
             Multiaddr::from_str("/ip4/127.0.0.1/udp/0").unwrap(),
-            get_key_pair_from_bytes::<NetworkKeyPair>([1; 64].as_slice()).unwrap().1.public().clone(),
+            get_key_pair_from_bytes::<NetworkKeyPair>([1; 64].as_slice()).unwrap().public().clone(),
             String::from("/ip4/127.0.0.1/udp/0"),
         )
         .add_authority(
-            get_key_pair_from_bytes::<AuthorityKeyPair>([2; 128].as_slice()).unwrap().1.public().clone(),
+            get_key_pair_from_bytes::<AuthorityKeyPair>([2; 128].as_slice()).unwrap().public().clone(),
             100,
             Multiaddr::from_str("/ip4/127.0.0.1/udp/0").unwrap(),
-            get_key_pair_from_bytes::<NetworkKeyPair>([2; 64].as_slice()).unwrap().1.public().clone(),
+            get_key_pair_from_bytes::<NetworkKeyPair>([2; 64].as_slice()).unwrap().public().clone(),
             String::from("/ip4/127.0.0.1/udp/0"),
         )
         .add_authority(
-            get_key_pair_from_bytes::<AuthorityKeyPair>([3; 128].as_slice()).unwrap().1.public().clone(),
+            get_key_pair_from_bytes::<AuthorityKeyPair>([3; 128].as_slice()).unwrap().public().clone(),
             100,
             Multiaddr::from_str("/ip4/127.0.0.1/udp/0").unwrap(),
-            get_key_pair_from_bytes::<NetworkKeyPair>([3; 64].as_slice()).unwrap().1.public().clone(),
+            get_key_pair_from_bytes::<NetworkKeyPair>([3; 64].as_slice()).unwrap().public().clone(),
             String::from("/ip4/127.0.0.1/udp/0"),
         )
         .build()
@@ -147,12 +146,12 @@ fn generate_workers() -> WorkerCache {
     WorkerCache {
         workers: BTreeMap::from([
             (
-                get_key_pair_from_bytes::<AuthorityKeyPair>([1; 128].as_slice()).unwrap().1.public().clone(),
+                get_key_pair_from_bytes::<AuthorityKeyPair>([1; 128].as_slice()).unwrap().public().clone(),
                 WorkerIndex(BTreeMap::from([
                     (
                         0,
                         WorkerInfo {
-                            name: get_key_pair_from_bytes::<NetworkKeyPair>([1; 64].as_slice()).unwrap().1.public().clone(),
+                            name: get_key_pair_from_bytes::<NetworkKeyPair>([1; 64].as_slice()).unwrap().public().clone(),
                             transactions: Multiaddr::from_str("/ip4/127.0.0.1/tcp/0/http").unwrap(),
                             worker_address: Multiaddr::from_str("/ip4/127.0.0.1/udp/0").unwrap(),
                         },
@@ -160,12 +159,12 @@ fn generate_workers() -> WorkerCache {
                 ]))
             ),
             (
-                get_key_pair_from_bytes::<AuthorityKeyPair>([2; 128].as_slice()).unwrap().1.public().clone(),
+                get_key_pair_from_bytes::<AuthorityKeyPair>([2; 128].as_slice()).unwrap().public().clone(),
                 WorkerIndex(BTreeMap::from([
                     (
                         0,
                         WorkerInfo {
-                            name: get_key_pair_from_bytes::<NetworkKeyPair>([2; 64].as_slice()).unwrap().1.public().clone(),
+                            name: get_key_pair_from_bytes::<NetworkKeyPair>([2; 64].as_slice()).unwrap().public().clone(),
                             transactions: Multiaddr::from_str("/ip4/127.0.0.1/tcp/0/http").unwrap(),
                             worker_address: Multiaddr::from_str("/ip4/127.0.0.1/udp/0").unwrap(),
                         },
@@ -173,12 +172,12 @@ fn generate_workers() -> WorkerCache {
                 ]))
             ),
             (
-                get_key_pair_from_bytes::<AuthorityKeyPair>([3; 128].as_slice()).unwrap().1.public().clone(),
+                get_key_pair_from_bytes::<AuthorityKeyPair>([3; 128].as_slice()).unwrap().public().clone(),
                 WorkerIndex(BTreeMap::from([
                     (
                         0,
                         WorkerInfo {
-                            name: get_key_pair_from_bytes::<NetworkKeyPair>([3; 64].as_slice()).unwrap().1.public().clone(),
+                            name: get_key_pair_from_bytes::<NetworkKeyPair>([3; 64].as_slice()).unwrap().public().clone(),
                             transactions: Multiaddr::from_str("/ip4/127.0.0.1/tcp/0/http").unwrap(),
                             worker_address: Multiaddr::from_str("/ip4/127.0.0.1/udp/0").unwrap(),
                         },

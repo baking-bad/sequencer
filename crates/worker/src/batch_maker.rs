@@ -12,7 +12,7 @@ use mysten_metrics::metered_channel::{Receiver, Sender};
 use mysten_metrics::{monitored_scope, spawn_logged_monitored_task};
 use network::{client::NetworkClient, WorkerToPrimaryClient};
 use std::sync::Arc;
-use store::{rocks::DBMap, Map};
+use typed_store::{rocks::DBMap, Map};
 use sui_protocol_config::ProtocolConfig;
 use tokio::{
     task::JoinHandle,

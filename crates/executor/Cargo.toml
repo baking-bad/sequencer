@@ -30,7 +30,7 @@ crypto = { path = "../crypto", package = "narwhal-crypto" }
 mockall.workspace = true
 
 mysten-metrics.workspace = true
-store.workspace = true
+typed-store.workspace = true
 workspace-hack.workspace = true
 
 [dev-dependencies]

@@ -13,7 +13,7 @@ pub use consensus_store::*;
 pub use node_store::*;
 pub use payload_store::*;
 pub use proposer_store::*;
-use store::TypedStoreError;
+use typed_store::TypedStoreError;
 pub use vote_digest_store::*;
 
 /// Convenience type to propagate store errors.

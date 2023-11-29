@@ -28,7 +28,7 @@ crypto = { path = "../crypto", package = "narwhal-crypto" }
 network = { path = "../network", package = "narwhal-network" }
 types = { path = "../types", package = "narwhal-types" }
 prometheus.workspace = true
-store.workspace = true
+typed-store.workspace = true
 mysten-network.workspace = true
 mysten-metrics.workspace = true
 sui-protocol-config.workspace = true

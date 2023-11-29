@@ -14,7 +14,7 @@ use tap::Tap;
 use crate::StoreResult;
 use config::AuthorityIdentifier;
 use mysten_common::sync::notify_read::NotifyRead;
-use store::{rocks::DBMap, Map, TypedStoreError::RocksDBError};
+use typed_store::{rocks::DBMap, Map, TypedStoreError::RocksDBError};
 use types::{Certificate, CertificateDigest, Round};
 
 #[derive(Clone)]
@@ -728,8 +728,8 @@ mod test {
         collections::{BTreeSet, HashSet},
         time::Instant,
     };
-    use store::rocks::MetricConf;
-    use store::{
+    use typed_store::rocks::MetricConf;
+    use typed_store::{
         reopen,
         rocks::{open_cf, DBMap, ReadWriteOptions},
     };

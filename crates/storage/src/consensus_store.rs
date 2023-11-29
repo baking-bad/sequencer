@@ -4,8 +4,8 @@
 use crate::{NodeStorage, StoreResult};
 use config::AuthorityIdentifier;
 use std::collections::HashMap;
-use store::rocks::{open_cf, DBMap, MetricConf, ReadWriteOptions};
-use store::{reopen, Map, TypedStoreError};
+use typed_store::rocks::{open_cf, DBMap, MetricConf, ReadWriteOptions};
+use typed_store::{reopen, Map, TypedStoreError};
 use tracing::debug;
 use types::{CommittedSubDag, ConsensusCommit, ConsensusCommitV2, Round, SequenceNumber};
 

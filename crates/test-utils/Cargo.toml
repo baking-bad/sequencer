@@ -29,7 +29,7 @@ types = { path = "../types", package = "narwhal-types" }
 worker = { path = "../worker", package = "narwhal-worker" }
 storage = { path = "../storage", package = "narwhal-storage" }
 mysten-metrics.workspace = true
-store.workspace = true
+typed-store.workspace = true
 telemetry-subscribers.workspace = true
 mysten-network.workspace = true
 sui-protocol-config.workspace = true

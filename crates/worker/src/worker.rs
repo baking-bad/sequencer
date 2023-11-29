@@ -30,7 +30,7 @@ use network::metrics::MetricsMakeCallbackHandler;
 use std::collections::HashMap;
 use std::time::Duration;
 use std::{net::Ipv4Addr, sync::Arc, thread::sleep};
-use store::rocks::DBMap;
+use typed_store::rocks::DBMap;
 use sui_protocol_config::ProtocolConfig;
 use tap::TapFallible;
 use tokio::task::JoinHandle;

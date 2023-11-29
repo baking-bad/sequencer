@@ -20,7 +20,7 @@ pub use crate::consensus::metrics::{ChannelMetrics, ConsensusMetrics};
 pub use crate::consensus::state::{Consensus, ConsensusRound, ConsensusState, Dag};
 pub use crate::consensus::utils::gc_round;
 
-use store::StoreError;
+use typed_store::StoreError;
 use thiserror::Error;
 
 use types::Certificate;

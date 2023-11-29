@@ -4,17 +4,17 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-crypto = { path = "../narwhal/crypto", package = "narwhal-crypto" }
-config = { path = "../narwhal/config", package = "narwhal-config" }
-storage = { path = "../narwhal/storage", package = "narwhal-storage" }
-network = { path = "../narwhal/network", package = "narwhal-network" }
-node = { path = "../narwhal/node", package = "narwhal-node" }
-worker = { path = "../narwhal/worker", package = "narwhal-worker" }
+crypto = { path = "../crates/crypto", package = "narwhal-crypto" }
+config = { path = "../crates/config", package = "narwhal-config" }
+storage = { path = "../crates/storage", package = "narwhal-storage" }
+network = { path = "../crates/network", package = "narwhal-network" }
+node = { path = "../crates/node", package = "narwhal-node" }
+worker = { path = "../crates/worker", package = "narwhal-worker" }
+
 fastcrypto.workspace = true
-sui-keys.workspace = true
-sui-types.workspace = true
 sui-protocol-config.workspace = true
 rand.workspace = true
 tokio.workspace = true
 prometheus.workspace = true
 mysten-metrics.workspace = true
+mysten-network.workspace = true

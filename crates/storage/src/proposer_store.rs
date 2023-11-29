@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::StoreResult;
-use store::rocks::{open_cf, MetricConf};
-use store::{reopen, rocks::DBMap, rocks::ReadWriteOptions, Map};
+use typed_store::rocks::{open_cf, MetricConf};
+use typed_store::{reopen, rocks::DBMap, rocks::ReadWriteOptions, Map};
 use sui_macros::fail_point;
 use types::Header;
 
@@ -56,7 +56,7 @@ impl ProposerStore {
 #[cfg(test)]
 mod test {
     use crate::{ProposerStore, LAST_PROPOSAL_KEY};
-    use store::Map;
+    use typed_store::Map;
     use test_utils::{fixture_batch_with_transactions, latest_protocol_version, CommitteeFixture};
     use types::{CertificateDigest, Header, Round};
 
