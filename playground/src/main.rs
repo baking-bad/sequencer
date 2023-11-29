@@ -11,6 +11,7 @@ use fastcrypto::traits::KeyPair as _;
 use node::primary_node::PrimaryNode;
 use node::execution_state::SimpleExecutionState;
 use network::client::NetworkClient;
+use node::worker_node::WorkerNode;
 use storage::NodeStorage;
 use sui_types::multiaddr::Multiaddr;
 use sui_types::crypto::{get_key_pair_from_bytes, AuthorityKeyPair};
@@ -18,18 +19,64 @@ use sui_protocol_config::{Chain, ProtocolConfig, ProtocolVersion};
 use mysten_metrics::RegistryService;
 use prometheus::Registry;
 use tokio::sync::mpsc::channel;
+use tokio::join;
+use worker::TrivialTransactionValidator;
 
 #[tokio::main]
 async fn main() {
     println!("Bonjour, epta!");
 
     let primary = start_primary().await;
-    
     println!("Primary started");
 
-    primary.wait().await;
+    let worker = start_worker(0).await;
+    println!("Worker started");
+
+    join!(primary.wait(), worker.wait());
 
     println!("Exit...");
+}
+
+async fn start_worker(id: u32) -> WorkerNode {
+    let primary_key = get_key_pair_from_bytes::<AuthorityKeyPair>([1; 128].as_slice()).unwrap().1;
+    let network_key = get_key_pair_from_bytes::<NetworkKeyPair>([1; 64].as_slice()).unwrap().1;
+    
+    let worker_key = get_key_pair_from_bytes::<NetworkKeyPair>([11; 64].as_slice()).unwrap().1;
+
+    let committee = generate_committee();
+    //println!("{:?}", committee);
+    
+    let worker_cache = generate_workers();
+    //println!("{:?}", worker_cache);
+
+    let parameters = Parameters::default();
+    //println!("{:?}", parameters);
+
+    let store = NodeStorage::reopen("db/worker", None);
+    
+    let client = NetworkClient::new_from_keypair(&network_key);
+    
+    let worker = WorkerNode::new(
+        id,
+        ProtocolConfig::get_for_version(ProtocolVersion::max(), Chain::Unknown),
+        parameters.clone(),
+        RegistryService::new(Registry::new()),
+    );
+
+    worker.start(
+        primary_key.public().clone(),
+        worker_key,
+        committee,
+        worker_cache,
+        client,
+        &store,
+        TrivialTransactionValidator,
+        None,
+    )
+    .await
+    .unwrap();
+
+    worker
 }
 
 async fn start_primary() -> PrimaryNode {
@@ -45,7 +92,7 @@ async fn start_primary() -> PrimaryNode {
     let parameters = Parameters::default();
     //println!("{:?}", parameters);
 
-    let store = NodeStorage::reopen("db", None);
+    let store = NodeStorage::reopen("db/primary", None);
     
     let client = NetworkClient::new_from_keypair(&network_key);
 

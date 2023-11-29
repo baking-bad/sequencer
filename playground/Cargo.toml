@@ -9,6 +9,7 @@ config = { path = "../narwhal/config", package = "narwhal-config" }
 storage = { path = "../narwhal/storage", package = "narwhal-storage" }
 network = { path = "../narwhal/network", package = "narwhal-network" }
 node = { path = "../narwhal/node", package = "narwhal-node" }
+worker = { path = "../narwhal/worker", package = "narwhal-worker" }
 fastcrypto.workspace = true
 sui-keys.workspace = true
 sui-types.workspace = true
