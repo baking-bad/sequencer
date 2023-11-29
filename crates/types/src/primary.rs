@@ -19,7 +19,6 @@ use fastcrypto::{
     traits::{AggregateAuthenticator, Signer, VerifyingKey},
 };
 use indexmap::IndexMap;
-use mysten_util_mem::MallocSizeOf;
 use once_cell::sync::{Lazy, OnceCell};
 use proptest_derive::Arbitrary;
 use roaring::RoaringBitmap;
@@ -66,7 +65,7 @@ pub fn now() -> TimestampMs {
 
 /// Round number of generated randomness.
 #[derive(
-    Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq, PartialOrd, Ord, MallocSizeOf,
+    Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq, PartialOrd, Ord,
 )]
 pub struct RandomnessRound(pub u64);
 
@@ -107,7 +106,7 @@ impl RandomnessRound {
 // for NON CRITICAL purposes only. For example should not be used
 // for any processes that are part of our protocol that can affect
 // safety or liveness.
-#[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq, Arbitrary, MallocSizeOf)]
+#[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq, Arbitrary)]
 pub struct Metadata {
     // timestamp of when the entity created. This is generated
     // by the node which creates the entity.
@@ -122,7 +121,7 @@ impl Default for Metadata {
 
 // This is a versioned `Metadata` type
 // Refer to comments above the original `Metadata` struct for more details.
-#[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq, Arbitrary, MallocSizeOf)]
+#[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq, Arbitrary)]
 #[enum_dispatch(MetadataAPI)]
 pub enum VersionedMetadata {
     V1(MetadataV1),
@@ -145,7 +144,7 @@ pub trait MetadataAPI {
     fn set_received_at(&mut self, ts: TimestampMs);
 }
 
-#[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq, Arbitrary, MallocSizeOf)]
+#[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq, Arbitrary)]
 pub struct MetadataV1 {
     // timestamp of when the entity created. This is generated
     // by the node which creates the entity.
@@ -348,7 +347,6 @@ pub fn validate_batch_version(
     Hash,
     PartialOrd,
     Ord,
-    MallocSizeOf,
     Arbitrary,
 )]
 pub struct BatchDigest(pub [u8; crypto::DIGEST_LENGTH]);
@@ -415,7 +413,7 @@ impl Hash<{ crypto::DIGEST_LENGTH }> for BatchV2 {
 
 // Messages generated internally by Narwhal that are included in headers for sequencing.
 #[allow(clippy::large_enum_variant)]
-#[derive(Clone, Deserialize, MallocSizeOf, Serialize)]
+#[derive(Clone, Deserialize, Serialize)]
 pub enum SystemMessage {
     // DKG is used to generate keys for use in the random beacon protocol.
     // `DkgMessage` is sent out at start-of-epoch to initiate the process.
@@ -431,7 +429,7 @@ pub enum SystemMessage {
     RandomnessSignature(RandomnessRound, Vec<u8>),
 }
 
-#[derive(Clone, Deserialize, MallocSizeOf, Serialize)]
+#[derive(Clone, Deserialize, Serialize)]
 #[enum_dispatch(HeaderAPI)]
 pub enum Header {
     V1(HeaderV1),
@@ -535,7 +533,7 @@ pub trait HeaderAPI {
     fn clear_parents(&mut self);
 }
 
-#[derive(Builder, Clone, Default, Deserialize, MallocSizeOf, Serialize)]
+#[derive(Builder, Clone, Default, Deserialize, Serialize)]
 #[builder(pattern = "owned", build_fn(skip))]
 pub struct HeaderV1 {
     // Primary that created the header. Must be the same primary that broadcasted the header.
@@ -685,7 +683,7 @@ impl HeaderV1 {
     }
 }
 
-#[derive(Builder, Clone, Default, Deserialize, MallocSizeOf, Serialize)]
+#[derive(Builder, Clone, Default, Deserialize, Serialize)]
 #[builder(pattern = "owned", build_fn(skip))]
 pub struct HeaderV2 {
     // Primary that created the header. Must be the same primary that broadcasted the header.
@@ -871,7 +869,6 @@ impl HeaderV2 {
     Hash,
     PartialOrd,
     Ord,
-    MallocSizeOf,
     Arbitrary,
 )]
 pub struct HeaderDigest([u8; crypto::DIGEST_LENGTH]);
@@ -1122,7 +1119,7 @@ impl PartialEq for Vote {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize, MallocSizeOf)]
+#[derive(Clone, Serialize, Deserialize)]
 #[enum_dispatch(CertificateAPI)]
 pub enum Certificate {
     V1(CertificateV1),
@@ -1255,7 +1252,7 @@ pub trait CertificateAPI {
 }
 
 #[serde_as]
-#[derive(Clone, Serialize, Deserialize, Default, MallocSizeOf)]
+#[derive(Clone, Serialize, Deserialize, Default)]
 pub struct CertificateV1 {
     pub header: Header,
     pub aggregated_signature: AggregateSignatureBytes,
@@ -1488,7 +1485,7 @@ impl CertificateV1 {
 // certificate chain that is formed via the DAG by only verifying the
 // leaves of the certificate chain when they are fetched from validators
 // during catchup.
-#[derive(Clone, Serialize, Deserialize, MallocSizeOf, Debug)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub enum SignatureVerificationState {
     // This state occurs when the certificate has not yet received a quorum of
     // signatures.
@@ -1515,7 +1512,7 @@ impl Default for SignatureVerificationState {
 }
 
 #[serde_as]
-#[derive(Clone, Serialize, Deserialize, Default, MallocSizeOf)]
+#[derive(Clone, Serialize, Deserialize, Default)]
 pub struct CertificateV2 {
     pub header: Header,
     pub signature_verification_state: SignatureVerificationState,
@@ -1828,7 +1825,6 @@ pub fn validate_received_certificate_version(
     Serialize,
     Deserialize,
     Default,
-    MallocSizeOf,
     PartialEq,
     Eq,
     Hash,

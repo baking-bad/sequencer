@@ -18,6 +18,7 @@ rand.workspace = true
 
 [features]
 default = []
+
 [dev-dependencies]
 bincode.workspace = true
 criterion.workspace = true
