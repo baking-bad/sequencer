@@ -16,11 +16,11 @@ parking_lot.workspace = true
 quinn-proto.workspace = true
 prometheus.workspace = true
 rand = { workspace = true, features = ["small_rng"] }
-sui-macros.workspace = true
 tokio = { workspace = true, features = ["rt", "net", "sync", "macros", "time"] }
 tracing.workspace = true
 types = { path = "../types", package = "narwhal-types" }
 crypto = { path = "../crypto", package = "narwhal-crypto" }
+utils = { path = "../utils", package = "narwhal-utils" }
 mysten-common.workspace = true
 mysten-metrics.workspace = true
 

@@ -14,7 +14,7 @@ use network::anemo_ext::NetworkExt;
 use std::sync::Arc;
 use std::time::Duration;
 use storage::CertificateStore;
-use sui_macros::fail_point_async;
+use utils::fail_point_async;
 use sui_protocol_config::ProtocolConfig;
 use tokio::{
     sync::oneshot,

@@ -34,8 +34,8 @@ crypto = { path = "../crypto", package = "narwhal-crypto" }
 network = { path = "../network", package = "narwhal-network" }
 types = { path = "../types", package = "narwhal-types" }
 storage = { path = "../storage", package = "narwhal-storage" }
+utils = { path = "../utils", package = "narwhal-utils" }
 typed-store.workspace = true
-sui-macros.workspace = true
 mysten-network.workspace = true
 sui-protocol-config.workspace = true
 

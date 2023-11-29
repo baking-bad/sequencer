@@ -23,9 +23,11 @@ use fastcrypto::{
 // This re-export allows using the trait-defined APIs
 pub use fastcrypto::traits;
 use serde::Serialize;
-use shared_crypto::intent::{Intent, IntentMessage, IntentScope, INTENT_PREFIX_LENGTH};
 use rand::rngs::StdRng;
 use rand::SeedableRng;
+
+mod intent;
+use crate::intent::{Intent, IntentMessage, IntentScope, INTENT_PREFIX_LENGTH};
 
 ////////////////////////////////////////////////////////////////////////
 /// Type aliases selecting the signature algorithm for the code base.

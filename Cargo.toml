@@ -13,6 +13,7 @@ members = [
     "crates/storage",
     "crates/test-utils",
     "crates/types",
+    "crates/utils",
     "crates/worker",
 ]
 
@@ -126,6 +127,7 @@ roaring = "0.10.1"
 rustversion = "1.0.9"
 serde = { version = "1.0.144", features = ["derive", "rc"] }
 serde-reflection = "0.3.6"
+serde_repr = "0.1"
 serde_json = { version = "1.0.95", features = [
   "preserve_order",
   "arbitrary_precision",
@@ -179,15 +181,14 @@ narwhal-primary = { path = "crates/primary" }
 narwhal-storage = { path = "crates/storage" }
 narwhal-test-utils = { path = "crates/test-utils" }
 narwhal-types = { path = "crates/types" }
+narwhal-utils = { path = "crates/utils" }
 narwhal-worker = { path = "crates/worker" }
 
 # Mysten crates
 mysten-network = { git = "https://github.com/mystenlabs/sui.git", rev = "1d63dfc26b5ce2af1af029d06682b363c9b7e358" }
-shared-crypto = { git = "https://github.com/mystenlabs/sui.git", rev = "1d63dfc26b5ce2af1af029d06682b363c9b7e358" }
 mysten-metrics = { git = "https://github.com/mystenlabs/sui.git", rev = "1d63dfc26b5ce2af1af029d06682b363c9b7e358" }
 sui-protocol-config = { git = "https://github.com/mystenlabs/sui.git", rev = "1d63dfc26b5ce2af1af029d06682b363c9b7e358" }
 telemetry-subscribers = { git = "https://github.com/mystenlabs/sui.git", rev = "1d63dfc26b5ce2af1af029d06682b363c9b7e358" }
 mysten-common = { git = "https://github.com/mystenlabs/sui.git", rev = "1d63dfc26b5ce2af1af029d06682b363c9b7e358" }
-sui-macros = { git = "https://github.com/mystenlabs/sui.git", rev = "1d63dfc26b5ce2af1af029d06682b363c9b7e358" }
 workspace-hack = { git = "https://github.com/mystenlabs/sui.git", rev = "1d63dfc26b5ce2af1af029d06682b363c9b7e358" }
 typed-store = { git = "https://github.com/mystenlabs/sui.git", rev = "1d63dfc26b5ce2af1af029d06682b363c9b7e358" }

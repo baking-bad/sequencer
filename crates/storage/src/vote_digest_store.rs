@@ -6,7 +6,7 @@ use config::AuthorityIdentifier;
 use typed_store::reopen;
 use typed_store::rocks::{open_cf, MetricConf, ReadWriteOptions};
 use typed_store::{rocks::DBMap, Map, TypedStoreError};
-use sui_macros::fail_point;
+use utils::fail_point;
 use types::{Vote, VoteAPI, VoteInfo};
 
 /// The storage for the last votes digests per authority

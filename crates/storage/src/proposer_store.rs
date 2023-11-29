@@ -4,7 +4,7 @@
 use crate::StoreResult;
 use typed_store::rocks::{open_cf, MetricConf};
 use typed_store::{reopen, rocks::DBMap, rocks::ReadWriteOptions, Map};
-use sui_macros::fail_point;
+use utils::fail_point;
 use types::Header;
 
 pub type ProposerKey = u32;
