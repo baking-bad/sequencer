@@ -159,14 +159,12 @@ tracing-subscriber = { version = "0.3.15", default-features = false, features = 
 url = "2.3.1"
 
 # fast crypto dependencies
-fastcrypto = { git = "https://github.com/MystenLabs/fastcrypto", rev = "69180dc7275f5f0efb69e11e9d03f6db338d1dd6" }
+fastcrypto = { git = "https://github.com/MystenLabs/fastcrypto", rev = "69180dc7275f5f0efb69e11e9d03f6db338d1dd6", features = ["copy_key"] }
 fastcrypto-tbls = { git = "https://github.com/MystenLabs/fastcrypto", rev = "69180dc7275f5f0efb69e11e9d03f6db338d1dd6"}
-fastcrypto-zkp = { git = "https://github.com/MystenLabs/fastcrypto", rev = "69180dc7275f5f0efb69e11e9d03f6db338d1dd6", package = "fastcrypto-zkp" }
 
 # anemo dependencies
 anemo = { git = "https://github.com/mystenlabs/anemo.git", rev = "1169850e6af127397068cd86764c29b1d49dbe35" }
 anemo-build = { git = "https://github.com/mystenlabs/anemo.git", rev = "1169850e6af127397068cd86764c29b1d49dbe35" }
-anemo-cli = { git = "https://github.com/mystenlabs/anemo.git", rev = "1169850e6af127397068cd86764c29b1d49dbe35" }
 anemo-tower = { git = "https://github.com/mystenlabs/anemo.git", rev = "1169850e6af127397068cd86764c29b1d49dbe35" }
 
 # narwal crates
@@ -182,7 +180,6 @@ narwhal-types = { path = "crates/types" }
 narwhal-worker = { path = "crates/worker" }
 
 # Mysten crates
-mysten-util-mem = { git = "https://github.com/mystenlabs/sui.git" }
 mysten-network = { git = "https://github.com/mystenlabs/sui.git" }
 shared-crypto = { git = "https://github.com/mystenlabs/sui.git" }
 mysten-metrics = { git = "https://github.com/mystenlabs/sui.git" }

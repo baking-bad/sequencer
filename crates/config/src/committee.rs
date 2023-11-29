@@ -7,7 +7,6 @@ use crypto::{NetworkPublicKey, PublicKey, PublicKeyBytes};
 use fastcrypto::serde_helpers::ToFromByteArray;
 use fastcrypto::traits::{EncodeDecodeBase64, ToFromBytes};
 use mysten_network::Multiaddr;
-use mysten_util_mem::MallocSizeOf;
 use rand::rngs::StdRng;
 use rand::seq::SliceRandom;
 use rand::SeedableRng;
@@ -137,7 +136,6 @@ pub struct Committee {
     Hash,
     Serialize,
     Deserialize,
-    MallocSizeOf,
 )]
 pub struct AuthorityIdentifier(pub u16);
 
