@@ -59,9 +59,6 @@ class CommandMaker:
                 f'--worker-keys {worker_keys} --committee {committee} --workers {workers} --store {store} '
                 f'--parameters {parameters} primary')
         
-./narwhal-node -vvv run --primary-keys keys --primary-network-keys net-keys --worker-keys keys --committee {committee} --workers {workers} --store {store} --parameters {parameters} primary
-
-
     @staticmethod
     def run_worker(primary_keys, primary_network_keys, worker_keys, committee, workers, store, parameters, id, debug=False):
         assert isinstance(primary_keys, str)
@@ -83,7 +80,7 @@ class CommandMaker:
         assert isinstance(rate, int) and rate >= 0
         assert isinstance(nodes, list)
         assert all(isinstance(x, str) for x in nodes)
-        nodes = f'--nodes {" ".join(nodes)}' if nodes else ''
+        nodes = f'{",".join(nodes)}' if nodes else ''
         return f'./narwhal-benchmark-client {address} {size} {rate} {nodes}'
 
     @staticmethod
