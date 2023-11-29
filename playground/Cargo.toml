@@ -12,5 +12,8 @@ node = { path = "../narwhal/node", package = "narwhal-node" }
 fastcrypto.workspace = true
 sui-keys.workspace = true
 sui-types.workspace = true
+sui-protocol-config.workspace = true
 rand.workspace = true
 tokio.workspace = true
+prometheus.workspace = true
+mysten-metrics.workspace = true
