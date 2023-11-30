@@ -22,7 +22,7 @@ use std::num::NonZeroUsize;
 use std::ops::RangeInclusive;
 use std::sync::Arc;
 use storage::ConsensusStore;
-use sui_protocol_config::ProtocolConfig;
+use utils::protocol_config::ProtocolConfig;
 use test_utils::latest_protocol_version;
 use test_utils::mock_certificate_with_rand;
 use test_utils::CommitteeFixture;

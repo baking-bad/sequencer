@@ -2,7 +2,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 use crate::consensus::{
-    metrics::ConsensusMetrics, utils, ConsensusError, ConsensusState, Dag, LeaderSchedule,
+    metrics::ConsensusMetrics, utils as ConsensusUtils, ConsensusError, ConsensusState, Dag, LeaderSchedule,
     LeaderSwapTable, Outcome,
 };
 use config::{Committee, Stake};
@@ -10,7 +10,7 @@ use fastcrypto::hash::Hash;
 use std::collections::VecDeque;
 use std::sync::Arc;
 use storage::ConsensusStore;
-use sui_protocol_config::ProtocolConfig;
+use utils::protocol_config::ProtocolConfig;
 use tokio::time::Instant;
 use tracing::{debug, error_span};
 use types::{Certificate, CertificateAPI, CommittedSubDag, HeaderAPI, ReputationScores, Round};
@@ -268,7 +268,7 @@ impl Bullshark {
             let mut sequence = Vec::new();
 
             // Starting from the oldest leader, flatten the sub-dag referenced by the leader.
-            for x in utils::order_dag(&leader, state) {
+            for x in ConsensusUtils::order_dag(&leader, state) {
                 // Update and clean up internal state.
                 state.update(&x);
 

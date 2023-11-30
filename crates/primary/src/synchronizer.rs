@@ -8,7 +8,7 @@ use crypto::NetworkPublicKey;
 use fastcrypto::hash::Hash as _;
 use futures::{stream::FuturesOrdered, StreamExt};
 use itertools::Itertools;
-use mysten_common::sync::notify_once::NotifyOnce;
+use utils::notify_once::NotifyOnce;
 use mysten_metrics::metered_channel::{channel_with_total, Sender};
 use mysten_metrics::{monitored_scope, spawn_logged_monitored_task};
 use network::{
@@ -27,7 +27,7 @@ use std::{
     time::Duration,
 };
 use storage::{CertificateStore, PayloadStore};
-use sui_protocol_config::ProtocolConfig;
+use utils::protocol_config::ProtocolConfig;
 use tokio::task::spawn_blocking;
 use tokio::time::Instant;
 use tokio::{

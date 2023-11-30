@@ -3,7 +3,7 @@ use std::fmt::{Debug, Display};
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 use async_trait::async_trait;
-use sui_protocol_config::ProtocolConfig;
+use utils::protocol_config::ProtocolConfig;
 use types::Batch;
 
 /// Defines the validation procedure for receiving either a new single transaction (from a client)

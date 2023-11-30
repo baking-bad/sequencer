@@ -29,7 +29,7 @@ use crypto::keypair_file::{
     read_authority_keypair_from_file, read_network_keypair_from_file,
     write_authority_keypair_to_file, write_network_keypair_to_file,
 };
-use sui_protocol_config::{Chain, ProtocolConfig, ProtocolVersion};
+use utils::protocol_config::{Chain, ProtocolConfig, ProtocolVersion};
 use telemetry_subscribers::TelemetryGuards;
 use tokio::sync::mpsc::channel;
 #[cfg(feature = "benchmark")]

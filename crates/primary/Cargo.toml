@@ -37,9 +37,7 @@ storage = { path = "../storage", package = "narwhal-storage" }
 utils = { path = "../utils", package = "narwhal-utils" }
 typed-store.workspace = true
 mysten-network.workspace = true
-sui-protocol-config.workspace = true
 
-mysten-common.workspace = true
 mysten-metrics.workspace = true
 
 anemo.workspace = true

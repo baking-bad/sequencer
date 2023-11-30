@@ -14,7 +14,7 @@ use network::client::NetworkClient;
 use node::worker_node::WorkerNode;
 use storage::NodeStorage;
 use mysten_network::Multiaddr;
-use sui_protocol_config::{Chain, ProtocolConfig, ProtocolVersion};
+use utils::protocol_config::{Chain, ProtocolConfig, ProtocolVersion};
 use mysten_metrics::RegistryService;
 use prometheus::Registry;
 use tokio::sync::mpsc::channel;

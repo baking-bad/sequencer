@@ -5,7 +5,7 @@ use crate::{CertificateDigest, HeaderDigest, Round, TimestampMs, VoteDigest};
 use anemo::PeerId;
 use config::Epoch;
 use fastcrypto::hash::Digest;
-use mysten_common::sync::notify_once::NotifyOnce;
+use utils::notify_once::NotifyOnce;
 use std::sync::Arc;
 use typed_store::StoreError;
 use thiserror::Error;

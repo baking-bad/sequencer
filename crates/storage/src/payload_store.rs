@@ -3,7 +3,7 @@
 
 use crate::{NodeStorage, PayloadToken};
 use config::WorkerId;
-use mysten_common::sync::notify_read::NotifyRead;
+use utils::notify_read::NotifyRead;
 use std::sync::Arc;
 use typed_store::reopen;
 use typed_store::rocks::{open_cf, MetricConf, ReadWriteOptions};

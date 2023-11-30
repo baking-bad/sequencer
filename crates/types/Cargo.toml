@@ -33,13 +33,12 @@ config = { path = "../config", package = "narwhal-config" }
 fastcrypto.workspace = true
 fastcrypto-tbls.workspace = true
 crypto = { path = "../crypto", package = "narwhal-crypto" }
+utils = { path = "../utils", package = "narwhal-utils" }
 anemo.workspace = true
-sui-protocol-config.workspace = true
 once_cell.workspace = true
 
 typed-store.workspace = true
 mysten-metrics.workspace = true
-mysten-common.workspace = true
 mysten-network.workspace = true
 workspace-hack.workspace = true
 

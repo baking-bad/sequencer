@@ -5,8 +5,16 @@ edition = "2021"
 publish = false
 
 [dependencies]
+macros = { path = "../macros", package = "narwhal-macros" }
+clap.workspace = true
+serde.workspace = true
+serde_with.workspace = true
+schemars.workspace = true
+insta.workspace = true
 once_cell.workspace = true
 futures.workspace = true
 tracing.workspace = true
+tokio.workspace = true
+parking_lot.workspace = true
 workspace-hack.workspace = true
 

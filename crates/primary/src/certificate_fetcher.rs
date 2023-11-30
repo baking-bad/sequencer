@@ -18,7 +18,7 @@ use std::{
     time::Duration,
 };
 use storage::CertificateStore;
-use sui_protocol_config::ProtocolConfig;
+use utils::protocol_config::ProtocolConfig;
 use tokio::{
     sync::watch,
     task::{spawn_blocking, JoinHandle, JoinSet},

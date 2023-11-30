@@ -11,7 +11,7 @@ use itertools::Itertools;
 use network::{client::NetworkClient, WorkerToPrimaryClient};
 use std::{collections::HashSet, time::Duration};
 use typed_store::{rocks::DBMap, Map};
-use sui_protocol_config::ProtocolConfig;
+use utils::protocol_config::ProtocolConfig;
 use tracing::{debug, trace};
 use types::{
     now, validate_batch_version, Batch, BatchAPI, BatchDigest, FetchBatchesRequest,

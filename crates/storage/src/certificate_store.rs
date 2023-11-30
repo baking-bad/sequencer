@@ -13,7 +13,7 @@ use tap::Tap;
 
 use crate::StoreResult;
 use config::AuthorityIdentifier;
-use mysten_common::sync::notify_read::NotifyRead;
+use utils::notify_read::NotifyRead;
 use typed_store::{rocks::DBMap, Map, TypedStoreError::RocksDBError};
 use types::{Certificate, CertificateDigest, Round};
 

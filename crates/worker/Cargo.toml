@@ -27,11 +27,11 @@ fastcrypto.workspace = true
 crypto = { path = "../crypto", package = "narwhal-crypto" }
 network = { path = "../network", package = "narwhal-network" }
 types = { path = "../types", package = "narwhal-types" }
+utils = { path = "../utils", package = "narwhal-utils" }
 prometheus.workspace = true
 typed-store.workspace = true
 mysten-network.workspace = true
 mysten-metrics.workspace = true
-sui-protocol-config.workspace = true
 
 anemo.workspace = true
 anemo-tower.workspace = true

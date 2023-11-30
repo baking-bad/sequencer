@@ -16,7 +16,7 @@ use network::anemo_ext::NetworkExt;
 use std::collections::BTreeMap;
 use std::sync::{Arc, OnceLock};
 use std::time::Duration;
-use sui_protocol_config::ProtocolConfig;
+use utils::protocol_config::ProtocolConfig;
 use tap::TapFallible;
 use tokio::sync::watch;
 use tokio::task::JoinHandle;

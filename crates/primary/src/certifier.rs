@@ -15,7 +15,7 @@ use std::sync::Arc;
 use std::time::Duration;
 use storage::CertificateStore;
 use utils::fail_point_async;
-use sui_protocol_config::ProtocolConfig;
+use utils::protocol_config::ProtocolConfig;
 use tokio::{
     sync::oneshot,
     task::{JoinHandle, JoinSet},
