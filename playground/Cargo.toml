@@ -18,3 +18,4 @@ tokio.workspace = true
 prometheus.workspace = true
 mysten-metrics.workspace = true
 mysten-network.workspace = true
+eyre.workspace = true

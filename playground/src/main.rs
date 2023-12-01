@@ -1,12 +1,11 @@
 use std::collections::BTreeMap;
 use std::str::FromStr;
 
-use config::Parameters;
-use config::WorkerCache;
 use config::WorkerIndex;
 use config::WorkerInfo;
-use config::{ChainIdentifier, Committee, CommitteeBuilder};
+use config::{ChainIdentifier, Committee, CommitteeBuilder, Import, Parameters, WorkerCache};
 use crypto::{NetworkKeyPair, AuthorityKeyPair, get_key_pair_from_bytes};
+use eyre::Context;
 use node::primary_node::PrimaryNode;
 use node::execution_state::SimpleExecutionState;
 use fastcrypto::traits::KeyPair as _;
@@ -24,6 +23,10 @@ use worker::TrivialTransactionValidator;
 #[tokio::main]
 async fn main() {
     println!("Bonjour, epta!");
+
+    let mut committee =
+        Committee::import("playground/src/.committee.json").context("Failed to load the committee information").unwrap();
+    committee.load();
 
     let primary = start_primary().await;
     println!("Primary started");
@@ -43,7 +46,7 @@ async fn start_worker(id: u32) -> WorkerNode {
     let worker_key = get_key_pair_from_bytes::<NetworkKeyPair>([11; 64].as_slice()).unwrap();
 
     let committee = generate_committee();
-    //println!("{:?}", committee);
+    println!("{:?}", committee);
     
     let worker_cache = generate_workers();
     //println!("{:?}", worker_cache);
