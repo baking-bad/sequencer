@@ -168,8 +168,8 @@ tracing-subscriber = { version = "0.3.15", default-features = false, features = 
 url = "2.3.1"
 
 # fast crypto dependencies
-fastcrypto = { git = "https://github.com/MystenLabs/fastcrypto", rev = "643831ec3b67bdd2b5f998c0bec1b7c91823351f", features = ["copy_key"] }
-fastcrypto-tbls = { git = "https://github.com/MystenLabs/fastcrypto", rev = "643831ec3b67bdd2b5f998c0bec1b7c91823351f"}
+fastcrypto = { git = "https://github.com/MystenLabs/fastcrypto", rev = "69180dc7275f5f0efb69e11e9d03f6db338d1dd6", features = ["copy_key"] }
+fastcrypto-tbls = { git = "https://github.com/MystenLabs/fastcrypto", rev = "69180dc7275f5f0efb69e11e9d03f6db338d1dd6"}
 
 # anemo dependencies
 anemo = { git = "https://github.com/mystenlabs/anemo.git", rev = "1169850e6af127397068cd86764c29b1d49dbe35" }

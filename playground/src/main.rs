@@ -3,9 +3,8 @@ use std::str::FromStr;
 
 use config::WorkerIndex;
 use config::WorkerInfo;
-use config::{ChainIdentifier, Committee, CommitteeBuilder, Import, Parameters, WorkerCache};
+use config::{ChainIdentifier, Committee, CommitteeBuilder, Parameters, WorkerCache};
 use crypto::{NetworkKeyPair, AuthorityKeyPair, get_key_pair_from_bytes};
-use eyre::Context;
 use node::primary_node::PrimaryNode;
 use node::execution_state::SimpleExecutionState;
 use fastcrypto::traits::KeyPair as _;
@@ -24,10 +23,6 @@ use worker::TrivialTransactionValidator;
 async fn main() {
     println!("Bonjour, epta!");
 
-    let mut committee =
-        Committee::import("playground/src/.committee.json").context("Failed to load the committee information").unwrap();
-    committee.load();
-
     let primary = start_primary().await;
     println!("Primary started");
 
@@ -42,12 +37,12 @@ async fn main() {
 async fn start_worker(id: u32) -> WorkerNode {
     let primary_key = get_key_pair_from_bytes::<AuthorityKeyPair>([1; 128].as_slice()).unwrap();
     let network_key = get_key_pair_from_bytes::<NetworkKeyPair>([1; 64].as_slice()).unwrap();
-    
+
     let worker_key = get_key_pair_from_bytes::<NetworkKeyPair>([11; 64].as_slice()).unwrap();
 
     let committee = generate_committee();
-    println!("{:?}", committee);
-    
+    //println!("{:?}", committee);
+
     let worker_cache = generate_workers();
     //println!("{:?}", worker_cache);
 
@@ -55,9 +50,9 @@ async fn start_worker(id: u32) -> WorkerNode {
     //println!("{:?}", parameters);
 
     let store = NodeStorage::reopen("db/worker", None);
-    
+
     let client = NetworkClient::new_from_keypair(&network_key);
-    
+
     let worker = WorkerNode::new(
         id,
         ProtocolConfig::get_for_version(ProtocolVersion::max(), Chain::Unknown),
