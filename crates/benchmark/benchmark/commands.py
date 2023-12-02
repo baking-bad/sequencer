@@ -41,6 +41,11 @@ class CommandMaker:
         return f'./narwhal-node get-pub-key --filename {filename}'
 
     @staticmethod
+    def get_network_pub_key(filename):
+        assert isinstance(filename, str)
+        return f'./narwhal-node get-network-pub-key --filename {filename}'
+
+    @staticmethod
     def generate_network_key(filename):
         assert isinstance(filename, str)
         return f'./narwhal-node generate-network-keys --filename {filename}'

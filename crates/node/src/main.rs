@@ -66,6 +66,12 @@ enum Commands {
         #[arg(long)]
         filename: PathBuf,
     },
+    /// Get the network public key from a keypair file
+    GetNetworkPubKey {
+        /// The file where the keypair is stored
+        #[arg(long)]
+        filename: PathBuf,
+    },
     /// Run a node
     Run {
         /// The file containing the node's primary keys
@@ -139,7 +145,15 @@ async fn main() -> Result<(), eyre::Report> {
             write_network_keypair_to_file(&network_keypair, filename).unwrap();
         }
         Commands::GetPubKey { filename } => {
-            match read_network_keypair_from_file(filename) {
+
+            match read_authority_keypair_from_file(filename) {
+                Ok(kp) => println!("{:?}", kp.public()),
+                Err(e) => {
+                    println!("Failed to read keypair at path {:?} err: {:?}", filename, e)
+                }
+            }
+
+/*            match read_network_keypair_from_file(filename) {
                 Ok(keypair) => {
                     // Network keypair file is stored as `flag || privkey`.
                     println!("{:?}", keypair.public())
@@ -152,6 +166,14 @@ async fn main() -> Result<(), eyre::Report> {
                             println!("Failed to read keypair at path {:?} err: {:?}", filename, e)
                         }
                     }
+                }
+            }*/
+        }
+        Commands::GetNetworkPubKey { filename } => {
+            match read_network_keypair_from_file(filename) {
+                Ok(kp) => println!("{:?}", kp.public()),
+                Err(e) => {
+                    println!("Failed to read keypair at path {:?} err: {:?}", filename, e)
                 }
             }
         }
