@@ -32,11 +32,7 @@ use crypto::keypair_file::{
 use utils::protocol_config::{Chain, ProtocolConfig, ProtocolVersion};
 use telemetry_subscribers::TelemetryGuards;
 use tokio::sync::mpsc::channel;
-#[cfg(feature = "benchmark")]
-use tracing::subscriber::set_global_default;
 use tracing::{info, warn};
-#[cfg(feature = "benchmark")]
-use tracing_subscriber::filter::{EnvFilter, LevelFilter};
 use worker::TrivialTransactionValidator;
 
 #[derive(Parser)]
@@ -66,6 +62,12 @@ enum Commands {
     },
     /// Get the public key from a keypair file
     GetPubKey {
+        /// The file where the keypair is stored
+        #[arg(long)]
+        filename: PathBuf,
+    },
+    /// Get the network public key from a keypair file
+    GetNetworkPubKey {
         /// The file where the keypair is stored
         #[arg(long)]
         filename: PathBuf,
@@ -143,7 +145,15 @@ async fn main() -> Result<(), eyre::Report> {
             write_network_keypair_to_file(&network_keypair, filename).unwrap();
         }
         Commands::GetPubKey { filename } => {
-            match read_network_keypair_from_file(filename) {
+
+            match read_authority_keypair_from_file(filename) {
+                Ok(kp) => println!("{:?}", kp.public()),
+                Err(e) => {
+                    println!("Failed to read keypair at path {:?} err: {:?}", filename, e)
+                }
+            }
+
+/*            match read_network_keypair_from_file(filename) {
                 Ok(keypair) => {
                     // Network keypair file is stored as `flag || privkey`.
                     println!("{:?}", keypair.public())
@@ -156,6 +166,14 @@ async fn main() -> Result<(), eyre::Report> {
                             println!("Failed to read keypair at path {:?} err: {:?}", filename, e)
                         }
                     }
+                }
+            }*/
+        }
+        Commands::GetNetworkPubKey { filename } => {
+            match read_network_keypair_from_file(filename) {
+                Ok(kp) => println!("{:?}", kp.public()),
+                Err(e) => {
+                    println!("Failed to read keypair at path {:?} err: {:?}", filename, e)
                 }
             }
         }
@@ -194,7 +212,7 @@ async fn main() -> Result<(), eyre::Report> {
             // Moreover, we need RFC 3339 timestamps to parse properly => we use a custom subscriber.
             cfg_if::cfg_if! {
                 if #[cfg(feature = "benchmark")] {
-                    setup_benchmark_telemetry(tracing_level, network_tracing_level)?;
+                    // setup_benchmark_telemetry(tracing_level, network_tracing_level)?;
                 } else {
                     let _guard = setup_telemetry(tracing_level, network_tracing_level, Some(&registry));
                 }
@@ -238,30 +256,6 @@ fn setup_telemetry(
 
     let (guard, _handle) = config.init();
     guard
-}
-
-#[cfg(feature = "benchmark")]
-fn setup_benchmark_telemetry(
-    tracing_level: &str,
-    network_tracing_level: &str,
-) -> Result<(), eyre::Report> {
-    let custom_directive = "narwhal_executor=info";
-    let filter = EnvFilter::builder()
-        .with_default_directive(LevelFilter::INFO.into())
-        .parse(format!(
-            "{tracing_level},h2={network_tracing_level},tower={network_tracing_level},hyper={network_tracing_level},tonic::transport={network_tracing_level},{custom_directive}"
-        ))?;
-
-    let env_filter = EnvFilter::try_from_default_env().unwrap_or(filter);
-
-    let timer = tracing_subscriber::fmt::time::UtcTime::rfc_3339();
-    let subscriber_builder = tracing_subscriber::fmt::Subscriber::builder()
-        .with_env_filter(env_filter)
-        .with_timer(timer)
-        .with_ansi(false);
-    let subscriber = subscriber_builder.with_writer(std::io::stderr).finish();
-    set_global_default(subscriber).expect("Failed to set subscriber");
-    Ok(())
 }
 
 // Runs either a worker or a primary.
