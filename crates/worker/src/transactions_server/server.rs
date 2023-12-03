@@ -193,7 +193,7 @@ impl<M: MetricsCallbackProvider> ServerBuilder<M> {
                 // Protocol::Memory(_) => todo!(),
                 #[cfg(unix)]
                 Protocol::Unix(_) => {
-                    let (path, _http_or_https) = crate::multiaddr::parse_unix(addr)?;
+                    let (path, _http_or_https) = utils::network::parse_unix(addr)?;
                     let uds = tokio::net::UnixListener::bind(path.as_ref())?;
                     let uds_stream = tokio_stream::wrappers::UnixListenerStream::new(uds);
                     let local_addr = addr.to_owned();

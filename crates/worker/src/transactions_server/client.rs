@@ -53,7 +53,7 @@ fn endpoint_from_multiaddr(addr: &Multiaddr) -> Result<MyEndpoint> {
         // Protocol::Memory(_) => todo!(),
         #[cfg(unix)]
         Protocol::Unix(_) => {
-            let (path, http_or_https) = crate::multiaddr::parse_unix(addr)?;
+            let (path, http_or_https) = utils::network::parse_unix(addr)?;
             let uri = format!("{http_or_https}://localhost");
             MyEndpoint::try_from_uri(uri)?.with_uds_connector(path.as_ref().into())
         }
