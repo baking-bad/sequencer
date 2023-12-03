@@ -3,7 +3,7 @@
 use axum::{routing::get, Extension, Router};
 use config::{AuthorityIdentifier, WorkerId};
 use mysten_metrics::{metrics, spawn_logged_monitored_task};
-use mysten_network::multiaddr::Multiaddr;
+use utils::network::Multiaddr;
 use prometheus::Registry;
 use std::collections::HashMap;
 use tokio::task::JoinHandle;

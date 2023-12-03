@@ -14,11 +14,16 @@ bytes.workspace = true
 futures.workspace = true
 governor.workspace = true
 rand = { workspace = true, features = ["small_rng"] }
+multiaddr.workspace = true
+serde.workspace = true
 tap.workspace = true
 thiserror.workspace = true
 tokio = { workspace = true, features = ["sync", "rt", "macros"] }
+tokio-stream.workspace = true
 tonic.workspace = true
+tonic-health.workspace = true
 tower.workspace = true
+tower-http.workspace = true
 tracing.workspace = true
 itertools.workspace = true
 
@@ -27,10 +32,9 @@ fastcrypto.workspace = true
 crypto = { path = "../crypto", package = "narwhal-crypto" }
 network = { path = "../network", package = "narwhal-network" }
 types = { path = "../types", package = "narwhal-types" }
+typed-store = { path = "../typed-store", package = "narwhal-typed-store" }
 utils = { path = "../utils", package = "narwhal-utils" }
 prometheus.workspace = true
-typed-store.workspace = true
-mysten-network.workspace = true
 mysten-metrics.workspace = true
 
 anemo.workspace = true

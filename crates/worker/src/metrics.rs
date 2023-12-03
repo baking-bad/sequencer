@@ -1,6 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
-use mysten_network::metrics::MetricsCallbackProvider;
+use crate::transactions_server::metrics::MetricsCallbackProvider;
 use network::metrics::{NetworkConnectionMetrics, NetworkMetrics};
 use prometheus::{
     default_registry, register_histogram_vec_with_registry, register_histogram_with_registry,

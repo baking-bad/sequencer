@@ -13,11 +13,11 @@ mod batch_maker;
 mod client;
 mod handlers;
 mod quorum_waiter;
-mod transactions_server;
 mod tx_validator;
 mod worker;
 
 pub mod metrics;
+pub mod transactions_server;
 
 pub use crate::client::LocalNarwhalClient;
 pub use crate::tx_validator::{TransactionValidator, TrivialTransactionValidator};

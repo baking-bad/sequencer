@@ -34,9 +34,8 @@ crypto = { path = "../crypto", package = "narwhal-crypto" }
 network = { path = "../network", package = "narwhal-network" }
 types = { path = "../types", package = "narwhal-types" }
 storage = { path = "../storage", package = "narwhal-storage" }
+typed-store = { path = "../typed-store", package = "narwhal-typed-store" }
 utils = { path = "../utils", package = "narwhal-utils" }
-typed-store.workspace = true
-mysten-network.workspace = true
 
 mysten-metrics.workspace = true
 

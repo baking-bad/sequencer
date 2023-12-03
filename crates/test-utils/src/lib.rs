@@ -16,7 +16,7 @@ use fastcrypto::{
     traits::{AllowedRng, KeyPair as _},
 };
 use indexmap::IndexMap;
-use mysten_network::Multiaddr;
+use utils::network::Multiaddr;
 use once_cell::sync::OnceCell;
 use rand::distributions::Bernoulli;
 use rand::distributions::Distribution;

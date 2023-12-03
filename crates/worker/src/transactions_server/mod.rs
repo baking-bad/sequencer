@@ -4,13 +4,13 @@
 use crate::client::LocalNarwhalClient;
 use crate::metrics::WorkerEndpointMetrics;
 use crate::TransactionValidator;
+use crate::transactions_server::server::Server;
 use async_trait::async_trait;
 use futures::stream::FuturesUnordered;
 use futures::StreamExt;
 use mysten_metrics::metered_channel::Sender;
 use mysten_metrics::spawn_logged_monitored_task;
-use mysten_network::server::Server;
-use mysten_network::Multiaddr;
+use utils::network::Multiaddr;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::task::JoinHandle;
@@ -21,6 +21,11 @@ use types::{
     ConditionalBroadcastReceiver, Empty, Transaction, TransactionProto, Transactions,
     TransactionsServer, TxResponse,
 };
+
+pub mod client;
+pub mod config;
+pub mod metrics;
+pub mod server;
 
 pub struct TxServer<V: TransactionValidator> {
     address: Multiaddr,
@@ -72,7 +77,7 @@ impl<V: TransactionValidator> TxServer<V> {
         let mut server: Server;
 
         loop {
-            match mysten_network::config::Config::new()
+            match crate::transactions_server::config::Config::new()
                 .server_builder_with_metrics(self.endpoint_metrics.clone())
                 .add_service(TransactionsServer::new(tx_handler.clone()))
                 .bind(&self.address)

@@ -23,6 +23,7 @@ rand.workspace = true
 roaring.workspace = true
 serde.workspace = true
 serde_with.workspace = true
+snap.workspace = true
 thiserror.workspace = true
 tokio = { workspace = true, features = ["sync", "rt", "macros"] }
 tonic.workspace = true
@@ -33,13 +34,12 @@ config = { path = "../config", package = "narwhal-config" }
 fastcrypto.workspace = true
 fastcrypto-tbls.workspace = true
 crypto = { path = "../crypto", package = "narwhal-crypto" }
+typed-store = { path = "../typed-store", package = "narwhal-typed-store" }
 utils = { path = "../utils", package = "narwhal-utils" }
 anemo.workspace = true
 once_cell.workspace = true
 
-typed-store.workspace = true
 mysten-metrics.workspace = true
-mysten-network.workspace = true
 workspace-hack.workspace = true
 
 [dev-dependencies]

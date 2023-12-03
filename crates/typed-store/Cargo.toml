@@ -1,0 +1,31 @@
+[package]
+name = "narwhal-typed-store"
+version = "0.4.0"
+license = "Apache-2.0"
+authors = ["Francois Garillot <francois@mystenlabs.com>"]
+description = "a typed database interface"
+repository = "https://github.com/mystenlabs/mysten-infra"
+edition = "2021"
+publish = false
+
+[dependencies]
+bcs.workspace = true
+bincode.workspace = true
+eyre.workspace = true
+fdlimit.workspace = true
+once_cell.workspace = true
+tap.workspace = true
+prometheus.workspace = true
+hdrhistogram.workspace = true
+rocksdb.workspace = true
+serde.workspace = true
+thiserror.workspace = true
+tokio = { workspace = true, features = ["full", "test-util"] }
+tracing.workspace = true
+ouroboros.workspace = true
+rand.workspace = true
+async-trait.workspace = true
+itertools.workspace = true
+workspace-hack.workspace = true
+
+utils = { path = "../utils", package = "narwhal-utils" }

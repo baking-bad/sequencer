@@ -26,11 +26,11 @@ storage = { path = "../storage", package = "narwhal-storage" }
 types = { path = "../types", package = "narwhal-types" }
 network = { path = "../network", package = "narwhal-network" }
 crypto = { path = "../crypto", package = "narwhal-crypto" }
+typed-store = { path = "../typed-store", package = "narwhal-typed-store" }
 utils = { path = "../utils", package = "narwhal-utils" }
 mockall.workspace = true
 
 mysten-metrics.workspace = true
-typed-store.workspace = true
 workspace-hack.workspace = true
 
 [dev-dependencies]

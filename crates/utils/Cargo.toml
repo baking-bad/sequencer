@@ -6,7 +6,10 @@ publish = false
 
 [dependencies]
 macros = { path = "../macros", package = "narwhal-macros" }
+anemo.workspace = true
 clap.workspace = true
+eyre.workspace = true
+multiaddr.workspace = true
 serde.workspace = true
 serde_with.workspace = true
 schemars.workspace = true

@@ -45,7 +45,7 @@ use fastcrypto_tbls::{
 };
 use mysten_metrics::metered_channel::{channel_with_total, Receiver, Sender};
 use mysten_metrics::monitored_scope;
-use mysten_network::{multiaddr::Protocol, Multiaddr};
+use utils::network::{Protocol, Multiaddr};
 use network::{
     client::NetworkClient,
     epoch_filter::{AllowedEpoch, EPOCH_HEADER_KEY},

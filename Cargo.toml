@@ -13,6 +13,7 @@ members = [
     "crates/primary",
     "crates/storage",
     "crates/test-utils",
+    "crates/typed-store",
     "crates/types",
     "crates/utils",
     "crates/worker",
@@ -101,6 +102,7 @@ eyre = "0.6.8"
 fdlimit = "0.2.1"
 futures = "0.3.28"
 governor = "0.6.0"
+hdrhistogram = "7.5.1"
 hex-literal = "0.3.4"
 indexmap = { version = "1.9.2", features = ["serde"] }
 insta = { version = "1.21.1", features = ["redactions", "yaml", "json"] }
@@ -108,7 +110,9 @@ itertools = "0.10.5"
 lru = "0.10"
 match_opt = "0.1.2"
 mockall = "0.11.4"
+multiaddr = "0.17.0"
 once_cell = "1.18.0"
+ouroboros = "0.17"
 parking_lot = "0.12.1"
 pretty_assertions = "1.3.0"
 proc-macro2 = "1.0.47"
@@ -127,6 +131,13 @@ reqwest = { version = "0.11.20", default_features = false, features = [
   "rustls-tls",
 ] }
 roaring = "0.10.1"
+rocksdb = { version = "0.21.0", features = [
+  "snappy",
+  "lz4",
+  "zstd",
+  "zlib",
+  "multi-threaded-cf",
+], default-features = false }
 rustversion = "1.0.9"
 serde = { version = "1.0.144", features = ["derive", "rc"] }
 serde-reflection = "0.3.6"
@@ -139,6 +150,7 @@ serde_test = "1.0.147"
 serde_with = { version = "2.1.0", features = ["hex"] }
 serde_yaml = "0.8.26"
 schemars = { version = "0.8.10", features = ["either"] }
+snap = "1.1.0"
 syn = { version = "1.0.104", features = ["full", "derive", "extra-traits"] }
 tap = "1.0.1"
 tempfile = "3.3.0"
@@ -147,12 +159,20 @@ tokio = "1.28.1"
 tokio-stream = { version = "0.1.14", features = ["sync", "net"] }
 tonic = { version = "0.10", features = ["transport", "tls"] }
 tonic-build = { version = "0.10", features = ["prost", "transport"] }
+tonic-health = "0.10"
 tower = { version = "0.4.12", features = [
   "full",
   "util",
   "timeout",
   "load-shed",
   "limit",
+] }
+tower-http = { version = "0.3.4", features = [
+  "cors",
+  "full",
+  "trace",
+  "set-header",
+  "propagate-header",
 ] }
 tracing = "0.1.37"
 tracing-subscriber = { version = "0.3.15", default-features = false, features = [
@@ -186,13 +206,12 @@ narwhal-node = { path = "crates/node" }
 narwhal-primary = { path = "crates/primary" }
 narwhal-storage = { path = "crates/storage" }
 narwhal-test-utils = { path = "crates/test-utils" }
+narwhal-typed-store = { path = "crates/typed-store" }
 narwhal-types = { path = "crates/types" }
 narwhal-utils = { path = "crates/utils" }
 narwhal-worker = { path = "crates/worker" }
 
 # Mysten crates
-mysten-network = { git = "https://github.com/mystenlabs/sui.git", rev = "1d63dfc26b5ce2af1af029d06682b363c9b7e358" }
 mysten-metrics = { git = "https://github.com/mystenlabs/sui.git", rev = "1d63dfc26b5ce2af1af029d06682b363c9b7e358" }
 telemetry-subscribers = { git = "https://github.com/mystenlabs/sui.git", rev = "1d63dfc26b5ce2af1af029d06682b363c9b7e358" }
 workspace-hack = { git = "https://github.com/mystenlabs/sui.git", rev = "1d63dfc26b5ce2af1af029d06682b363c9b7e358" }
-typed-store = { git = "https://github.com/mystenlabs/sui.git", rev = "1d63dfc26b5ce2af1af029d06682b363c9b7e358" }

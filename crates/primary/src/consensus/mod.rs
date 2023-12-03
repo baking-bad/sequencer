@@ -20,7 +20,7 @@ pub use crate::consensus::metrics::{ChannelMetrics, ConsensusMetrics};
 pub use crate::consensus::state::{Consensus, ConsensusRound, ConsensusState, Dag};
 pub use crate::consensus::utils::gc_round;
 
-use typed_store::StoreError;
+use typed_store::TypedStoreError;
 use thiserror::Error;
 
 use types::Certificate;
@@ -34,7 +34,7 @@ pub const NUM_SHUTDOWN_RECEIVERS: u64 = 25;
 #[derive(Clone, Debug, Error, PartialEq)]
 pub enum ConsensusError {
     #[error("Storage failure: {0}")]
-    StoreError(#[from] StoreError),
+    StoreError(#[from] TypedStoreError),
 
     #[error("Certificate {0:?} equivocates with earlier certificate {1:?}")]
     CertificateEquivocation(Certificate, Certificate),

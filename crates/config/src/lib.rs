@@ -11,7 +11,7 @@
 
 use crypto::{NetworkPublicKey, PublicKey};
 use fastcrypto::traits::EncodeDecodeBase64;
-use mysten_network::Multiaddr;
+use ::utils::network::Multiaddr;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use std::{
     collections::{BTreeMap, HashSet},

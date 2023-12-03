@@ -6,7 +6,7 @@ use crate::{CommitteeUpdateError, ConfigError, Epoch, Stake};
 use crypto::{NetworkPublicKey, PublicKey, PublicKeyBytes};
 use fastcrypto::serde_helpers::ToFromByteArray;
 use fastcrypto::traits::{EncodeDecodeBase64, ToFromBytes};
-use mysten_network::Multiaddr;
+use utils::network::Multiaddr;
 use rand::rngs::StdRng;
 use rand::seq::SliceRandom;
 use rand::SeedableRng;
@@ -532,7 +532,7 @@ mod tests {
     use crate::{Authority, Committee};
     use crypto::{KeyPair, NetworkKeyPair, PublicKey};
     use fastcrypto::traits::KeyPair as _;
-    use mysten_network::Multiaddr;
+    use utils::network::Multiaddr;
     use rand::thread_rng;
     use std::collections::BTreeMap;
 

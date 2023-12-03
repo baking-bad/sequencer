@@ -16,7 +16,7 @@ tracing.workspace = true
 fastcrypto.workspace = true
 fastcrypto-tbls.workspace = true
 crypto = { path = "../crypto", package = "narwhal-crypto" }
-mysten-network.workspace = true
+utils = { path = "../utils", package = "narwhal-utils" }
 rand.workspace = true
 workspace-hack.workspace = true
 

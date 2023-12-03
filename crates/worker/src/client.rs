@@ -9,7 +9,7 @@ use std::{
 
 use arc_swap::ArcSwap;
 use mysten_metrics::metered_channel::Sender;
-use mysten_network::{multiaddr::Protocol, Multiaddr};
+use utils::network::{Protocol, Multiaddr};
 use thiserror::Error;
 use tracing::info;
 use types::{Transaction, TxResponse};

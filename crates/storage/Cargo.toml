@@ -14,7 +14,7 @@ futures.workspace = true
 tokio = { workspace = true, features = ["sync", "rt", "macros"] }
 tracing.workspace = true
 types = { path = "../types", package = "narwhal-types" }
-typed-store.workspace = true
+typed-store = { path = "../typed-store", package = "narwhal-typed-store" }
 config = { path = "../config", package = "narwhal-config" }
 utils = { path = "../utils", package = "narwhal-utils" }
 prometheus.workspace = true

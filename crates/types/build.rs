@@ -46,7 +46,7 @@ fn build_anemo_services(out_dir: &Path) {
     let mut automock_attribute = anemo_build::Attributes::default();
     automock_attribute.push_trait(".", r#"#[mockall::automock]"#);
 
-    let codec_path = "mysten_network::codec::anemo::BcsSnappyCodec";
+    let codec_path = "crate::codec::BcsSnappyCodec";
 
     let primary_to_primary = anemo_build::manual::Service::builder()
         .name("PrimaryToPrimary")

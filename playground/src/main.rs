@@ -11,7 +11,7 @@ use fastcrypto::traits::KeyPair as _;
 use network::client::NetworkClient;
 use node::worker_node::WorkerNode;
 use storage::NodeStorage;
-use mysten_network::Multiaddr;
+use utils::network::Multiaddr;
 use utils::protocol_config::{Chain, ProtocolConfig, ProtocolVersion};
 use mysten_metrics::RegistryService;
 use prometheus::Registry;

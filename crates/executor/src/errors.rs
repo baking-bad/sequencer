@@ -3,7 +3,7 @@
 
 use config::WorkerId;
 use std::fmt::Debug;
-use typed_store::StoreError;
+use typed_store::TypedStoreError;
 use thiserror::Error;
 use types::CertificateDigest;
 
@@ -31,7 +31,7 @@ pub enum SubscriberError {
     ClosedChannel(String),
 
     #[error("Storage failure: {0}")]
-    StoreError(#[from] StoreError),
+    StoreError(#[from] TypedStoreError),
 
     #[error("Error occurred while retrieving certificate {0} payload: {1}")]
     PayloadRetrieveError(CertificateDigest, String),

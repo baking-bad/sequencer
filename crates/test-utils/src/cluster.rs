@@ -7,7 +7,7 @@ use executor::SerializedTransaction;
 use fastcrypto::traits::KeyPair as _;
 use itertools::Itertools;
 use mysten_metrics::RegistryService;
-use mysten_network::multiaddr::Multiaddr;
+use utils::network::Multiaddr;
 use network::client::NetworkClient;
 use node::primary_node::PrimaryNode;
 use node::worker_node::WorkerNode;
@@ -746,7 +746,7 @@ impl AuthorityDetails {
     ) -> TransactionsClient<Channel> {
         let internal = self.internal.read().await;
 
-        let config = mysten_network::config::Config::new();
+        let config = worker::transactions_server::config::Config::new();
         let channel = config
             .connect_lazy(
                 &internal

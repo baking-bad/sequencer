@@ -7,7 +7,7 @@ use config::Epoch;
 use fastcrypto::hash::Digest;
 use utils::notify_once::NotifyOnce;
 use std::sync::Arc;
-use typed_store::StoreError;
+use typed_store::TypedStoreError;
 use thiserror::Error;
 
 #[cfg(test)]
@@ -53,7 +53,7 @@ pub enum DagError {
     RandomnessUnavailable,
 
     #[error("Storage failure: {0}")]
-    StoreError(#[from] StoreError),
+    StoreError(#[from] TypedStoreError),
 
     #[error("Invalid header digest")]
     InvalidHeaderDigest,

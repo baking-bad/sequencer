@@ -7,6 +7,8 @@
 #[macro_use]
 pub mod error;
 
+mod codec;
+
 mod consensus;
 pub use consensus::*;
 
