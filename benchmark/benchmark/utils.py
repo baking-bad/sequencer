@@ -21,13 +21,13 @@ class PathMaker:
     @staticmethod
     def binary_path(release=True):
         if release:
-            return join('..', '..', 'target', 'release')
+            return join('..', 'target', 'release')
         else:
-            return join('..', '..', 'target', 'debug')
+            return join('..', 'target', 'debug')
 
     @staticmethod
     def node_crate_path():
-        return join('..', 'node')
+        return join('..', 'crates', 'node')
 
     @staticmethod
     def examples_crate_path():
