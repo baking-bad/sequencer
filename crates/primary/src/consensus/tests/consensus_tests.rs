@@ -7,7 +7,6 @@ use fastcrypto::hash::Hash;
 use prometheus::Registry;
 use storage::NodeStorage;
 use utils::protocol_config::ProtocolConfig;
-use telemetry_subscribers::TelemetryGuards;
 use test_utils::latest_protocol_version;
 use test_utils::{temp_dir, CommitteeFixture};
 use tokio::sync::watch;
@@ -33,7 +32,7 @@ use crate::NUM_SHUTDOWN_RECEIVERS;
 #[tokio::test]
 async fn test_consensus_recovery_with_bullshark() {
     // GIVEN
-    let _guard = setup_tracing();
+    let _guard = utils::tracing::setup_tracing("debug", "info");
     let num_sub_dags_per_schedule = 3;
     let storage = NodeStorage::reopen(temp_dir(), None);
 
@@ -313,20 +312,4 @@ async fn test_consensus_recovery_with_bullshark() {
             .count(),
         4
     );
-}
-
-fn setup_tracing() -> TelemetryGuards {
-    // Setup tracing
-    let tracing_level = "debug";
-    let network_tracing_level = "info";
-
-    let log_filter = format!("{tracing_level},h2={network_tracing_level},tower={network_tracing_level},hyper={network_tracing_level},tonic::transport={network_tracing_level}");
-
-    telemetry_subscribers::TelemetryConfig::new()
-        // load env variables
-        .with_env()
-        // load special log filter
-        .with_log_level(&log_filter)
-        .init()
-        .0
 }

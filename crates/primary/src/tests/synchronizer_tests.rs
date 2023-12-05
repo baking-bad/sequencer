@@ -132,7 +132,7 @@ async fn accept_certificates() {
 #[tokio::test]
 async fn accept_suspended_certificates() {
     const NUM_AUTHORITIES: usize = 4;
-    telemetry_subscribers::init_for_testing();
+    utils::tracing::setup_tracing_for_tests();
     let fixture = CommitteeFixture::builder()
         .randomize_ports(true)
         .committee_size(NonZeroUsize::new(NUM_AUTHORITIES).unwrap())
@@ -872,7 +872,7 @@ async fn sanitize_fetched_certificates() {
 
 #[tokio::test]
 async fn sync_batches_drops_old() {
-    telemetry_subscribers::init_for_testing();
+    utils::tracing::setup_tracing_for_tests();
     let fixture = CommitteeFixture::builder()
         .randomize_ports(true)
         .committee_size(NonZeroUsize::new(4).unwrap())
@@ -959,7 +959,7 @@ async fn gc_suspended_certificates_v1() {
     const NUM_AUTHORITIES: usize = 4;
     const GC_DEPTH: Round = 5;
 
-    telemetry_subscribers::init_for_testing();
+    utils::tracing::setup_tracing_for_tests();
     let fixture = CommitteeFixture::builder()
         .randomize_ports(true)
         .committee_size(NonZeroUsize::new(NUM_AUTHORITIES).unwrap())
@@ -1079,7 +1079,7 @@ async fn gc_suspended_certificates_v2() {
     const NUM_AUTHORITIES: usize = 4;
     const GC_DEPTH: Round = 5;
 
-    telemetry_subscribers::init_for_testing();
+    utils::tracing::setup_tracing_for_tests();
     let fixture = CommitteeFixture::builder()
         .randomize_ports(true)
         .committee_size(NonZeroUsize::new(NUM_AUTHORITIES).unwrap())

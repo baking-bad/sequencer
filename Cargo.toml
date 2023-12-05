@@ -175,6 +175,7 @@ tower-http = { version = "0.3.4", features = [
   "propagate-header",
 ] }
 tracing = "0.1.37"
+tracing-appender = "0.2.2"
 tracing-subscriber = { version = "0.3.15", default-features = false, features = [
   "std",
   "smallvec",
@@ -213,5 +214,4 @@ narwhal-worker = { path = "crates/worker" }
 
 # Mysten crates
 mysten-metrics = { git = "https://github.com/mystenlabs/sui.git", rev = "1d63dfc26b5ce2af1af029d06682b363c9b7e358" }
-telemetry-subscribers = { git = "https://github.com/mystenlabs/sui.git", rev = "1d63dfc26b5ce2af1af029d06682b363c9b7e358" }
 workspace-hack = { git = "https://github.com/mystenlabs/sui.git", rev = "1d63dfc26b5ce2af1af029d06682b363c9b7e358" }

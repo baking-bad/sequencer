@@ -51,7 +51,6 @@ test-utils = { path = "../test-utils", package = "narwhal-test-utils" }
 reqwest.workspace = true
 node = { path = "../node", package = "narwhal-node" }
 primary = { path = "../primary", package = "narwhal-primary" }
-telemetry-subscribers.workspace = true
 storage = { path = "../storage", package = "narwhal-storage" }
 
 [features]

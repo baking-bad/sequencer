@@ -62,7 +62,6 @@ tracing.workspace = true
 worker = { path = "../worker", package = "narwhal-worker" }
 storage = { path = "../storage", package = "narwhal-storage" }
 reqwest.workspace = true
-telemetry-subscribers.workspace = true
 
 [features]
 benchmark = []

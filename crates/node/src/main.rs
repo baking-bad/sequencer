@@ -30,7 +30,6 @@ use crypto::keypair_file::{
     write_authority_keypair_to_file, write_network_keypair_to_file,
 };
 use utils::protocol_config::{Chain, ProtocolConfig, ProtocolVersion};
-use telemetry_subscribers::TelemetryGuards;
 use tokio::sync::mpsc::channel;
 use tracing::{info, warn};
 use worker::TrivialTransactionValidator;
@@ -133,7 +132,7 @@ async fn main() -> Result<(), eyre::Report> {
         _ => "trace",
     };
 
-    let _guard = setup_telemetry(tracing_level, network_tracing_level, None);
+    let _guard = utils::tracing::setup_tracing(tracing_level, network_tracing_level);
 
     match &app.command {
         Commands::GenerateKeys { filename } => {
@@ -208,15 +207,6 @@ async fn main() -> Result<(), eyre::Report> {
                 NodeType::Worker { id } => worker_metrics_registry(*id, authority_id),
             };
 
-            // In benchmarks, transactions are not deserializable => many errors at the debug level
-            // Moreover, we need RFC 3339 timestamps to parse properly => we use a custom subscriber.
-            cfg_if::cfg_if! {
-                if #[cfg(feature = "benchmark")] {
-                    // setup_benchmark_telemetry(tracing_level, network_tracing_level)?;
-                } else {
-                    let _guard = setup_telemetry(tracing_level, network_tracing_level, Some(&registry));
-                }
-            }
             run(
                 subcommand,
                 workers,
@@ -233,29 +223,6 @@ async fn main() -> Result<(), eyre::Report> {
     }
 
     Ok(())
-}
-
-fn setup_telemetry(
-    tracing_level: &str,
-    network_tracing_level: &str,
-    prom_registry: Option<&Registry>,
-) -> TelemetryGuards {
-    let log_filter = format!("{tracing_level},h2={network_tracing_level},tower={network_tracing_level},hyper={network_tracing_level},tonic::transport={network_tracing_level},quinn={network_tracing_level}");
-
-    let config = telemetry_subscribers::TelemetryConfig::new()
-        // load env variables
-        .with_env()
-        // load special log filter
-        .with_log_level(&log_filter);
-
-    let config = if let Some(reg) = prom_registry {
-        config.with_prom_registry(reg)
-    } else {
-        config
-    };
-
-    let (guard, _handle) = config.init();
-    guard
 }
 
 // Runs either a worker or a primary.

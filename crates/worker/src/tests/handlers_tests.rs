@@ -12,7 +12,7 @@ use crate::TrivialTransactionValidator;
 
 #[tokio::test]
 async fn synchronize() {
-    telemetry_subscribers::init_for_testing();
+    utils::tracing::setup_tracing_for_tests();
 
     let latest_protocol_config = latest_protocol_version();
     let fixture = CommitteeFixture::builder().randomize_ports(true).build();
@@ -89,7 +89,7 @@ async fn synchronize() {
 // TODO: Remove once we have removed BatchV1 from the codebase.
 #[tokio::test]
 async fn synchronize_versioned_batches() {
-    telemetry_subscribers::init_for_testing();
+    utils::tracing::setup_tracing_for_tests();
 
     let latest_protocol_config = &latest_protocol_version();
     let fixture = CommitteeFixture::builder().randomize_ports(true).build();
@@ -187,7 +187,7 @@ async fn synchronize_versioned_batches() {
 
 #[tokio::test]
 async fn synchronize_when_batch_exists() {
-    telemetry_subscribers::init_for_testing();
+    utils::tracing::setup_tracing_for_tests();
 
     let fixture = CommitteeFixture::builder().randomize_ports(true).build();
     let committee = fixture.committee();

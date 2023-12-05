@@ -37,7 +37,6 @@ worker = { path = "../worker", package = "narwhal-worker" }
 eyre.workspace = true
 
 mysten-metrics.workspace = true
-telemetry-subscribers.workspace = true
 
 anemo.workspace = true
 reqwest.workspace = true

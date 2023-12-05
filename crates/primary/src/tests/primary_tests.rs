@@ -267,7 +267,7 @@ async fn test_get_network_peers_from_admin_server() {
 
 #[tokio::test(flavor = "current_thread", start_paused = true)]
 async fn test_request_vote_has_missing_parents() {
-    telemetry_subscribers::init_for_testing();
+    utils::tracing::setup_tracing_for_tests();
     const NUM_PARENTS: usize = 10;
     let fixture = CommitteeFixture::builder()
         .randomize_ports(true)
@@ -437,7 +437,7 @@ async fn test_request_vote_has_missing_parents() {
 
 #[tokio::test(flavor = "current_thread", start_paused = true)]
 async fn test_request_vote_accept_missing_parents() {
-    telemetry_subscribers::init_for_testing();
+    utils::tracing::setup_tracing_for_tests();
     const NUM_PARENTS: usize = 10;
     let fixture = CommitteeFixture::builder()
         .randomize_ports(true)
@@ -635,7 +635,7 @@ async fn test_request_vote_accept_missing_parents() {
 
 #[tokio::test]
 async fn test_request_vote_missing_batches() {
-    telemetry_subscribers::init_for_testing();
+    utils::tracing::setup_tracing_for_tests();
     let fixture = CommitteeFixture::builder()
         .randomize_ports(true)
         .committee_size(NonZeroUsize::new(4).unwrap())
@@ -782,7 +782,7 @@ async fn test_request_vote_missing_batches() {
 
 #[tokio::test]
 async fn test_request_vote_already_voted() {
-    telemetry_subscribers::init_for_testing();
+    utils::tracing::setup_tracing_for_tests();
     let fixture = CommitteeFixture::builder()
         .randomize_ports(true)
         .committee_size(NonZeroUsize::new(4).unwrap())
@@ -1346,7 +1346,7 @@ async fn test_fetch_certificates_v2_handler() {
 
 #[tokio::test]
 async fn test_request_vote_created_at_in_future() {
-    telemetry_subscribers::init_for_testing();
+    utils::tracing::setup_tracing_for_tests();
     let fixture = CommitteeFixture::builder()
         .randomize_ports(true)
         .committee_size(NonZeroUsize::new(4).unwrap())

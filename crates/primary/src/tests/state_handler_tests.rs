@@ -11,7 +11,7 @@ use test_utils::CommitteeFixture;
 
 #[tokio::test]
 async fn dkg() {
-    telemetry_subscribers::init_for_testing();
+    utils::tracing::setup_tracing_for_tests();
 
     let fixture = CommitteeFixture::builder()
         .stake_distribution(vec![2500, 2500, 2500, 2500].into())

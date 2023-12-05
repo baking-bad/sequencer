@@ -377,7 +377,6 @@ async fn handle_local_clients_transactions() {
 
 #[tokio::test]
 async fn get_network_peers_from_admin_server() {
-    // telemetry_subscribers::init_for_testing();
     let primary_1_parameters = Parameters {
         batch_size: 200, // Two transactions.
         ..Parameters::default()

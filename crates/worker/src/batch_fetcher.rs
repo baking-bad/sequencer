@@ -354,7 +354,7 @@ mod tests {
     // Case #1: Receive BatchV1 but network is upgraded past v11 so we fail because we expect BatchV2
     #[tokio::test]
     pub async fn test_fetcher_with_batch_v1_and_network_v12() {
-        telemetry_subscribers::init_for_testing();
+        utils::tracing::setup_tracing_for_tests();
         let mut network = TestRequestBatchesNetwork::new();
         let batch_store = test_utils::create_batch_store();
         let latest_protocol_config = latest_protocol_version();

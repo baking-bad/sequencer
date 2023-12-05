@@ -19,7 +19,7 @@ use worker::TrivialTransactionValidator;
 
 #[tokio::test]
 async fn simple_primary_worker_node_start_stop() {
-    telemetry_subscribers::init_for_testing();
+    utils::tracing::setup_tracing_for_tests();
 
     // GIVEN
     let parameters = Parameters::default();
@@ -104,7 +104,7 @@ async fn simple_primary_worker_node_start_stop() {
 
 #[tokio::test]
 async fn primary_node_restart() {
-    telemetry_subscribers::init_for_testing();
+    utils::tracing::setup_tracing_for_tests();
 
     // GIVEN
     let parameters = Parameters::default();

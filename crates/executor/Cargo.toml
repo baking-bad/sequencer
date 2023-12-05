@@ -40,4 +40,3 @@ primary = { path = "../primary", package = "narwhal-primary" }
 node = { path = "../node", package = "narwhal-node" }
 test-utils = { path = "../test-utils", package = "narwhal-test-utils" }
 types = { path = "../types", package = "narwhal-types" }
-telemetry-subscribers.workspace = true
