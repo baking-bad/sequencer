@@ -91,12 +91,12 @@ const ROCKSDB_PROPERTY_TOTAL_BLOB_FILES_SIZE: &CStr =
 ///
 /// We successfully open two different column families.
 /// ```
-/// use typed_store::reopen;
-/// use typed_store::rocks::*;
+/// use narwhal_typed_store::reopen;
+/// use narwhal_typed_store::rocks::*;
 /// use tempfile::tempdir;
 /// use prometheus::Registry;
 /// use std::sync::Arc;
-/// use typed_store::metrics::DBMetrics;
+/// use narwhal_typed_store::metrics::DBMetrics;
 /// use core::fmt::Error;
 ///
 /// #[tokio::main]
@@ -783,20 +783,21 @@ impl<K, V> DBMap<K, V> {
     /// if no column family is passed, the default column family is used.
     ///
     /// ```
-    ///    use typed_store::rocks::*;
-    ///    use typed_store::metrics::DBMetrics;
+    ///    use narwhal_typed_store::rocks::*;
+    ///    use narwhal_typed_store::metrics::DBMetrics;
     ///    use tempfile::tempdir;
     ///    use prometheus::Registry;
     ///    use std::sync::Arc;
     ///    use core::fmt::Error;
+    /// 
     ///    #[tokio::main]
     ///    async fn main() -> Result<(), Error> {
-    ///    /// Open the DB with all needed column families first.
-    ///    let rocks = open_cf(tempdir().unwrap(), None, MetricConf::default(), &["First_CF", "Second_CF"]).unwrap();
-    ///    /// Attach the column families to specific maps.
-    ///    let db_cf_1 = DBMap::<u32,u32>::reopen(&rocks, Some("First_CF"), &ReadWriteOptions::default()).expect("Failed to open storage");
-    ///    let db_cf_2 = DBMap::<u32,u32>::reopen(&rocks, Some("Second_CF"), &ReadWriteOptions::default()).expect("Failed to open storage");
-    ///    Ok(())
+    ///        /// Open the DB with all needed column families first.
+    ///        let rocks = open_cf(tempdir().unwrap(), None, MetricConf::default(), &["First_CF", "Second_CF"]).unwrap();
+    ///        /// Attach the column families to specific maps.
+    ///        let db_cf_1 = DBMap::<u32,u32>::reopen(&rocks, Some("First_CF"), &ReadWriteOptions::default()).expect("Failed to open storage");
+    ///        let db_cf_2 = DBMap::<u32,u32>::reopen(&rocks, Some("Second_CF"), &ReadWriteOptions::default()).expect("Failed to open storage");
+    ///        Ok(())
     ///    }
     /// ```
     #[instrument(level = "debug", skip(db), err)]
@@ -1150,10 +1151,10 @@ impl<K, V> DBMap<K, V> {
 /// with each operation.
 ///
 /// ```
-/// use typed_store::rocks::*;
+/// use narwhal_typed_store::rocks::*;
 /// use tempfile::tempdir;
-/// use typed_store::Map;
-/// use typed_store::metrics::DBMetrics;
+/// use narwhal_typed_store::Map;
+/// use narwhal_typed_store::metrics::DBMetrics;
 /// use prometheus::Registry;
 /// use core::fmt::Error;
 /// use std::sync::Arc;

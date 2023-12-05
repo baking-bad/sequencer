@@ -344,6 +344,7 @@ mod tests {
     use fastcrypto::hash::Hash;
     use fastcrypto::traits::KeyPair;
     use itertools::Itertools;
+    use prometheus::Registry;
     use rand::rngs::StdRng;
     use std::collections::HashMap;
     use test_utils::latest_protocol_version;
@@ -370,7 +371,7 @@ mod tests {
             name: test_pk(0),
             network: Arc::new(network.clone()),
             batch_store: batch_store.clone(),
-            metrics: Arc::new(WorkerMetrics::default()),
+            metrics: Arc::new(WorkerMetrics::new(&Registry::new())),
             protocol_config: latest_protocol_config,
         };
         let fetch_result = timeout(
@@ -400,7 +401,7 @@ mod tests {
             name: test_pk(0),
             network: Arc::new(network.clone()),
             batch_store: batch_store.clone(),
-            metrics: Arc::new(WorkerMetrics::default()),
+            metrics: Arc::new(WorkerMetrics::new(&Registry::new())),
             protocol_config: latest_protocol_version(),
         };
         let mut expected_batches = HashMap::from_iter(vec![
@@ -452,7 +453,7 @@ mod tests {
             name: test_pk(0),
             network: Arc::new(network.clone()),
             batch_store: batch_store.clone(),
-            metrics: Arc::new(WorkerMetrics::default()),
+            metrics: Arc::new(WorkerMetrics::new(&Registry::new())),
             protocol_config: latest_protocol_version(),
         };
         let mut expected_batches = HashMap::from_iter(vec![
@@ -503,7 +504,7 @@ mod tests {
             name: test_pk(0),
             network: Arc::new(network.clone()),
             batch_store,
-            metrics: Arc::new(WorkerMetrics::default()),
+            metrics: Arc::new(WorkerMetrics::new(&Registry::new())),
             protocol_config: latest_protocol_version(),
         };
         let expected_batches = HashMap::from_iter(vec![
@@ -535,7 +536,7 @@ mod tests {
             name: test_pk(0),
             network: Arc::new(network.clone()),
             batch_store,
-            metrics: Arc::new(WorkerMetrics::default()),
+            metrics: Arc::new(WorkerMetrics::new(&Registry::new())),
             protocol_config: latest_protocol_version(),
         };
         let mut expected_batches = HashMap::from_iter(vec![
@@ -577,7 +578,7 @@ mod tests {
             name: test_pk(0),
             network: Arc::new(network.clone()),
             batch_store,
-            metrics: Arc::new(WorkerMetrics::default()),
+            metrics: Arc::new(WorkerMetrics::new(&Registry::new())),
             protocol_config: latest_protocol_version(),
         };
         let mut expected_batches = HashMap::from_iter(vec![
@@ -639,7 +640,7 @@ mod tests {
             name: test_pk(0),
             network: Arc::new(network.clone()),
             batch_store,
-            metrics: Arc::new(WorkerMetrics::default()),
+            metrics: Arc::new(WorkerMetrics::new(&Registry::new())),
             protocol_config: latest_protocol_version(),
         };
         let mut fetched_batches = fetcher.fetch(digests, known_workers).await;

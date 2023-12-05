@@ -32,4 +32,3 @@ utils = { path = "../utils", package = "narwhal-utils" }
 storage = { path = "../storage", package = "narwhal-storage" }
 
 anemo.workspace = true
-workspace-hack.workspace = true

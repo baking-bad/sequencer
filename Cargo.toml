@@ -2,8 +2,6 @@
 resolver = "2"
 
 members = [
-    "playground",
-
     "crates/config",
     "crates/crypto",
     "crates/executor",
@@ -17,6 +15,8 @@ members = [
     "crates/types",
     "crates/utils",
     "crates/worker",
+    
+    "playground",
 ]
 
 [workspace.package]
@@ -90,11 +90,6 @@ byteorder = "1.4.3"
 bytes = "1.4.0"
 cfg-if = "1.0.0"
 clap = { version = "4.4", features = ["derive", "wrap_help"] }
-criterion = { version = "0.5.0", features = [
-  "async",
-  "async_tokio",
-  "html_reports",
-] }
 dashmap = "5.4.0"
 derive_builder = "0.12.0"
 enum_dispatch = "^0.3"
@@ -103,9 +98,7 @@ fdlimit = "0.2.1"
 futures = "0.3.28"
 governor = "0.6.0"
 hdrhistogram = "7.5.1"
-hex-literal = "0.3.4"
 indexmap = { version = "1.9.2", features = ["serde"] }
-insta = { version = "1.21.1", features = ["redactions", "yaml", "json"] }
 itertools = "0.10.5"
 lru = "0.10"
 match_opt = "0.1.2"
@@ -213,6 +206,3 @@ narwhal-typed-store = { path = "crates/typed-store" }
 narwhal-types = { path = "crates/types" }
 narwhal-utils = { path = "crates/utils" }
 narwhal-worker = { path = "crates/worker" }
-
-# Mysten crates
-workspace-hack = { git = "https://github.com/mystenlabs/sui.git", rev = "1d63dfc26b5ce2af1af029d06682b363c9b7e358" }

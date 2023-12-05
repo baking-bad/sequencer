@@ -39,10 +39,7 @@ utils = { path = "../utils", package = "narwhal-utils" }
 anemo.workspace = true
 once_cell.workspace = true
 
-workspace-hack.workspace = true
-
 [dev-dependencies]
-criterion.workspace = true
 serde_test.workspace = true
 test-utils = { path = "../test-utils", package = "narwhal-test-utils" }
 

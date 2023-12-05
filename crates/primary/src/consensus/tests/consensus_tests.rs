@@ -32,7 +32,7 @@ use crate::NUM_SHUTDOWN_RECEIVERS;
 #[tokio::test]
 async fn test_consensus_recovery_with_bullshark() {
     // GIVEN
-    let _guard = utils::tracing::setup_tracing("debug", "info");
+    let _guard = utils::tracing::setup_tracing_for_tests();
     let num_sub_dags_per_schedule = 3;
     let storage = NodeStorage::reopen(temp_dir(), None);
 

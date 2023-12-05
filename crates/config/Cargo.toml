@@ -18,10 +18,8 @@ fastcrypto-tbls.workspace = true
 crypto = { path = "../crypto", package = "narwhal-crypto" }
 utils = { path = "../utils", package = "narwhal-utils" }
 rand.workspace = true
-workspace-hack.workspace = true
 
 [dev-dependencies]
-insta.workspace = true
 rand.workspace = true
 tempfile.workspace = true
 

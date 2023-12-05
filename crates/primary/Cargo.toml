@@ -39,14 +39,12 @@ utils = { path = "../utils", package = "narwhal-utils" }
 
 anemo.workspace = true
 anemo-tower.workspace = true
-workspace-hack.workspace = true
 
 [dev-dependencies]
 dashmap.workspace = true
 arc-swap.workspace = true
 async-trait.workspace = true
 bincode.workspace = true
-criterion.workspace = true
 futures.workspace = true
 executor = { path = "../executor", package = "narwhal-executor" }
 indexmap.workspace = true
