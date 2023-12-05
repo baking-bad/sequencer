@@ -13,7 +13,7 @@ use config::{ChainIdentifier, Committee, Import, Parameters, WorkerCache, Worker
 use crypto::{KeyPair, NetworkKeyPair, AuthorityKeyPair, get_key_pair_from_rng};
 use eyre::Context;
 use fastcrypto::traits::KeyPair as _;
-use mysten_metrics::RegistryService;
+use utils::metrics::RegistryService;
 use narwhal_node as node;
 use narwhal_node::primary_node::PrimaryNode;
 use narwhal_node::worker_node::WorkerNode;

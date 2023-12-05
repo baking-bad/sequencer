@@ -9,8 +9,8 @@ use fastcrypto::hash::Hash as _;
 use futures::{stream::FuturesOrdered, StreamExt};
 use itertools::Itertools;
 use utils::notify_once::NotifyOnce;
-use mysten_metrics::metered_channel::{channel_with_total, Sender};
-use mysten_metrics::{monitored_scope, spawn_logged_monitored_task};
+use utils::metered_channel::{channel_with_total, Sender};
+use utils::{metrics::monitored_scope, spawn_logged_monitored_task};
 use network::{
     anemo_ext::{NetworkExt, WaitingPeer},
     client::NetworkClient,

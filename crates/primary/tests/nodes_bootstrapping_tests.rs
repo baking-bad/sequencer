@@ -2,14 +2,14 @@
 // SPDX-License-Identifier: Apache-2.0
 use bytes::Bytes;
 use std::time::Duration;
-use test_utils::cluster::{setup_tracing, Cluster};
+use test_utils::cluster::Cluster;
 use types::TransactionProto;
 
 #[tokio::test(flavor = "current_thread", start_paused = true)]
 async fn test_response_error_after_shutdown_internal_consensus() {
     // Enabled debug tracing so we can easily observe the
     // nodes logs.
-    let _guard = setup_tracing();
+    let _guard = utils::tracing::setup_tracing("debug", "info");
 
     let delay = Duration::from_secs(10); // 10 seconds
 
@@ -56,7 +56,7 @@ async fn test_response_error_after_shutdown_internal_consensus() {
 async fn test_node_staggered_starts() {
     // Enabled debug tracing so we can easily observe the
     // nodes logs.
-    let _guard = setup_tracing();
+    let _guard = utils::tracing::setup_tracing("debug", "info");
 
     let node_staggered_delay = Duration::from_secs(60 * 2); // 2 minutes
 
@@ -104,7 +104,7 @@ async fn test_node_staggered_starts() {
 #[ignore]
 #[tokio::test]
 async fn test_full_outage_and_recovery() {
-    let _guard = setup_tracing();
+    let _guard = utils::tracing::setup_tracing("debug", "info");
 
     let stop_and_start_delay = Duration::from_secs(12);
     let node_advance_delay = Duration::from_secs(60);
@@ -155,7 +155,7 @@ async fn test_full_outage_and_recovery() {
 async fn test_second_node_restart() {
     // Enabled debug tracing so we can easily observe the
     // nodes logs.
-    let _guard = setup_tracing();
+    let _guard = utils::tracing::setup_tracing("debug", "info");
 
     let restart_delay = Duration::from_secs(120);
     let node_advance_delay = Duration::from_secs(60);
@@ -198,7 +198,7 @@ async fn test_second_node_restart() {
 async fn test_loss_of_liveness_without_recovery() {
     // Enabled debug tracing so we can easily observe the
     // nodes logs.
-    let _guard = setup_tracing();
+    let _guard = utils::tracing::setup_tracing("debug", "info");
 
     let node_advance_delay = Duration::from_secs(60);
 
@@ -252,7 +252,7 @@ async fn test_loss_of_liveness_without_recovery() {
 async fn test_loss_of_liveness_with_recovery() {
     // Enabled debug tracing so we can easily observe the
     // nodes logs.
-    let _guard = setup_tracing();
+    let _guard = utils::tracing::setup_tracing("debug", "info");
 
     let node_advance_delay = Duration::from_secs(60);
 

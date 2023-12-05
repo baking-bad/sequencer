@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 use bytes::Bytes;
 use std::time::Duration;
-use test_utils::cluster::{setup_tracing, Cluster};
+use test_utils::cluster::Cluster;
 use tracing::info;
 use types::TransactionProto;
 
@@ -13,7 +13,7 @@ type StringTransaction = String;
 async fn test_restore_from_disk() {
     // Enabled debug tracing so we can easily observe the
     // nodes logs.
-    let _guard = setup_tracing();
+    let _guard = utils::tracing::setup_tracing("debug", "info");
 
     let mut cluster = Cluster::new(None);
 
@@ -100,7 +100,7 @@ async fn test_read_causal_signed_certificates() {
 
     // Enabled debug tracing so we can easily observe the
     // nodes logs.
-    let _guard = setup_tracing();
+    let _guard = utils::tracing::setup_tracing("debug", "info");
 
     let mut cluster = Cluster::new(None);
 

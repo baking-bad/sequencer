@@ -5,7 +5,7 @@ use futures::{stream::FuturesUnordered, StreamExt};
 use prometheus::IntGauge;
 
 use super::DagError;
-use mysten_metrics::metered_channel::{channel, Receiver, Sender, WithPermit};
+use utils::metered_channel::{channel, Receiver, Sender, WithPermit};
 use std::{future, time::Duration};
 
 pub struct Processor {

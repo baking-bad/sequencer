@@ -3,7 +3,7 @@
 
 use config::{ChainIdentifier, Parameters};
 use fastcrypto::traits::KeyPair;
-use mysten_metrics::RegistryService;
+use utils::metrics::RegistryService;
 use narwhal_node::execution_state::SimpleExecutionState;
 use narwhal_node::primary_node::PrimaryNode;
 use narwhal_node::worker_node::WorkerNodes;

@@ -13,7 +13,7 @@ use node::worker_node::WorkerNode;
 use storage::NodeStorage;
 use utils::network::Multiaddr;
 use utils::protocol_config::{Chain, ProtocolConfig, ProtocolVersion};
-use mysten_metrics::RegistryService;
+use utils::metrics::RegistryService;
 use prometheus::Registry;
 use tokio::sync::mpsc::channel;
 use tokio::join;

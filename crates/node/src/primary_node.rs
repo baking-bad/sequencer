@@ -7,8 +7,8 @@ use config::{AuthorityIdentifier, ChainIdentifier, Committee, Parameters, Worker
 use crypto::{KeyPair, NetworkKeyPair, PublicKey};
 use executor::{get_restored_consensus_output, ExecutionState, Executor, SubscriberResult};
 use fastcrypto::traits::{KeyPair as _, VerifyingKey};
-use mysten_metrics::metered_channel;
-use mysten_metrics::{RegistryID, RegistryService};
+use utils::metered_channel;
+use utils::metrics::{RegistryID, RegistryService};
 use network::client::NetworkClient;
 use primary::consensus::{
     Bullshark, ChannelMetrics, Consensus, ConsensusMetrics, ConsensusRound, LeaderSchedule,

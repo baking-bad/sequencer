@@ -139,6 +139,7 @@ rocksdb = { version = "0.21.0", features = [
   "multi-threaded-cf",
 ], default-features = false }
 rustversion = "1.0.9"
+scopeguard = "1.1"
 serde = { version = "1.0.144", features = ["derive", "rc"] }
 serde-reflection = "0.3.6"
 serde_repr = "0.1"
@@ -187,6 +188,7 @@ tracing-subscriber = { version = "0.3.15", default-features = false, features = 
   "env-filter",
 ] }
 url = "2.3.1"
+uuid = { version = "1.1.2", features = ["v4", "fast-rng"] }
 
 # fast crypto dependencies
 fastcrypto = { git = "https://github.com/MystenLabs/fastcrypto", rev = "69180dc7275f5f0efb69e11e9d03f6db338d1dd6", features = ["copy_key"] }
@@ -213,5 +215,4 @@ narwhal-utils = { path = "crates/utils" }
 narwhal-worker = { path = "crates/worker" }
 
 # Mysten crates
-mysten-metrics = { git = "https://github.com/mystenlabs/sui.git", rev = "1d63dfc26b5ce2af1af029d06682b363c9b7e358" }
 workspace-hack = { git = "https://github.com/mystenlabs/sui.git", rev = "1d63dfc26b5ce2af1af029d06682b363c9b7e358" }

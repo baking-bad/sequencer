@@ -37,8 +37,6 @@ storage = { path = "../storage", package = "narwhal-storage" }
 typed-store = { path = "../typed-store", package = "narwhal-typed-store" }
 utils = { path = "../utils", package = "narwhal-utils" }
 
-mysten-metrics.workspace = true
-
 anemo.workspace = true
 anemo-tower.workspace = true
 workspace-hack.workspace = true

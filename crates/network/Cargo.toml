@@ -21,7 +21,6 @@ tracing.workspace = true
 types = { path = "../types", package = "narwhal-types" }
 crypto = { path = "../crypto", package = "narwhal-crypto" }
 utils = { path = "../utils", package = "narwhal-utils" }
-mysten-metrics.workspace = true
 
 anemo.workspace = true
 anemo-tower.workspace = true

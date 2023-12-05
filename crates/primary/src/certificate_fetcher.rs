@@ -8,8 +8,8 @@ use config::{AuthorityIdentifier, Committee};
 use crypto::NetworkPublicKey;
 use futures::{stream::FuturesUnordered, StreamExt};
 use itertools::Itertools;
-use mysten_metrics::metered_channel::Receiver;
-use mysten_metrics::{monitored_future, monitored_scope, spawn_logged_monitored_task};
+use utils::metered_channel::Receiver;
+use utils::{monitored_future, metrics::monitored_scope, spawn_logged_monitored_task};
 use network::PrimaryToPrimaryRpc;
 use rand::{rngs::ThreadRng, seq::SliceRandom};
 use std::{

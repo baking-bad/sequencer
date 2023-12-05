@@ -20,8 +20,8 @@ use anemo_tower::{
 use anemo_tower::{rate_limit, set_header::SetResponseHeaderLayer};
 use config::{Authority, AuthorityIdentifier, Committee, Parameters, WorkerCache, WorkerId};
 use crypto::{traits::KeyPair as _, NetworkKeyPair, NetworkPublicKey};
-use mysten_metrics::metered_channel::channel_with_total;
-use mysten_metrics::spawn_logged_monitored_task;
+use utils::metered_channel::channel_with_total;
+use utils::spawn_logged_monitored_task;
 use utils::network::{Protocol, Multiaddr};
 use network::client::NetworkClient;
 use network::epoch_filter::{AllowedEpoch, EPOCH_HEADER_KEY};

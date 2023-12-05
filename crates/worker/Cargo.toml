@@ -35,7 +35,6 @@ types = { path = "../types", package = "narwhal-types" }
 typed-store = { path = "../typed-store", package = "narwhal-typed-store" }
 utils = { path = "../utils", package = "narwhal-utils" }
 prometheus.workspace = true
-mysten-metrics.workspace = true
 
 anemo.workspace = true
 anemo-tower.workspace = true

@@ -6,7 +6,7 @@ use anemo::types::PeerEvent;
 use anemo::PeerId;
 use dashmap::DashMap;
 use futures::future;
-use mysten_metrics::spawn_logged_monitored_task;
+use utils::spawn_logged_monitored_task;
 use quinn_proto::ConnectionStats;
 use std::collections::HashMap;
 use std::sync::Arc;

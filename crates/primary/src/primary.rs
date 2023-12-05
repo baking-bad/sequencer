@@ -43,8 +43,8 @@ use fastcrypto_tbls::{
     tbls::ThresholdBls,
     types::{PublicVssKey, ThresholdBls12381MinSig},
 };
-use mysten_metrics::metered_channel::{channel_with_total, Receiver, Sender};
-use mysten_metrics::monitored_scope;
+use utils::metered_channel::{channel_with_total, Receiver, Sender};
+use utils::metrics::monitored_scope;
 use utils::network::{Protocol, Multiaddr};
 use network::{
     client::NetworkClient,

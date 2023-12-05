@@ -9,8 +9,8 @@ use crate::consensus::utils::gc_round;
 use crate::consensus::{metrics::ConsensusMetrics, ConsensusError};
 use config::{AuthorityIdentifier, Committee};
 use fastcrypto::hash::Hash;
-use mysten_metrics::metered_channel;
-use mysten_metrics::spawn_logged_monitored_task;
+use utils::metered_channel;
+use utils::spawn_logged_monitored_task;
 use std::fmt::Debug;
 use std::{
     cmp::{max, Ordering},

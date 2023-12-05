@@ -8,7 +8,7 @@ use std::{
 };
 
 use arc_swap::ArcSwap;
-use mysten_metrics::metered_channel::Sender;
+use utils::metered_channel::Sender;
 use utils::network::{Protocol, Multiaddr};
 use thiserror::Error;
 use tracing::info;

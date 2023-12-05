@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use axum::{extract::Extension, http::StatusCode, routing::get, Json, Router};
-use mysten_metrics::{spawn_logged_monitored_task, spawn_monitored_task};
+use utils::{spawn_logged_monitored_task, spawn_monitored_task};
 use std::net::{IpAddr, Ipv4Addr, SocketAddr, TcpListener};
 use std::time::Duration;
 use tokio::task::JoinHandle;

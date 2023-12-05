@@ -16,7 +16,7 @@ use crate::subscriber::spawn_subscriber;
 use async_trait::async_trait;
 use config::{AuthorityIdentifier, Committee, WorkerCache};
 use mockall::automock;
-use mysten_metrics::metered_channel;
+use utils::metered_channel;
 use network::client::NetworkClient;
 use prometheus::Registry;
 use std::sync::Arc;

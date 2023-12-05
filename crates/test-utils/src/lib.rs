@@ -79,7 +79,7 @@ pub fn ensure_test_environment() {
 #[macro_export]
 macro_rules! test_channel {
     ($e:expr) => {
-        mysten_metrics::metered_channel::channel(
+        utils::metered_channel::channel(
             $e,
             &prometheus::IntGauge::new("TEST_COUNTER", "test counter").unwrap(),
         );
@@ -99,7 +99,7 @@ macro_rules! test_channel {
 #[macro_export]
 macro_rules! test_committed_certificates_channel {
     ($e:expr) => {
-        mysten_metrics::metered_channel::channel(
+        utils::metered_channel::channel(
             $e,
             &prometheus::IntGauge::new(
                 primary::PrimaryChannelMetrics::NAME_COMMITTED_CERTS,
@@ -113,7 +113,7 @@ macro_rules! test_committed_certificates_channel {
 #[macro_export]
 macro_rules! test_new_certificates_channel {
     ($e:expr) => {
-        mysten_metrics::metered_channel::channel(
+        utils::metered_channel::channel(
             $e,
             &prometheus::IntGauge::new(
                 primary::PrimaryChannelMetrics::NAME_NEW_CERTS,
