@@ -9,10 +9,14 @@ config = { path = "../crates/config", package = "narwhal-config" }
 storage = { path = "../crates/storage", package = "narwhal-storage" }
 network = { path = "../crates/network", package = "narwhal-network" }
 node = { path = "../crates/node", package = "narwhal-node" }
+test_utils = { path = "../crates/test-utils", package = "narwhal-test-utils" }
+types = { path = "../crates/types", package = "narwhal-types" }
 utils = { path = "../crates/utils", package = "narwhal-utils" }
 worker = { path = "../crates/worker", package = "narwhal-worker" }
 
 fastcrypto.workspace = true
+bytes.workspace = true
+bcs.workspace = true
 rand.workspace = true
 tokio.workspace = true
 prometheus.workspace = true

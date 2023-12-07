@@ -1,5 +1,6 @@
 use std::collections::BTreeMap;
 use std::str::FromStr;
+use std::time::Duration;
 
 use config::WorkerIndex;
 use config::WorkerInfo;
@@ -16,24 +17,55 @@ use utils::protocol_config::{Chain, ProtocolConfig, ProtocolVersion};
 use utils::metrics::RegistryService;
 use prometheus::Registry;
 use tokio::sync::mpsc::channel;
-use tokio::join;
 use worker::TrivialTransactionValidator;
+use test_utils::cluster::Cluster;
+use types::TransactionProto;
+use bytes::Bytes;
 
 #[tokio::main]
 async fn main() {
     println!("Bonjour, epta!");
 
-    let primary = start_primary().await;
-    println!("Primary started");
+    let _guard = utils::tracing::setup_tracing("info", "info");
 
-    let worker = start_worker(0).await;
-    println!("Worker started");
+    let mut cluster = Cluster::new(Some(Parameters::default()));
 
-    join!(primary.wait(), worker.wait());
+    cluster.start(Some(4), Some(1), Some(Duration::from_millis(100))).await;
 
-    println!("Exit...");
+    let client = cluster.authority(0).new_transactions_client(&0).await;
+    
+    let mut receiver = cluster
+        .authority(0)
+        .primary()
+        .await
+        .tx_transaction_confirmation
+        .subscribe();
+    
+    let mut c = client.clone();
+    tokio::spawn(async move {
+        let tx = TransactionProto {
+            transaction: Bytes::from(bcs::to_bytes("qwerty").unwrap()),
+        };
+        c.submit_transaction(tx).await.unwrap();
+    });
+
+    if let Ok(result) = receiver.recv().await {
+        println!("Confirmed: {result:?}");
+    }
+    else {
+        println!("Failed to receive tx");
+    }
+    
+    tokio::time::sleep(Duration::from_secs(1)).await;
+
+    for node in cluster.authorities().await {
+        cluster.stop_node(node.id).await;
+    }
+
+    println!("Exited");
 }
 
+#[allow(dead_code)]
 async fn start_worker(id: u32) -> WorkerNode {
     let primary_key = get_key_pair_from_bytes::<AuthorityKeyPair>([1; 128].as_slice()).unwrap();
     let network_key = get_key_pair_from_bytes::<NetworkKeyPair>([1; 64].as_slice()).unwrap();
@@ -76,6 +108,7 @@ async fn start_worker(id: u32) -> WorkerNode {
     worker
 }
 
+#[allow(dead_code)]
 async fn start_primary() -> PrimaryNode {
     let primary_key = get_key_pair_from_bytes::<AuthorityKeyPair>([1; 128].as_slice()).unwrap();
     let network_key = get_key_pair_from_bytes::<NetworkKeyPair>([1; 64].as_slice()).unwrap();
@@ -114,6 +147,7 @@ async fn start_primary() -> PrimaryNode {
     primary
 }
 
+#[allow(dead_code)]
 fn generate_committee() -> Committee {
     CommitteeBuilder::new(0)
         .add_authority(
@@ -140,6 +174,7 @@ fn generate_committee() -> Committee {
         .build()
 }
 
+#[allow(dead_code)]
 fn generate_workers() -> WorkerCache {
     WorkerCache {
         workers: BTreeMap::from([
