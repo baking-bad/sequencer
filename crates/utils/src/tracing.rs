@@ -2,13 +2,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use once_cell::sync::Lazy;
-use std::io::{stderr, Write};
+use crossterm::tty::IsTty;
+use std::io::{stdout, Write};
 use tracing::metadata::LevelFilter;
 use tracing_appender::non_blocking::WorkerGuard;
 use tracing_subscriber::{fmt, layer::SubscriberExt, reload, EnvFilter, Layer};
 
 pub fn setup_tracing(tracing_level: &str, network_tracing_level: &str) -> WorkerGuard {
-    let (nb_output, worker_guard) = tracing_appender::non_blocking(stderr());
+    let (nb_output, worker_guard) = tracing_appender::non_blocking(stdout());
 
     let (log_filter, _) = reload::Layer::new(
         EnvFilter::try_from_default_env()
@@ -16,6 +17,7 @@ pub fn setup_tracing(tracing_level: &str, network_tracing_level: &str) -> Worker
                 format!("{tracing_level},h2={network_tracing_level},tower={network_tracing_level},hyper={network_tracing_level},tonic::transport={network_tracing_level},quinn={network_tracing_level}"))));
 
     let fmt_layer = fmt::layer()
+        .with_ansi(stdout().is_tty())
         .with_writer(nb_output)
         .with_filter(log_filter)
         .boxed();

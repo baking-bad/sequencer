@@ -9,6 +9,7 @@ macros = { path = "../macros", package = "narwhal-macros" }
 anemo.workspace = true
 axum.workspace = true
 clap.workspace = true
+crossterm.workspace = true
 eyre.workspace = true
 multiaddr.workspace = true
 scopeguard.workspace = true
