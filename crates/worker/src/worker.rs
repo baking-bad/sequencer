@@ -38,7 +38,7 @@ use tower::ServiceBuilder;
 use tracing::{error, info};
 use types::{
     Batch, BatchDigest, ConditionalBroadcastReceiver, PreSubscribedBroadcastSender,
-    PrimaryToWorkerServer, WorkerToWorkerServer,
+    WorkerToWorkerServer,
 };
 
 #[cfg(test)]
@@ -127,28 +127,13 @@ impl Worker {
             ));
         }
         if let Some(limit) = parameters.anemo.request_batches_rate_limit {
-            worker_service = worker_service.add_layer_for_request_batches(
-                InboundRequestLayer::new(rate_limit::RateLimitLayer::new(
+            worker_service = worker_service.add_layer_for_request_batches(InboundRequestLayer::new(
+                rate_limit::RateLimitLayer::new(
                     governor::Quota::per_second(limit),
                     rate_limit::WaitMode::Block,
                 )),
             );
         }
-
-        // Legacy RPC interface, only used by delete_batches() for external consensus.
-        let primary_service = PrimaryToWorkerServer::new(PrimaryReceiverHandler {
-            authority_id: worker.authority.id(),
-            id: worker.id,
-            committee: worker.committee.clone(),
-            protocol_config: protocol_config.clone(),
-            worker_cache: worker.worker_cache.clone(),
-            store: worker.store.clone(),
-            request_batches_timeout: worker.parameters.sync_retry_delay,
-            request_batches_retry_nodes: worker.parameters.sync_retry_nodes,
-            network: None,
-            batch_fetcher: None,
-            validator: validator.clone(),
-        });
 
         // Receive incoming messages from other workers.
         let address = worker
@@ -163,18 +148,6 @@ impl Worker {
 
         let epoch_string: String = committee.epoch().to_string();
 
-        // Set up anemo Network.
-        let our_primary_peer_id = PeerId(authority.network_key().0.to_bytes());
-        let primary_to_worker_router = anemo::Router::new()
-            .add_rpc_service(primary_service)
-            // Add an Authorization Layer to ensure that we only service requests from our primary
-            .route_layer(RequireAuthorizationLayer::new(AllowedPeers::new([
-                our_primary_peer_id,
-            ])))
-            .route_layer(RequireAuthorizationLayer::new(AllowedEpoch::new(
-                epoch_string.clone(),
-            )));
-
         let worker_peer_ids = worker_cache
             .all_workers()
             .into_iter()
@@ -186,14 +159,12 @@ impl Worker {
             )))
             .route_layer(RequireAuthorizationLayer::new(AllowedEpoch::new(
                 epoch_string.clone(),
-            )))
-            .merge(primary_to_worker_router);
+            )));
 
         let service = ServiceBuilder::new()
-            .layer(
-                TraceLayer::new_for_server_errors()
-                    .make_span_with(DefaultMakeSpan::new().level(tracing::Level::INFO))
-                    .on_failure(DefaultOnFailure::new().level(tracing::Level::WARN)),
+            .layer(TraceLayer::new_for_server_errors()
+                .make_span_with(DefaultMakeSpan::new().level(tracing::Level::INFO))
+                .on_failure(DefaultOnFailure::new().level(tracing::Level::WARN)),
             )
             .layer(CallbackLayer::new(MetricsMakeCallbackHandler::new(
                 inbound_network_metrics,
@@ -207,10 +178,9 @@ impl Worker {
             .service(routes);
 
         let outbound_layer = ServiceBuilder::new()
-            .layer(
-                TraceLayer::new_for_client_and_server_errors()
-                    .make_span_with(DefaultMakeSpan::new().level(tracing::Level::INFO))
-                    .on_failure(DefaultOnFailure::new().level(tracing::Level::WARN)),
+            .layer(TraceLayer::new_for_client_and_server_errors()
+                .make_span_with(DefaultMakeSpan::new().level(tracing::Level::INFO))
+                .on_failure(DefaultOnFailure::new().level(tracing::Level::WARN)),
             )
             .layer(CallbackLayer::new(MetricsMakeCallbackHandler::new(
                 outbound_network_metrics,
