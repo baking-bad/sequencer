@@ -1,0 +1,8 @@
+[package]
+name = "launcher"
+edition = "2021"
+version.workspace = true
+
+[dependencies]
+clap.workspace = true
+signal-hook = "0.3.17"

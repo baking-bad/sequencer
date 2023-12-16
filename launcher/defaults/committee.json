@@ -1,0 +1,61 @@
+{
+    "authorities": {
+        "j2E78yYevoGYOlTLu3WhL688vkH2intlhq1QANSiIoy4Z1KMwV/tZXOvQjWaCDa7CKrADeu/DUB06CMBoc+RTnj9wT2AhSs52IskxL6ad/vXOw+Lz/XkTmSJZpHjO8Gv": {
+            "protocol_key": "j2E78yYevoGYOlTLu3WhL688vkH2intlhq1QANSiIoy4Z1KMwV/tZXOvQjWaCDa7CKrADeu/DUB06CMBoc+RTnj9wT2AhSs52IskxL6ad/vXOw+Lz/XkTmSJZpHjO8Gv",
+            "protocol_key_bytes": "j2E78yYevoGYOlTLu3WhL688vkH2intlhq1QANSiIoy4Z1KMwV/tZXOvQjWaCDa7CKrADeu/DUB06CMBoc+RTnj9wT2AhSs52IskxL6ad/vXOw+Lz/XkTmSJZpHjO8Gv",
+            "network_key": "S3/y4Anx/eyjrG2PtI67P50YQnhA9mcdKY6+lOD3QJc=",
+            "primary_address": "/ip4/127.0.0.1/udp/64010",
+            "hostname": "/ip4/127.0.0.1/udp/64010",
+            "stake": 1000
+        },
+        "ghfvsNGcuZYPhWMZ0lw9V8aClmFTP0icfbfjPRWgGVASCFovOHS5HkPtkQ+yl11pGNs9Yxk785r0DGnOV1nK2XlPpktV98nQkkmKr0+BunpLhl6PUc1pppZpyM2OkwTK": {
+            "protocol_key": "ghfvsNGcuZYPhWMZ0lw9V8aClmFTP0icfbfjPRWgGVASCFovOHS5HkPtkQ+yl11pGNs9Yxk785r0DGnOV1nK2XlPpktV98nQkkmKr0+BunpLhl6PUc1pppZpyM2OkwTK",
+            "protocol_key_bytes": "ghfvsNGcuZYPhWMZ0lw9V8aClmFTP0icfbfjPRWgGVASCFovOHS5HkPtkQ+yl11pGNs9Yxk785r0DGnOV1nK2XlPpktV98nQkkmKr0+BunpLhl6PUc1pppZpyM2OkwTK",
+            "network_key": "AGCg+dafe69vI1RmNBOWPBd7Tey9IefFq2VfxBYiL2s=",
+            "primary_address": "/ip4/127.0.0.1/udp/64020",
+            "hostname": "/ip4/127.0.0.1/udp/64020",
+            "stake": 1000
+        },
+        "lRQGsoVv2rvg5r3HLFt6rHd7fST8kCK1vAB4vrpbXYpOe1THFtlI2wLtaGG4jU4gGXBBXG46VRLaiVwuyT/WhuyfO/GQ/pv/XIc5RGtANtfsi8866ZN6HpVKuNf76gXZ": {
+            "protocol_key": "lRQGsoVv2rvg5r3HLFt6rHd7fST8kCK1vAB4vrpbXYpOe1THFtlI2wLtaGG4jU4gGXBBXG46VRLaiVwuyT/WhuyfO/GQ/pv/XIc5RGtANtfsi8866ZN6HpVKuNf76gXZ",
+            "protocol_key_bytes": "lRQGsoVv2rvg5r3HLFt6rHd7fST8kCK1vAB4vrpbXYpOe1THFtlI2wLtaGG4jU4gGXBBXG46VRLaiVwuyT/WhuyfO/GQ/pv/XIc5RGtANtfsi8866ZN6HpVKuNf76gXZ",
+            "network_key": "W3Hy6rvEQvBvbyRTGJMVapWfLqy2UEsp0LS0bsMgDr8=",
+            "primary_address": "/ip4/127.0.0.1/udp/64030",
+            "hostname": "/ip4/127.0.0.1/udp/64030",
+            "stake": 1000
+        },
+        "tsm6p0wJ54S5Vw9jZS5CuST7du38DXltxDJrIA6/O+qQw3Omj7c7dhvzemuLvFgpAWImyKIXZ+63tiWwOQkz2lKweSwCCb1zahViUWjqe3WvcwrhzUUta4bcDCUpsThI": {
+            "protocol_key": "tsm6p0wJ54S5Vw9jZS5CuST7du38DXltxDJrIA6/O+qQw3Omj7c7dhvzemuLvFgpAWImyKIXZ+63tiWwOQkz2lKweSwCCb1zahViUWjqe3WvcwrhzUUta4bcDCUpsThI",
+            "protocol_key_bytes": "tsm6p0wJ54S5Vw9jZS5CuST7du38DXltxDJrIA6/O+qQw3Omj7c7dhvzemuLvFgpAWImyKIXZ+63tiWwOQkz2lKweSwCCb1zahViUWjqe3WvcwrhzUUta4bcDCUpsThI",
+            "network_key": "Hm5RXTIZIOmqHdFaXSfxUdt5353L3UkGAHdWkFbId5I=",
+            "primary_address": "/ip4/127.0.0.1/udp/64040",
+            "hostname": "/ip4/127.0.0.1/udp/64040",
+            "stake": 1000
+        },
+        "uPY/XCnazgfKIVrCUOpK/BQZfFIwcGtHEbZQC3vEvhFGKJfYCqHmeXnFoaGWAx7fBuKCoDrNTcCe67bU/gfRlQtFZtL6WrfPt5iCRDBohxM00s0qZkvVvabGW9xu7gGg": {
+            "protocol_key": "uPY/XCnazgfKIVrCUOpK/BQZfFIwcGtHEbZQC3vEvhFGKJfYCqHmeXnFoaGWAx7fBuKCoDrNTcCe67bU/gfRlQtFZtL6WrfPt5iCRDBohxM00s0qZkvVvabGW9xu7gGg",
+            "protocol_key_bytes": "uPY/XCnazgfKIVrCUOpK/BQZfFIwcGtHEbZQC3vEvhFGKJfYCqHmeXnFoaGWAx7fBuKCoDrNTcCe67bU/gfRlQtFZtL6WrfPt5iCRDBohxM00s0qZkvVvabGW9xu7gGg",
+            "network_key": "5C0L7WFrlzr6JxENkXsS22ULHQ8lnQ2WtiSru2J/eBk=",
+            "primary_address": "/ip4/127.0.0.1/udp/64050",
+            "hostname": "/ip4/127.0.0.1/udp/64050",
+            "stake": 1000
+        },
+        "rBkhgnMdNlVoVpkQIzjOKdB6mIxhvRxk7xiweraSVGcKv+r49tEUzCmUs8t6Q5hxEFGdAZovxqWtT2wK+7Sq+utGps9NuuLVSKojA2Bl+h0occ2Oeoh3VoAcyUz36w9Q": {
+            "protocol_key": "rBkhgnMdNlVoVpkQIzjOKdB6mIxhvRxk7xiweraSVGcKv+r49tEUzCmUs8t6Q5hxEFGdAZovxqWtT2wK+7Sq+utGps9NuuLVSKojA2Bl+h0occ2Oeoh3VoAcyUz36w9Q",
+            "protocol_key_bytes": "rBkhgnMdNlVoVpkQIzjOKdB6mIxhvRxk7xiweraSVGcKv+r49tEUzCmUs8t6Q5hxEFGdAZovxqWtT2wK+7Sq+utGps9NuuLVSKojA2Bl+h0occ2Oeoh3VoAcyUz36w9Q",
+            "network_key": "XzGPuUUy6v2oR19AmzIf3HFBJwzYCNcYWCJQZUYCw4E=",
+            "primary_address": "/ip4/127.0.0.1/udp/64060",
+            "hostname": "/ip4/127.0.0.1/udp/64060",
+            "stake": 1000
+        },
+        "p4hpeJ2nKh4re4tHA72IsyR58FEVM8yRcrpcKXvUWya8YjmCD6/KkVBAlRU664/6CL9iXndwOrVZiUB2eJ8iSJNZPniJy7XbA9gBgK630udtVA5iVfSm8D1boUqiRDVH": {
+            "protocol_key": "p4hpeJ2nKh4re4tHA72IsyR58FEVM8yRcrpcKXvUWya8YjmCD6/KkVBAlRU664/6CL9iXndwOrVZiUB2eJ8iSJNZPniJy7XbA9gBgK630udtVA5iVfSm8D1boUqiRDVH",
+            "protocol_key_bytes": "p4hpeJ2nKh4re4tHA72IsyR58FEVM8yRcrpcKXvUWya8YjmCD6/KkVBAlRU664/6CL9iXndwOrVZiUB2eJ8iSJNZPniJy7XbA9gBgK630udtVA5iVfSm8D1boUqiRDVH",
+            "network_key": "W2Rudl0v9EdfEBXvovY7tCX3kE3I5+YS+Sdh2GU22/o=",
+            "primary_address": "/ip4/127.0.0.1/udp/64070",
+            "hostname": "/ip4/127.0.0.1/udp/64070",
+            "stake": 1000
+        }
+    },
+    "epoch": 0
+}
