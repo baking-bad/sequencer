@@ -16,6 +16,7 @@ members = [
     "crates/utils",
     "crates/worker",
     
+    "executor",
     "launcher",
     "playground",
 ]

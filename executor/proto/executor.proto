@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package executor;
+
+message OkMessage {}
+
+message PayloadMessage {
+    repeated bytes transactions = 1;
+}
+
+service ExecutorService {
+    rpc Execute(PayloadMessage) returns (OkMessage) {}
+}
