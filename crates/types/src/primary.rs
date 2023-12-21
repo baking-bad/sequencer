@@ -32,8 +32,8 @@ use std::{
     collections::{HashMap, HashSet},
     time::{Duration, SystemTime},
 };
-use utils::protocol_config::ProtocolConfig;
 use tracing::warn;
+use utils::protocol_config::ProtocolConfig;
 
 /// The round number.
 pub type Round = u64;
@@ -64,9 +64,7 @@ pub fn now() -> TimestampMs {
 }
 
 /// Round number of generated randomness.
-#[derive(
-    Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq, PartialOrd, Ord,
-)]
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct RandomnessRound(pub u64);
 
 impl fmt::Display for RandomnessRound {
@@ -337,17 +335,7 @@ pub fn validate_batch_version(
 }
 
 #[derive(
-    Clone,
-    Copy,
-    Serialize,
-    Deserialize,
-    Default,
-    PartialEq,
-    Eq,
-    Hash,
-    PartialOrd,
-    Ord,
-    Arbitrary,
+    Clone, Copy, Serialize, Deserialize, Default, PartialEq, Eq, Hash, PartialOrd, Ord, Arbitrary,
 )]
 pub struct BatchDigest(pub [u8; crypto::DIGEST_LENGTH]);
 
@@ -859,17 +847,7 @@ impl HeaderV2 {
 }
 
 #[derive(
-    Clone,
-    Copy,
-    Serialize,
-    Deserialize,
-    Default,
-    PartialEq,
-    Eq,
-    Hash,
-    PartialOrd,
-    Ord,
-    Arbitrary,
+    Clone, Copy, Serialize, Deserialize, Default, PartialEq, Eq, Hash, PartialOrd, Ord, Arbitrary,
 )]
 pub struct HeaderDigest([u8; crypto::DIGEST_LENGTH]);
 
@@ -1737,7 +1715,7 @@ impl CertificateV2 {
         Ok(verified_cert)
     }
 
-    fn verify_signature(mut self, pks: Vec<PublicKey>) -> DagResult<Certificate> {
+    pub fn verify_signature(mut self, pks: Vec<PublicKey>) -> DagResult<Certificate> {
         let aggregrate_signature_bytes = match self.signature_verification_state {
             SignatureVerificationState::VerifiedIndirectly(_)
             | SignatureVerificationState::VerifiedDirectly(_)
@@ -1820,17 +1798,7 @@ pub fn validate_received_certificate_version(
 }
 
 #[derive(
-    Clone,
-    Copy,
-    Serialize,
-    Deserialize,
-    Default,
-    PartialEq,
-    Eq,
-    Hash,
-    PartialOrd,
-    Ord,
-    Arbitrary,
+    Clone, Copy, Serialize, Deserialize, Default, PartialEq, Eq, Hash, PartialOrd, Ord, Arbitrary,
 )]
 
 pub struct CertificateDigest([u8; crypto::DIGEST_LENGTH]);

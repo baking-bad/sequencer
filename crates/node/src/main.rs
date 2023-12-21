@@ -10,10 +10,13 @@
 
 use clap::{Parser, Subcommand};
 use config::{ChainIdentifier, Committee, Import, Parameters, WorkerCache, WorkerId};
-use crypto::{KeyPair, NetworkKeyPair, AuthorityKeyPair, get_key_pair_from_rng};
+use crypto::keypair_file::{
+    read_authority_keypair_from_file, read_network_keypair_from_file,
+    write_authority_keypair_to_file, write_network_keypair_to_file,
+};
+use crypto::{get_key_pair_from_rng, AuthorityKeyPair, KeyPair, NetworkKeyPair};
 use eyre::Context;
 use fastcrypto::traits::KeyPair as _;
-use utils::metrics::RegistryService;
 use narwhal_node as node;
 use narwhal_node::primary_node::PrimaryNode;
 use narwhal_node::worker_node::WorkerNode;
@@ -25,13 +28,10 @@ use node::{
 use prometheus::Registry;
 use std::path::{Path, PathBuf};
 use storage::{CertificateStoreCacheMetrics, NodeStorage};
-use crypto::keypair_file::{
-    read_authority_keypair_from_file, read_network_keypair_from_file,
-    write_authority_keypair_to_file, write_network_keypair_to_file,
-};
-use utils::protocol_config::{Chain, ProtocolConfig, ProtocolVersion};
 use tokio::sync::mpsc::channel;
 use tracing::{info, warn};
+use utils::metrics::RegistryService;
+use utils::protocol_config::{Chain, ProtocolConfig, ProtocolVersion};
 use worker::TrivialTransactionValidator;
 
 #[derive(Parser)]
@@ -144,7 +144,6 @@ async fn main() -> Result<(), eyre::Report> {
             write_network_keypair_to_file(&network_keypair, filename).unwrap();
         }
         Commands::GetPubKey { filename } => {
-
             match read_authority_keypair_from_file(filename) {
                 Ok(kp) => println!("{:?}", kp.public()),
                 Err(e) => {
@@ -152,7 +151,7 @@ async fn main() -> Result<(), eyre::Report> {
                 }
             }
 
-/*            match read_network_keypair_from_file(filename) {
+            /*            match read_network_keypair_from_file(filename) {
                 Ok(keypair) => {
                     // Network keypair file is stored as `flag || privkey`.
                     println!("{:?}", keypair.public())
@@ -168,14 +167,12 @@ async fn main() -> Result<(), eyre::Report> {
                 }
             }*/
         }
-        Commands::GetNetworkPubKey { filename } => {
-            match read_network_keypair_from_file(filename) {
-                Ok(kp) => println!("{:?}", kp.public()),
-                Err(e) => {
-                    println!("Failed to read keypair at path {:?} err: {:?}", filename, e)
-                }
+        Commands::GetNetworkPubKey { filename } => match read_network_keypair_from_file(filename) {
+            Ok(kp) => println!("{:?}", kp.public()),
+            Err(e) => {
+                println!("Failed to read keypair at path {:?} err: {:?}", filename, e)
             }
-        }
+        },
         Commands::Run {
             primary_keys,
             primary_network_keys,

@@ -5,10 +5,10 @@ use crate::{CertificateDigest, HeaderDigest, Round, TimestampMs, VoteDigest};
 use anemo::PeerId;
 use config::Epoch;
 use fastcrypto::hash::Digest;
-use utils::notify_once::NotifyOnce;
 use std::sync::Arc;
-use typed_store::TypedStoreError;
 use thiserror::Error;
+use typed_store::TypedStoreError;
+use utils::notify_once::NotifyOnce;
 
 #[cfg(test)]
 #[path = "./tests/error_test.rs"]

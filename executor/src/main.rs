@@ -1,5 +1,5 @@
-use std::net::SocketAddr;
 use clap::Parser;
+use std::net::SocketAddr;
 
 mod server;
 use server::run_executor_server;
@@ -10,7 +10,7 @@ use server::run_executor_server;
 struct Args {
     /// Socket address to bind
     #[arg(short, long, default_value_t=("127.0.0.1:54321".parse()).unwrap())]
-    address: SocketAddr
+    address: SocketAddr,
 }
 
 #[tokio::main]

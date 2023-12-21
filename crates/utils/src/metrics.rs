@@ -142,24 +142,18 @@ macro_rules! monitored_future {
 #[macro_export]
 macro_rules! spawn_monitored_task {
     ($fut: expr) => {
-        tokio::task::spawn(utils::monitored_future!(
-            tasks, $fut, "", INFO, false
-        ))
+        tokio::task::spawn(utils::monitored_future!(tasks, $fut, "", INFO, false))
     };
 }
 
 #[macro_export]
 macro_rules! spawn_logged_monitored_task {
     ($fut: expr) => {
-        tokio::task::spawn(utils::monitored_future!(
-            tasks, $fut, "", INFO, true
-        ))
+        tokio::task::spawn(utils::monitored_future!(tasks, $fut, "", INFO, true))
     };
 
     ($fut: expr, $name: expr) => {
-        tokio::task::spawn(utils::monitored_future!(
-            tasks, $fut, $name, INFO, true
-        ))
+        tokio::task::spawn(utils::monitored_future!(tasks, $fut, $name, INFO, true))
     };
 
     ($fut: expr, $name: expr, $logging_level: ident) => {

@@ -2,18 +2,18 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 use crate::consensus::{
-    metrics::ConsensusMetrics, utils as ConsensusUtils, ConsensusError, ConsensusState, Dag, LeaderSchedule,
-    LeaderSwapTable, Outcome,
+    metrics::ConsensusMetrics, utils as ConsensusUtils, ConsensusError, ConsensusState, Dag,
+    LeaderSchedule, LeaderSwapTable, Outcome,
 };
 use config::{Committee, Stake};
 use fastcrypto::hash::Hash;
 use std::collections::VecDeque;
 use std::sync::Arc;
 use storage::ConsensusStore;
-use utils::protocol_config::ProtocolConfig;
 use tokio::time::Instant;
 use tracing::{debug, error_span};
 use types::{Certificate, CertificateAPI, CommittedSubDag, HeaderAPI, ReputationScores, Round};
+use utils::protocol_config::ProtocolConfig;
 
 #[cfg(test)]
 #[path = "tests/bullshark_tests.rs"]

@@ -19,6 +19,7 @@ members = [
     "executor",
     "launcher",
     "playground",
+    "kernel",
 ]
 
 [workspace.package]

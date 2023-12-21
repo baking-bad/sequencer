@@ -4,8 +4,8 @@
 use crate::StoreResult;
 use typed_store::rocks::{open_cf, MetricConf};
 use typed_store::{reopen, rocks::DBMap, rocks::ReadWriteOptions, Map};
-use utils::fail_point;
 use types::Header;
+use utils::fail_point;
 
 pub type ProposerKey = u32;
 
@@ -56,8 +56,8 @@ impl ProposerStore {
 #[cfg(test)]
 mod test {
     use crate::{ProposerStore, LAST_PROPOSAL_KEY};
-    use typed_store::Map;
     use test_utils::{fixture_batch_with_transactions, latest_protocol_version, CommitteeFixture};
+    use typed_store::Map;
     use types::{CertificateDigest, Header, Round};
 
     pub fn create_header_for_round(round: Round) -> Header {

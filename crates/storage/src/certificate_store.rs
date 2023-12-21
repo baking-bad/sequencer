@@ -8,14 +8,14 @@ use std::collections::HashMap;
 use std::num::NonZeroUsize;
 use std::sync::Arc;
 use std::{cmp::Ordering, collections::BTreeMap, iter};
-use utils::fail_point;
 use tap::Tap;
+use utils::fail_point;
 
 use crate::StoreResult;
 use config::AuthorityIdentifier;
-use utils::notify_read::NotifyRead;
 use typed_store::{rocks::DBMap, Map, TypedStoreError::RocksDBError};
 use types::{Certificate, CertificateDigest, Round};
+use utils::notify_read::NotifyRead;
 
 #[derive(Clone)]
 pub struct CertificateStoreCacheMetrics {
@@ -728,12 +728,12 @@ mod test {
         collections::{BTreeSet, HashSet},
         time::Instant,
     };
+    use test_utils::{latest_protocol_version, temp_dir, CommitteeFixture};
     use typed_store::rocks::MetricConf;
     use typed_store::{
         reopen,
         rocks::{open_cf, DBMap, ReadWriteOptions},
     };
-    use test_utils::{latest_protocol_version, temp_dir, CommitteeFixture};
     use types::{Certificate, CertificateAPI, CertificateDigest, HeaderAPI, Round};
 
     fn new_store(path: std::path::PathBuf) -> CertificateStore {

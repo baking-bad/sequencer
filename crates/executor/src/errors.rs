@@ -3,8 +3,8 @@
 
 use config::WorkerId;
 use std::fmt::Debug;
-use typed_store::TypedStoreError;
 use thiserror::Error;
+use typed_store::TypedStoreError;
 use types::CertificateDigest;
 
 #[macro_export]
