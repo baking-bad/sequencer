@@ -5,7 +5,7 @@ services:
   primary_0:
     build:
       context: ../
-      dockerfile: ./Docker/Dockerfile
+      dockerfile: ./docker/Dockerfile
     image: narwhal-node:latest
     environment:
       - NODE_TYPE=primary
@@ -23,7 +23,7 @@ services:
   worker_0:
     build:
       context: ../
-      dockerfile: ./Docker/Dockerfile
+      dockerfile: ./docker/Dockerfile
     depends_on:
       - primary_0
     image: narwhal-node:latest
@@ -45,7 +45,7 @@ services:
   primary_1:
     build:
       context: ../
-      dockerfile: ./Docker/Dockerfile
+      dockerfile: ./docker/Dockerfile
     image: narwhal-node:latest
     environment:
       - NODE_TYPE=primary
@@ -63,7 +63,7 @@ services:
   worker_1:
     build:
       context: ../
-      dockerfile: ./Docker/Dockerfile
+      dockerfile: ./docker/Dockerfile
     depends_on:
       - primary_1
     image: narwhal-node:latest
@@ -85,7 +85,7 @@ services:
   primary_2:
     build:
       context: ../
-      dockerfile: ./Docker/Dockerfile
+      dockerfile: ./docker/Dockerfile
     image: narwhal-node:latest
     environment:
       - NODE_TYPE=primary
@@ -103,7 +103,7 @@ services:
   worker_2:
     build:
       context: ../
-      dockerfile: ./Docker/Dockerfile
+      dockerfile: ./docker/Dockerfile
     depends_on:
       - primary_2
     image: narwhal-node:latest
@@ -125,7 +125,7 @@ services:
   primary_3:
     build:
       context: ../
-      dockerfile: ./Docker/Dockerfile
+      dockerfile: ./docker/Dockerfile
     image: narwhal-node:latest
     environment:
       - NODE_TYPE=primary
@@ -143,7 +143,7 @@ services:
   worker_3:
     build:
       context: ../
-      dockerfile: ./Docker/Dockerfile
+      dockerfile: ./docker/Dockerfile
     depends_on:
       - primary_3
     image: narwhal-node:latest

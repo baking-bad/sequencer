@@ -10,6 +10,7 @@ WORKDIR "$WORKDIR/sequencer"
 RUN apt-get update && apt-get install -y cmake clang
 
 COPY Cargo.toml ./
+COPY Cargo.lock ./
 COPY crates crates
 COPY executor executor
 COPY launcher launcher
