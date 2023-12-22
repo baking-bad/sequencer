@@ -11,21 +11,23 @@ edition = "2021"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-tezos-smart-rollup-host = { version = "0.2.2", default-features = false }
-tezos-smart-rollup-encoding = { version = "0.2.2", default-features = false }
-tezos-smart-rollup-entrypoint = { version = "0.2.2", features = ["panic-hook", "std", "panic-hook-debug"], default-features = false }
-tezos-smart-rollup-core = { version = "0.2.2", default-features = false }
+tezos-smart-rollup-host = { version = "0.2.2" }
+# bls feature conflicts with fastcrypto
+tezos-smart-rollup-encoding = { version = "0.2.2", default_features = false, features = ["alloc", "tezos-encoding" ] }
+tezos-smart-rollup-entrypoint = { version = "0.2.2" }
+tezos-smart-rollup-core = { version = "0.2.2" }
 tezos_data_encoding = { version = "0.5.2" }
 
 hex = "*"
 
 anyhow.workspace = true
-narwhal-types.workspace = true
-narwhal-crypto.workspace = true
-narwhal-config.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 fastcrypto.workspace = true
+
+narwhal-types.workspace = true
+narwhal-crypto.workspace = true
+narwhal-config.workspace = true
 
 [dev-dependencies]
 tezos-smart-rollup-mock = { version = "0.2.2", features = ["proto-nairobi"] }

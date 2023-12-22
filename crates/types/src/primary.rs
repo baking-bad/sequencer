@@ -1715,7 +1715,7 @@ impl CertificateV2 {
         Ok(verified_cert)
     }
 
-    pub fn verify_signature(mut self, pks: Vec<PublicKey>) -> DagResult<Certificate> {
+    fn verify_signature(mut self, pks: Vec<PublicKey>) -> DagResult<Certificate> {
         let aggregrate_signature_bytes = match self.signature_verification_state {
             SignatureVerificationState::VerifiedIndirectly(_)
             | SignatureVerificationState::VerifiedDirectly(_)
