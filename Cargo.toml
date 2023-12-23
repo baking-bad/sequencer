@@ -20,6 +20,7 @@ members = [
     "launcher",
     "playground",
     "kernel",
+    "sequencer",
 ]
 
 [workspace.package]

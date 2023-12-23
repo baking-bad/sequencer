@@ -14,7 +14,7 @@ use narwhal_crypto::{
     DIGEST_LENGTH,
 };
 use narwhal_types::{
-    Certificate, CertificateAPI, CertificateDigest, ConsensusOutput, Header, SequenceNumber,
+    Batch, Certificate, CertificateAPI, CertificateDigest, ConsensusOutput, Header, SequenceNumber,
 };
 use tezos_smart_rollup_host::runtime::Runtime;
 
@@ -92,6 +92,23 @@ fn verify_certificate_chain<Host: Runtime>(
     Ok(())
 }
 
+fn verify_batches(certificate: &Certificate, batches: &[Batch]) -> anyhow::Result<()> {
+    for (index, digest) in certificate
+        .header()
+        .clone()
+        .unwrap_v2()
+        .payload
+        .keys()
+        .enumerate()
+    {
+        let batch_digest = batches.get(index).unwrap().digest();
+        if &batch_digest != digest {
+            anyhow::bail!("Unexpected batch digest");
+        }
+    }
+    Ok(())
+}
+
 pub fn commit_consensus_output<Host: Runtime>(host: &mut Host, output: &ConsensusOutput) {
     write_last_sub_dag_index(host, output.sub_dag.sub_dag_index);
     for certificate in output.sub_dag.certificates.iter() {
@@ -126,8 +143,9 @@ pub fn verify_consensus_output<Host: Runtime>(
         last_sub_dag_index,
     )?;
 
-    for certificate in output.sub_dag.certificates.iter() {
+    for (index, certificate) in output.sub_dag.certificates.iter().enumerate() {
         verify_certificate_chain(host, certificate, &known_digests, last_sub_dag_index)?;
+        verify_batches(certificate, output.batches.get(index).unwrap())?;
     }
 
     Ok(())

@@ -16,6 +16,7 @@ const CERTIFICATES_PATH: RefPath = RefPath::assert_from(b"/certificates");
 const AUTHORITIES_PATH: RefPath = RefPath::assert_from(b"/authorities");
 const HEAD_PATH: RefPath = RefPath::assert_from(b"/head");
 const BLOCKS_PATH: RefPath = RefPath::assert_from(b"/blocks");
+
 pub const DIGEST_SIZE: usize = 32;
 
 pub fn read_last_sub_dag_index<Host: Runtime>(host: &Host) -> Option<SequenceNumber> {
