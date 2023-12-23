@@ -8,6 +8,8 @@ use config::{AuthorityIdentifier, Committee};
 use crypto::NetworkPublicKey;
 use futures::{stream::FuturesUnordered, StreamExt};
 use itertools::Itertools;
+use utils::metered_channel::Receiver;
+use utils::{monitored_future, metrics::monitored_scope, spawn_logged_monitored_task};
 use network::PrimaryToPrimaryRpc;
 use rand::{rngs::ThreadRng, seq::SliceRandom};
 use std::{
@@ -16,6 +18,7 @@ use std::{
     time::Duration,
 };
 use storage::CertificateStore;
+use utils::protocol_config::ProtocolConfig;
 use tokio::{
     sync::watch,
     task::{spawn_blocking, JoinHandle, JoinSet},
@@ -28,9 +31,6 @@ use types::{
     ConditionalBroadcastReceiver, FetchCertificatesRequest, FetchCertificatesResponse, HeaderAPI,
     Round,
 };
-use utils::metered_channel::Receiver;
-use utils::protocol_config::ProtocolConfig;
-use utils::{metrics::monitored_scope, monitored_future, spawn_logged_monitored_task};
 
 #[cfg(test)]
 #[path = "tests/certificate_fetcher_tests.rs"]

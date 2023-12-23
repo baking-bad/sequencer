@@ -18,13 +18,13 @@ use primary::{Primary, CHANNEL_CAPACITY, NUM_SHUTDOWN_RECEIVERS};
 use prometheus::Registry;
 use std::time::Duration;
 use storage::NodeStorage;
+use typed_store::rocks;
+use typed_store::rocks::MetricConf;
+use typed_store::rocks::ReadWriteOptions;
 use test_utils::{
     batch, latest_protocol_version, temp_dir, test_network, transaction, CommitteeFixture,
 };
 use tokio::sync::watch;
-use typed_store::rocks;
-use typed_store::rocks::MetricConf;
-use typed_store::rocks::ReadWriteOptions;
 use types::{
     BatchAPI, MockWorkerToPrimary, MockWorkerToWorker, PreSubscribedBroadcastSender,
     TransactionProto, TransactionsClient, WorkerBatchMessage, WorkerToWorkerClient,

@@ -6,6 +6,7 @@ use crate::{CommitteeUpdateError, ConfigError, Epoch, Stake};
 use crypto::{NetworkPublicKey, PublicKey, PublicKeyBytes};
 use fastcrypto::serde_helpers::ToFromByteArray;
 use fastcrypto::traits::{EncodeDecodeBase64, ToFromBytes};
+use utils::network::Multiaddr;
 use rand::rngs::StdRng;
 use rand::seq::SliceRandom;
 use rand::SeedableRng;
@@ -13,7 +14,6 @@ use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashSet};
 use std::fmt::{Display, Formatter};
 use std::num::NonZeroU64;
-use utils::network::Multiaddr;
 
 #[derive(Clone, Serialize, Deserialize, Debug, Eq, PartialEq)]
 pub struct Authority {
@@ -125,7 +125,17 @@ pub struct Committee {
 // Every authority gets uniquely identified by the AuthorityIdentifier
 // The type can be easily swapped without needing to change anything else in the implementation.
 #[derive(
-    Eq, PartialEq, Ord, PartialOrd, Clone, Copy, Debug, Default, Hash, Serialize, Deserialize,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Clone,
+    Copy,
+    Debug,
+    Default,
+    Hash,
+    Serialize,
+    Deserialize,
 )]
 pub struct AuthorityIdentifier(pub u16);
 
@@ -522,9 +532,9 @@ mod tests {
     use crate::{Authority, Committee};
     use crypto::{KeyPair, NetworkKeyPair, PublicKey};
     use fastcrypto::traits::KeyPair as _;
+    use utils::network::Multiaddr;
     use rand::thread_rng;
     use std::collections::BTreeMap;
-    use utils::network::Multiaddr;
 
     #[test]
     fn committee_load() {

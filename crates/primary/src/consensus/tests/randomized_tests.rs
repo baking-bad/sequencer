@@ -22,6 +22,7 @@ use std::num::NonZeroUsize;
 use std::ops::RangeInclusive;
 use std::sync::Arc;
 use storage::ConsensusStore;
+use utils::protocol_config::ProtocolConfig;
 use test_utils::latest_protocol_version;
 use test_utils::mock_certificate_with_rand;
 use test_utils::CommitteeFixture;
@@ -31,7 +32,6 @@ use types::CertificateAPI;
 use types::HeaderAPI;
 use types::Round;
 use types::{Certificate, CertificateDigest};
-use utils::protocol_config::ProtocolConfig;
 
 #[derive(Copy, Clone, Debug)]
 pub struct FailureModes {

@@ -16,6 +16,7 @@ use fastcrypto::{
     traits::{AllowedRng, KeyPair as _},
 };
 use indexmap::IndexMap;
+use utils::network::Multiaddr;
 use once_cell::sync::OnceCell;
 use rand::distributions::Bernoulli;
 use rand::distributions::Distribution;
@@ -28,11 +29,12 @@ use std::{
     num::NonZeroUsize,
     ops::RangeInclusive,
 };
-use tokio::sync::mpsc::{channel, Receiver, Sender};
-use tracing::info;
 use typed_store::rocks::DBMap;
 use typed_store::rocks::MetricConf;
 use typed_store::rocks::ReadWriteOptions;
+use utils::protocol_config::{Chain, ProtocolConfig, ProtocolVersion};
+use tokio::sync::mpsc::{channel, Receiver, Sender};
+use tracing::info;
 use types::{
     Batch, BatchDigest, BatchV1, Certificate, CertificateAPI, CertificateDigest,
     FetchBatchesRequest, FetchBatchesResponse, FetchCertificatesRequest, FetchCertificatesResponse,
@@ -42,8 +44,6 @@ use types::{
     SendRandomnessPartialSignaturesRequest, TimestampMs, Transaction, Vote, VoteAPI,
     WorkerBatchMessage, WorkerSynchronizeMessage, WorkerToWorker, WorkerToWorkerServer,
 };
-use utils::network::Multiaddr;
-use utils::protocol_config::{Chain, ProtocolConfig, ProtocolVersion};
 
 pub mod cluster;
 

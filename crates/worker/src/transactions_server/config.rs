@@ -1,17 +1,15 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
-use crate::transactions_server::metrics::{
-    DefaultMetricsCallbackProvider, MetricsCallbackProvider,
-};
+use crate::transactions_server::metrics::{DefaultMetricsCallbackProvider, MetricsCallbackProvider};
 use crate::transactions_server::{
     client::{connect_lazy_with_config, connect_with_config},
     server::ServerBuilder,
 };
+use utils::network::Multiaddr;
 use eyre::Result;
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
 use tonic::transport::Channel;
-use utils::network::Multiaddr;
 
 #[derive(Debug, Default, Deserialize, Serialize)]
 pub struct Config {

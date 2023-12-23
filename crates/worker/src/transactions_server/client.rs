@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::transactions_server::config::Config;
+use utils::network::{parse_dns, parse_ip4, parse_ip6, Multiaddr, Protocol};
 use eyre::{eyre, Context, Result};
 use tonic::transport::{Channel, Endpoint, Uri};
-use utils::network::{parse_dns, parse_ip4, parse_ip6, Multiaddr, Protocol};
 
 pub async fn connect(address: &Multiaddr) -> Result<Channel> {
     let channel = endpoint_from_multiaddr(address)?.connect().await?;

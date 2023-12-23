@@ -17,17 +17,17 @@ use itertools::Itertools;
 use network::WorkerRpc;
 use prometheus::IntGauge;
 use rand::{rngs::ThreadRng, seq::SliceRandom};
+use typed_store::{rocks::DBMap, Map};
+use utils::protocol_config::ProtocolConfig;
 use tokio::{
     select,
     time::{sleep, sleep_until, Instant},
 };
 use tracing::debug;
-use typed_store::{rocks::DBMap, Map};
 use types::{
     now, validate_batch_version, Batch, BatchAPI, BatchDigest, MetadataAPI, RequestBatchesRequest,
     RequestBatchesResponse,
 };
-use utils::protocol_config::ProtocolConfig;
 
 use crate::metrics::WorkerMetrics;
 

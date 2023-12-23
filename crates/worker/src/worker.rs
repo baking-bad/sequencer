@@ -20,6 +20,9 @@ use anemo_tower::{
 use anemo_tower::{rate_limit, set_header::SetResponseHeaderLayer};
 use config::{Authority, AuthorityIdentifier, Committee, Parameters, WorkerCache, WorkerId};
 use crypto::{traits::KeyPair as _, NetworkKeyPair, NetworkPublicKey};
+use utils::metered_channel::channel_with_total;
+use utils::spawn_logged_monitored_task;
+use utils::network::{Protocol, Multiaddr};
 use network::client::NetworkClient;
 use network::epoch_filter::{AllowedEpoch, EPOCH_HEADER_KEY};
 use network::failpoints::FailpointsMakeCallbackHandler;
@@ -27,19 +30,16 @@ use network::metrics::MetricsMakeCallbackHandler;
 use std::collections::HashMap;
 use std::time::Duration;
 use std::{net::Ipv4Addr, sync::Arc, thread::sleep};
+use typed_store::rocks::DBMap;
+use utils::protocol_config::ProtocolConfig;
 use tap::TapFallible;
 use tokio::task::JoinHandle;
 use tower::ServiceBuilder;
 use tracing::{error, info};
-use typed_store::rocks::DBMap;
 use types::{
     Batch, BatchDigest, ConditionalBroadcastReceiver, PreSubscribedBroadcastSender,
     WorkerToWorkerServer,
 };
-use utils::metered_channel::channel_with_total;
-use utils::network::{Multiaddr, Protocol};
-use utils::protocol_config::ProtocolConfig;
-use utils::spawn_logged_monitored_task;
 
 #[cfg(test)]
 #[path = "tests/worker_tests.rs"]
@@ -127,8 +127,8 @@ impl Worker {
             ));
         }
         if let Some(limit) = parameters.anemo.request_batches_rate_limit {
-            worker_service = worker_service.add_layer_for_request_batches(
-                InboundRequestLayer::new(rate_limit::RateLimitLayer::new(
+            worker_service = worker_service.add_layer_for_request_batches(InboundRequestLayer::new(
+                rate_limit::RateLimitLayer::new(
                     governor::Quota::per_second(limit),
                     rate_limit::WaitMode::Block,
                 )),
@@ -162,10 +162,9 @@ impl Worker {
             )));
 
         let service = ServiceBuilder::new()
-            .layer(
-                TraceLayer::new_for_server_errors()
-                    .make_span_with(DefaultMakeSpan::new().level(tracing::Level::INFO))
-                    .on_failure(DefaultOnFailure::new().level(tracing::Level::WARN)),
+            .layer(TraceLayer::new_for_server_errors()
+                .make_span_with(DefaultMakeSpan::new().level(tracing::Level::INFO))
+                .on_failure(DefaultOnFailure::new().level(tracing::Level::WARN)),
             )
             .layer(CallbackLayer::new(MetricsMakeCallbackHandler::new(
                 inbound_network_metrics,
@@ -179,10 +178,9 @@ impl Worker {
             .service(routes);
 
         let outbound_layer = ServiceBuilder::new()
-            .layer(
-                TraceLayer::new_for_client_and_server_errors()
-                    .make_span_with(DefaultMakeSpan::new().level(tracing::Level::INFO))
-                    .on_failure(DefaultOnFailure::new().level(tracing::Level::WARN)),
+            .layer(TraceLayer::new_for_client_and_server_errors()
+                .make_span_with(DefaultMakeSpan::new().level(tracing::Level::INFO))
+                .on_failure(DefaultOnFailure::new().level(tracing::Level::WARN)),
             )
             .layer(CallbackLayer::new(MetricsMakeCallbackHandler::new(
                 outbound_network_metrics,

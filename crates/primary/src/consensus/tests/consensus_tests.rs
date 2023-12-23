@@ -6,13 +6,13 @@ use std::{collections::BTreeSet, sync::Arc};
 use fastcrypto::hash::Hash;
 use prometheus::Registry;
 use storage::NodeStorage;
+use utils::protocol_config::ProtocolConfig;
 use test_utils::latest_protocol_version;
 use test_utils::{temp_dir, CommitteeFixture};
 use tokio::sync::watch;
 use types::{
     Certificate, CertificateAPI, HeaderAPI, PreSubscribedBroadcastSender, ReputationScores,
 };
-use utils::protocol_config::ProtocolConfig;
 
 use crate::consensus::{
     Bullshark, Consensus, ConsensusMetrics, ConsensusRound, LeaderSchedule, LeaderSwapTable,

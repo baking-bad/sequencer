@@ -5,8 +5,8 @@ use futures::{stream::FuturesUnordered, StreamExt};
 use prometheus::IntGauge;
 
 use super::DagError;
-use std::{future, time::Duration};
 use utils::metered_channel::{channel, Receiver, Sender, WithPermit};
+use std::{future, time::Duration};
 
 pub struct Processor {
     input: Receiver<usize>,

@@ -7,14 +7,14 @@ use crate::metrics::WorkerMetrics;
 use config::{Authority, Committee, Stake, WorkerCache, WorkerId};
 use fastcrypto::hash::Hash;
 use futures::stream::{futures_unordered::FuturesUnordered, StreamExt as _};
+use utils::metered_channel::Receiver;
+use utils::{monitored_future, spawn_logged_monitored_task};
 use network::{CancelOnDropHandler, ReliableNetwork};
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::{task::JoinHandle, time::timeout};
 use tracing::{trace, warn};
 use types::{Batch, ConditionalBroadcastReceiver, WorkerBatchMessage};
-use utils::metered_channel::Receiver;
-use utils::{monitored_future, spawn_logged_monitored_task};
 
 #[cfg(test)]
 #[path = "tests/quorum_waiter_tests.rs"]

@@ -41,10 +41,10 @@ use std::{
     time::Duration,
 };
 use std::{collections::HashSet, ffi::CStr};
+use utils::{fail_point, nondeterministic};
 use tap::TapFallible;
 use tokio::sync::oneshot;
 use tracing::{debug, error, info, instrument, warn};
-use utils::{fail_point, nondeterministic};
 
 // Write buffer size per RocksDB instance can be set via the env var below.
 // If the env var is not set, use the default value in MiB.
@@ -789,7 +789,7 @@ impl<K, V> DBMap<K, V> {
     ///    use prometheus::Registry;
     ///    use std::sync::Arc;
     ///    use core::fmt::Error;
-    ///
+    /// 
     ///    #[tokio::main]
     ///    async fn main() -> Result<(), Error> {
     ///        /// Open the DB with all needed column families first.

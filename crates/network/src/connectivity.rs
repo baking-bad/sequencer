@@ -6,6 +6,7 @@ use anemo::types::PeerEvent;
 use anemo::PeerId;
 use dashmap::DashMap;
 use futures::future;
+use utils::spawn_logged_monitored_task;
 use quinn_proto::ConnectionStats;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -13,7 +14,6 @@ use std::time::Duration;
 use tokio::task::JoinHandle;
 use tokio::time;
 use types::ConditionalBroadcastReceiver;
-use utils::spawn_logged_monitored_task;
 
 const CONNECTION_STAT_COLLECTION_INTERVAL: Duration = Duration::from_secs(60);
 

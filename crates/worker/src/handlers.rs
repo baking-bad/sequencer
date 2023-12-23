@@ -10,15 +10,15 @@ use fastcrypto::hash::Hash;
 use itertools::Itertools;
 use network::{client::NetworkClient, WorkerToPrimaryClient};
 use std::{collections::HashSet, time::Duration};
-use tracing::{debug, trace};
 use typed_store::{rocks::DBMap, Map};
+use utils::protocol_config::ProtocolConfig;
+use tracing::{debug, trace};
 use types::{
     now, validate_batch_version, Batch, BatchAPI, BatchDigest, FetchBatchesRequest,
     FetchBatchesResponse, MetadataAPI, PrimaryToWorker, RequestBatchesRequest,
     RequestBatchesResponse, WorkerBatchMessage, WorkerOthersBatchMessage, WorkerSynchronizeMessage,
     WorkerToWorker, WorkerToWorkerClient,
 };
-use utils::protocol_config::ProtocolConfig;
 
 use crate::{batch_fetcher::BatchFetcher, TransactionValidator};
 

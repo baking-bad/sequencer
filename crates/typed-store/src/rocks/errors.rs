@@ -3,11 +3,11 @@
 
 use bincode::ErrorKind as BincodeErrorKind;
 
-use crate::TypedStoreError;
 use rocksdb::Error as RocksError;
 use serde::{Deserialize, Serialize};
 use std::{fmt, fmt::Display};
 use thiserror::Error;
+use crate::TypedStoreError;
 
 #[derive(Serialize, Deserialize, Clone, Eq, PartialEq, Hash, Debug, Error)]
 pub(crate) struct RocksErrorDef {

@@ -11,13 +11,13 @@ use crypto::{
 use fastcrypto::hash::{Digest, Hash};
 use std::collections::HashSet;
 use std::sync::Arc;
+use utils::protocol_config::ProtocolConfig;
 use tracing::warn;
 use types::{
     ensure,
     error::{DagError, DagResult},
     Certificate, CertificateAPI, Header, SignatureVerificationState, Vote, VoteAPI,
 };
-use utils::protocol_config::ProtocolConfig;
 
 /// Aggregates votes for a particular header into a certificate.
 pub struct VotesAggregator {

@@ -1,12 +1,12 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use anemo::types::Address as AnemoAddress;
 use eyre::{eyre, Result};
 use std::{
     borrow::Cow,
     net::{IpAddr, SocketAddr},
 };
+use anemo::types::Address as AnemoAddress;
 
 pub use ::multiaddr::Error;
 pub use ::multiaddr::Protocol;

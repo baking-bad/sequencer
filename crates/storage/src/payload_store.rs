@@ -3,13 +3,13 @@
 
 use crate::{NodeStorage, PayloadToken};
 use config::WorkerId;
+use utils::notify_read::NotifyRead;
 use std::sync::Arc;
 use typed_store::reopen;
 use typed_store::rocks::{open_cf, MetricConf, ReadWriteOptions};
 use typed_store::{rocks::DBMap, Map, TypedStoreError};
-use types::BatchDigest;
 use utils::fail_point;
-use utils::notify_read::NotifyRead;
+use types::BatchDigest;
 
 /// Store of the batch digests for the primary node for the own created batches.
 #[derive(Clone)]

@@ -8,11 +8,11 @@ use std::{
 };
 
 use arc_swap::ArcSwap;
+use utils::metered_channel::Sender;
+use utils::network::{Protocol, Multiaddr};
 use thiserror::Error;
 use tracing::info;
 use types::{Transaction, TxResponse};
-use utils::metered_channel::Sender;
-use utils::network::{Multiaddr, Protocol};
 
 /// Uses a map to allow running multiple Narwhal instances in the same process.
 static LOCAL_NARWHAL_CLIENTS: Mutex<BTreeMap<Multiaddr, Arc<ArcSwap<LocalNarwhalClient>>>> =

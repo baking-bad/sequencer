@@ -6,6 +6,8 @@ use crypto::{KeyPair, NetworkKeyPair, PublicKey};
 use executor::SerializedTransaction;
 use fastcrypto::traits::KeyPair as _;
 use itertools::Itertools;
+use utils::metrics::RegistryService;
+use utils::network::Multiaddr;
 use network::client::NetworkClient;
 use node::primary_node::PrimaryNode;
 use node::worker_node::WorkerNode;
@@ -21,8 +23,6 @@ use tokio::{
 use tonic::transport::Channel;
 use tracing::info;
 use types::TransactionsClient;
-use utils::metrics::RegistryService;
-use utils::network::Multiaddr;
 use worker::TrivialTransactionValidator;
 
 #[cfg(test)]

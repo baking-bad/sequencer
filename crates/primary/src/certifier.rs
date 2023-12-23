@@ -8,10 +8,14 @@ use crypto::{NetworkPublicKey, Signature};
 use fastcrypto::signature_service::SignatureService;
 use futures::stream::FuturesUnordered;
 use futures::StreamExt;
+use utils::metered_channel::Receiver;
+use utils::{monitored_future, spawn_logged_monitored_task};
 use network::anemo_ext::NetworkExt;
 use std::sync::Arc;
 use std::time::Duration;
 use storage::CertificateStore;
+use utils::fail_point_async;
+use utils::protocol_config::ProtocolConfig;
 use tokio::{
     sync::oneshot,
     task::{JoinHandle, JoinSet},
@@ -23,10 +27,6 @@ use types::{
     Certificate, CertificateDigest, ConditionalBroadcastReceiver, Header, HeaderAPI,
     PrimaryToPrimaryClient, RequestVoteRequest, Vote, VoteAPI,
 };
-use utils::fail_point_async;
-use utils::metered_channel::Receiver;
-use utils::protocol_config::ProtocolConfig;
-use utils::{monitored_future, spawn_logged_monitored_task};
 
 #[cfg(test)]
 #[path = "tests/certifier_tests.rs"]

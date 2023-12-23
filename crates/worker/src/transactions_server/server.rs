@@ -1,10 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
-use crate::transactions_server::config::Config;
 use crate::transactions_server::metrics::{
     DefaultMetricsCallbackProvider, MetricsCallbackProvider, MetricsHandler,
     GRPC_ENDPOINT_PATH_HEADER,
 };
+use crate::transactions_server::config::Config;
+use utils::network::{parse_dns, parse_ip4, parse_ip6, Protocol, Multiaddr};
 use eyre::{eyre, Result};
 use futures::FutureExt;
 use std::task::{Context, Poll};
@@ -31,7 +32,6 @@ use tower_http::classify::{GrpcErrorsAsFailures, SharedClassifier};
 use tower_http::propagate_header::PropagateHeaderLayer;
 use tower_http::set_header::SetRequestHeaderLayer;
 use tower_http::trace::{DefaultMakeSpan, DefaultOnBodyChunk, DefaultOnEos, TraceLayer};
-use utils::network::{parse_dns, parse_ip4, parse_ip6, Multiaddr, Protocol};
 
 pub struct ServerBuilder<M: MetricsCallbackProvider = DefaultMetricsCallbackProvider> {
     router: Router<WrapperService<M>>,
@@ -271,13 +271,13 @@ fn update_tcp_port_in_multiaddr(addr: &Multiaddr, port: u16) -> Multiaddr {
 mod test {
     use crate::transactions_server::config::Config;
     use crate::transactions_server::metrics::MetricsCallbackProvider;
+    use utils::network::Multiaddr;
     use std::ops::Deref;
     use std::sync::{Arc, Mutex};
     use std::time::Duration;
     use tonic::Code;
     use tonic_health::pb::health_client::HealthClient;
     use tonic_health::pb::HealthCheckRequest;
-    use utils::network::Multiaddr;
 
     #[test]
     fn document_multiaddr_limitation_for_unix_protocol() {

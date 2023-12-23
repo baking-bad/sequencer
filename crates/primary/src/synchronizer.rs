@@ -8,6 +8,9 @@ use crypto::NetworkPublicKey;
 use fastcrypto::hash::Hash as _;
 use futures::{stream::FuturesOrdered, StreamExt};
 use itertools::Itertools;
+use utils::notify_once::NotifyOnce;
+use utils::metered_channel::{channel_with_total, Sender};
+use utils::{metrics::monitored_scope, spawn_logged_monitored_task};
 use network::{
     anemo_ext::{NetworkExt, WaitingPeer},
     client::NetworkClient,
@@ -24,6 +27,7 @@ use std::{
     time::Duration,
 };
 use storage::{CertificateStore, PayloadStore};
+use utils::protocol_config::ProtocolConfig;
 use tokio::task::spawn_blocking;
 use tokio::time::Instant;
 use tokio::{
@@ -39,10 +43,6 @@ use types::{
     Certificate, CertificateAPI, CertificateDigest, Header, HeaderAPI, PrimaryToPrimaryClient,
     Round, SendCertificateRequest, SendCertificateResponse, WorkerSynchronizeMessage,
 };
-use utils::metered_channel::{channel_with_total, Sender};
-use utils::notify_once::NotifyOnce;
-use utils::protocol_config::ProtocolConfig;
-use utils::{metrics::monitored_scope, spawn_logged_monitored_task};
 
 use crate::{
     aggregators::CertificatesAggregator, certificate_fetcher::CertificateFetcherCommand,

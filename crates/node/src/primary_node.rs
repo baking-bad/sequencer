@@ -7,6 +7,8 @@ use config::{AuthorityIdentifier, ChainIdentifier, Committee, Parameters, Worker
 use crypto::{KeyPair, NetworkKeyPair, PublicKey};
 use executor::{get_restored_consensus_output, ExecutionState, Executor, SubscriberResult};
 use fastcrypto::traits::{KeyPair as _, VerifyingKey};
+use utils::metered_channel;
+use utils::metrics::{RegistryID, RegistryService};
 use network::client::NetworkClient;
 use primary::consensus::{
     Bullshark, ChannelMetrics, Consensus, ConsensusMetrics, ConsensusRound, LeaderSchedule,
@@ -16,13 +18,11 @@ use prometheus::{IntGauge, Registry};
 use std::sync::Arc;
 use std::time::Instant;
 use storage::NodeStorage;
+use utils::protocol_config::ProtocolConfig;
 use tokio::sync::{watch, RwLock};
 use tokio::task::JoinHandle;
 use tracing::{info, instrument};
 use types::{Certificate, ConditionalBroadcastReceiver, PreSubscribedBroadcastSender, Round};
-use utils::metered_channel;
-use utils::metrics::{RegistryID, RegistryService};
-use utils::protocol_config::ProtocolConfig;
 
 struct PrimaryNodeInner {
     // The configuration parameters.

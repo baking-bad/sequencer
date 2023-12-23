@@ -6,8 +6,8 @@ use config::AuthorityIdentifier;
 use typed_store::reopen;
 use typed_store::rocks::{open_cf, MetricConf, ReadWriteOptions};
 use typed_store::{rocks::DBMap, Map, TypedStoreError};
-use types::{Vote, VoteAPI, VoteInfo};
 use utils::fail_point;
+use types::{Vote, VoteAPI, VoteInfo};
 
 /// The storage for the last votes digests per authority
 #[derive(Clone)]

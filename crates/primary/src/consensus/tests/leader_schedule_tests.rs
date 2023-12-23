@@ -9,9 +9,9 @@ use std::{
 
 use config::AuthorityIdentifier;
 use storage::ConsensusStore;
+use utils::protocol_config::ProtocolConfig;
 use test_utils::{latest_protocol_version, mock_certificate, CommitteeFixture};
 use types::{Certificate, CommittedSubDag, ReputationScores, Round};
-use utils::protocol_config::ProtocolConfig;
 
 use crate::consensus::{Dag, LeaderSchedule, LeaderSwapTable};
 

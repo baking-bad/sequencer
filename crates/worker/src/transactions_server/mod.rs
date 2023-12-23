@@ -3,11 +3,14 @@
 
 use crate::client::LocalNarwhalClient;
 use crate::metrics::WorkerEndpointMetrics;
-use crate::transactions_server::server::Server;
 use crate::TransactionValidator;
+use crate::transactions_server::server::Server;
 use async_trait::async_trait;
 use futures::stream::FuturesUnordered;
 use futures::StreamExt;
+use utils::metered_channel::Sender;
+use utils::spawn_logged_monitored_task;
+use utils::network::Multiaddr;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::task::JoinHandle;
@@ -18,9 +21,6 @@ use types::{
     ConditionalBroadcastReceiver, Empty, Transaction, TransactionProto, Transactions,
     TransactionsServer, TxResponse,
 };
-use utils::metered_channel::Sender;
-use utils::network::Multiaddr;
-use utils::spawn_logged_monitored_task;
 
 pub mod client;
 pub mod config;
