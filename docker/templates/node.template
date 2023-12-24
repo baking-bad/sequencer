@@ -1,6 +1,6 @@
   primary_{counter}:
     build:
-      context: ../../
+      context: ../
       dockerfile: ./docker/Dockerfile
     image: narwhal-node:latest
     environment:
@@ -18,7 +18,7 @@
       - ./validator-{counter}/logs:/home/logs
   worker_{counter}:
     build:
-      context: ../../
+      context: ../
       dockerfile: ./docker/Dockerfile
     depends_on:
       - primary_{counter}
