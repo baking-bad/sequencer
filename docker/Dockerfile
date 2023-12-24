@@ -35,6 +35,7 @@ COPY --from=builder sequencer/target/${PROFILE}/narwhal-benchmark-client bin/
 
 # Copy the entry point file
 COPY docker/entry.sh ./
+RUN ["chmod", "+x", "./entry.sh"]
 
 # Now add the entry point
 CMD ./entry.sh

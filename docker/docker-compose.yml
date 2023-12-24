@@ -14,7 +14,7 @@ services:
     image: prom/prometheus:v2.36.0
     container_name: prometheus
     volumes:
-      - ./prometheus:/etc/prometheus
+      - ./templates/prometheus:/etc/prometheus
       - prometheus_data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
@@ -34,8 +34,8 @@ services:
     container_name: grafana
     volumes:
       - grafana_data:/var/lib/grafana
-      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
-      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./templates/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./templates/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
     environment:
       - GF_SECURITY_ADMIN_USER=${ADMIN_USER:-admin}
       - GF_SECURITY_ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin}
@@ -121,7 +121,7 @@ services:
       - ./promtail-local-config.yaml:/etc/promtail/config.yaml:ro
       - /var/run/docker.sock:/var/run/docker.sock
       - /var/lib/docker/containers:/var/lib/docker/containers
-      - ./:/validators:ro
+      - ./validators:/validators:ro
     command: -config.file=/etc/promtail/config.yaml
     depends_on:
       - gateway
@@ -222,8 +222,8 @@ services:
       - "8000:8000" # expose the gRPC port to be publicly accessible
       - "8100:8010" # expose the port listening to metrics endpoint for prometheus metrics
     volumes:
-      - .:/validators
-      - ./validator-00/logs:/home/logs
+      - ./validators:/validators
+      - ./validators/validator-00/logs:/home/logs
   worker_00:
     build:
       context: ../
@@ -243,8 +243,8 @@ services:
     ports:
       - "7100:4001" # expose the port for the worker to accept transactions from clients
     volumes:
-      - .:/validators
-      - ./validator-00/logs:/home/logs
+      - ./validators:/validators
+      - ./validators/validator-00/logs:/home/logs
 
   primary_01:
     build:
@@ -262,8 +262,8 @@ services:
       - "8001:8000" # expose the gRPC port to be publicly accessible
       - "8101:8010" # expose the port listening to metrics endpoint for prometheus metrics
     volumes:
-      - .:/validators
-      - ./validator-01/logs:/home/logs
+      - ./validators:/validators
+      - ./validators/validator-01/logs:/home/logs
   worker_01:
     build:
       context: ../
@@ -283,8 +283,8 @@ services:
     ports:
       - "7101:4001" # expose the port for the worker to accept transactions from clients
     volumes:
-      - .:/validators
-      - ./validator-01/logs:/home/logs
+      - ./validators:/validators
+      - ./validators/validator-01/logs:/home/logs
 
   primary_02:
     build:
@@ -302,8 +302,8 @@ services:
       - "8002:8000" # expose the gRPC port to be publicly accessible
       - "8102:8010" # expose the port listening to metrics endpoint for prometheus metrics
     volumes:
-      - .:/validators
-      - ./validator-02/logs:/home/logs
+      - ./validators:/validators
+      - ./validators/validator-02/logs:/home/logs
   worker_02:
     build:
       context: ../
@@ -323,8 +323,8 @@ services:
     ports:
       - "7102:4001" # expose the port for the worker to accept transactions from clients
     volumes:
-      - .:/validators
-      - ./validator-02/logs:/home/logs
+      - ./validators:/validators
+      - ./validators/validator-02/logs:/home/logs
 
   primary_03:
     build:
@@ -342,8 +342,8 @@ services:
       - "8003:8000" # expose the gRPC port to be publicly accessible
       - "8103:8010" # expose the port listening to metrics endpoint for prometheus metrics
     volumes:
-      - .:/validators
-      - ./validator-03/logs:/home/logs
+      - ./validators:/validators
+      - ./validators/validator-03/logs:/home/logs
   worker_03:
     build:
       context: ../
@@ -363,8 +363,8 @@ services:
     ports:
       - "7103:4001" # expose the port for the worker to accept transactions from clients
     volumes:
-      - .:/validators
-      - ./validator-03/logs:/home/logs
+      - ./validators:/validators
+      - ./validators/validator-03/logs:/home/logs
 
 ...
 

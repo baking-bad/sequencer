@@ -23,7 +23,7 @@ services:
     image: prom/prometheus:v2.36.0
     container_name: prometheus
     volumes:
-      - ./prometheus:/etc/prometheus
+      - ./templates/prometheus:/etc/prometheus
       - prometheus_data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
@@ -43,8 +43,8 @@ services:
     container_name: grafana
     volumes:
       - grafana_data:/var/lib/grafana
-      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
-      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./templates/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./templates/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
     environment:
       - GF_SECURITY_ADMIN_USER=${ADMIN_USER:-admin}
       - GF_SECURITY_ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin}

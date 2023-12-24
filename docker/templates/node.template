@@ -14,8 +14,8 @@
       - "80{counter}:8000" # expose the gRPC port to be publicly accessible
       - "81{counter}:8010" # expose the port listening to metrics endpoint for prometheus metrics
     volumes:
-      - .:/validators
-      - ./validator-{counter}/logs:/home/logs
+      - ./validators:/validators
+      - ./validators/validator-{counter}/logs:/home/logs
   worker_{counter}:
     build:
       context: ../
@@ -35,5 +35,5 @@
     ports:
       - "71{counter}:4001" # expose the port for the worker to accept transactions from clients
     volumes:
-      - .:/validators
-      - ./validator-{counter}/logs:/home/logs
+      - ./validators:/validators
+      - ./validators/validator-{counter}/logs:/home/logs
