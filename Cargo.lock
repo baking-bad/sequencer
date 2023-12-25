@@ -5199,10 +5199,13 @@ name = "sequencer"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "bcs",
+ "bytes",
  "clap",
  "env_logger",
  "fastcrypto",
  "hex",
+ "narwhal-types",
  "reqwest",
  "serde",
  "serde_json",
@@ -5210,6 +5213,7 @@ dependencies = [
  "tezos_data_encoding",
  "tide",
  "tokio",
+ "tonic",
 ]
 
 [[package]]
