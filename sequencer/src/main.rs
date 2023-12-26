@@ -1,10 +1,13 @@
 use clap::Parser;
 use consensus_client::WorkerClient;
 use da_batcher::make_da_batch;
+use pre_block::PreBlock;
 use rollup_client::RollupClient;
 use fastcrypto::hash::{HashFunction, Keccak256};
+use log::{info, warn, error};
+use tokio::task::JoinHandle;
 use std::sync::Arc;
-use std::time::SystemTime;
+use std::time::{SystemTime, Duration};
 use tokio::signal;
 
 mod da_batcher;
@@ -52,6 +55,8 @@ async fn get_block_by_level(req: tide::Request<State>) -> tide::Result<tide::Bod
 }
 
 async fn run_api_server(rpc_addr: String, rpc_port: u16, rollup_node_url: String, worker_node_url: String) -> anyhow::Result<()> {
+    info!("[RPC server] Starting...");
+
     let rpc_host = format!("http://{}:{}", rpc_addr, rpc_port);
     let mut app = tide::with_state(State::new(rollup_node_url, worker_node_url));
     app.at("/broadcast").post(broadcast_transaction);
@@ -65,17 +70,43 @@ fn now() -> u64 {
 }
 
 async fn run_da_task(rollup_node_url: String, primary_node_url: String) -> anyhow::Result<()> {
-    let rollup_client = RollupClient::new(rollup_node_url);
-    let smart_rollup_address = rollup_client.get_rollup_address().await?;
+    info!("[DA task] Starting...");
+    
+    let rollup_client = RollupClient::new(rollup_node_url.clone());
+    let mut connection_attempts = 0;
+
+    let smart_rollup_address = loop {
+        match rollup_client.get_rollup_address().await {
+            Ok(res) => break res,
+            Err(err) => {
+                connection_attempts += 1;
+                if connection_attempts == 10 {
+                    error!("[DA task] Max attempts to connect to SR node: {}", err);
+                    return Err(err)
+                } else {
+                    warn!("[DA task] Attempt #{} {}", connection_attempts, err);
+                    tokio::time::sleep(Duration::from_secs(connection_attempts)).await;
+                }
+            }
+        }
+    };
+    info!("Connected to SR node: {} at {}", smart_rollup_address, rollup_node_url);
+    
     // let primary_client = PrimaryClient::new(primary_node_url);
 
     loop {
-        let sub_dug_index = rollup_client.get_sub_dag_index().await?;
+        let mut index = rollup_client.get_sub_dag_index().await?;
         let mut synced_at = now();
 
         // let stream = primary_client.get_sub_dag_stream(sub_dag_index);
-        // while let Some(item) = stream.next().await {
-        //      // Check if leader
+        // while let Some(pre_block) = stream.next().await {
+
+        index += 1;
+
+        let pre_block = PreBlock::new(index, vec![vec![vec![1u8]]]);
+        if !pre_block.is_leader() {
+            continue;
+        }
 
         let current_time = now();
         if synced_at < current_time - 300 {
@@ -85,10 +116,9 @@ async fn run_da_task(rollup_node_url: String, primary_node_url: String) -> anyho
             } else {
                 synced_at = current_time;
             }
-        }       
+        }
 
-        let payload = vec![];
-        let batch = make_da_batch(&payload, &smart_rollup_address)?;
+        let batch = make_da_batch(&pre_block, &smart_rollup_address)?;
         rollup_client.inject_batch(batch).await?;
 
         // }
@@ -115,27 +145,40 @@ struct Args {
     rpc_port: u16,
 }
 
+async fn flatten(handle: JoinHandle<anyhow::Result<()>>) -> anyhow::Result<()> {
+    match handle.await {
+        Ok(Ok(_)) => Ok(()),
+        Ok(Err(err)) => Err(err),
+        Err(err) => Err(anyhow::anyhow!("Failed to join: {}", err)),
+    }
+}
+
 #[tokio::main]
 async fn main() {
     env_logger::init();
+    info!("Sequencer node is launching...");
 
     let args = Args::parse();
-
-    let api_server = tokio::spawn(
-        run_api_server(
-            args.rpc_addr,
-            args.rpc_port,
-            args.rollup_node_url.clone(),
-            args.worker_node_url
-        )
-    );
-
-    let da_task = tokio::spawn(async move {
+    let rollup_node_url = args.rollup_node_url.clone();
+    
+    let api_server = tokio::spawn(async move {
         tokio::select! {
-            _ = signal::ctrl_c() => {},
-            _ = run_da_task(args.rollup_node_url, args.primary_node_url) => {}
+            _ = signal::ctrl_c() => Ok(()),
+            res = run_api_server(
+                args.rpc_addr,
+                args.rpc_port,
+                rollup_node_url,
+                args.worker_node_url
+            ) => res,
         }
     });
 
-    let _ = tokio::try_join!(api_server, da_task).expect("Failed to shutdown gracefully");
+    let da_task = tokio::spawn(async move {
+        tokio::select! {
+            _ = signal::ctrl_c() => Ok(()),
+            res = run_da_task(args.rollup_node_url, args.primary_node_url) => res,
+        }
+    }); 
+
+    tokio::try_join!(flatten(api_server), flatten(da_task)).unwrap();
 }

@@ -1,3 +1,4 @@
+use serde::Serialize;
 use tezos_data_encoding::enc::BinWriter;
 use tezos_smart_rollup_encoding::{inbox::ExternalMessageFrame, smart_rollup::SmartRollupAddress};
 
@@ -7,14 +8,11 @@ pub const MAX_MESSAGE_PAYLOAD_SIZE: usize = MAX_MESSAGE_SIZE - 22;
 
 pub type DaBatch = Vec<Vec<u8>>;
 
-pub fn make_da_batch(
-    payload: &[u8],
+pub fn make_da_batch<T: Serialize>(
+    value: &T,
     smart_rollup_address: &SmartRollupAddress,
 ) -> anyhow::Result<DaBatch> {
-    if payload.is_empty() {
-        return Ok(DaBatch::new());
-    }
-
+    let payload = serde_json::to_vec(&value)?;
     let num_messages = payload.len().div_ceil(MAX_MESSAGE_PAYLOAD_SIZE);
     let mut batch = DaBatch::with_capacity(num_messages);
 

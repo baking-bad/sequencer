@@ -15,6 +15,7 @@ members = [
     "crates/types",
     "crates/utils",
     "crates/worker",
+    "crates/pre-block",
     
     "executor",
     "launcher",
@@ -200,6 +201,9 @@ narwhal-typed-store = { path = "crates/typed-store" }
 narwhal-types = { path = "crates/types" }
 narwhal-utils = { path = "crates/utils" }
 narwhal-worker = { path = "crates/worker" }
+
+# pre-block
+pre-block = { path = "crates/pre-block" }
 
 [patch.crates-io]
 # FIXME: use "custom" feature to avoid unexpected behavior

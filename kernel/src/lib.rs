@@ -2,55 +2,63 @@
 //
 // SPDX-License-Identifier: MIT
 
-use narwhal_config::Epoch;
-use narwhal_crypto::PublicKey;
-use narwhal_types::ConsensusOutput;
 use tezos_smart_rollup_encoding::{
     inbox::{ExternalMessageFrame, InboxMessage, InternalInboxMessage},
     michelson::MichelsonBytes,
 };
 use tezos_smart_rollup_host::runtime::Runtime;
+use tezos_crypto_rs::blake2b::digest_256;
+use pre_block::{DsnConfig, PreBlock};
 
-mod executor;
 mod storage;
-mod validator;
 
-use executor::apply_consensus_output;
-use storage::write_authorities;
-use validator::{commit_consensus_output, verify_consensus_output};
+use storage::{write_authorities, read_authorities, Store, read_head, write_block, write_head, write_timestamp};
 
 const LEVELS_PER_EPOCH: u32 = 100;
 
-fn process_external_message<Host: Runtime>(host: &mut Host, contents: &[u8], level: u32, timestamp: u64) {
-    let output: ConsensusOutput =
-        serde_json::from_slice(contents).expect("Failed to parse consensus output");
-
-    let epoch = (level % LEVELS_PER_EPOCH) as Epoch;
-
-    if verify_consensus_output(host, &output, epoch).is_err() {
-        // Skip sub dag
-        return;
+pub fn apply_pre_block<Host: Runtime>(host: &mut Host, pre_block: PreBlock, timestamp: u64) {
+    let mut block: Vec<Vec<u8>> = Vec::new();
+    for tx in pre_block.into_transactions() {
+        let tx_hash = digest_256(&tx).unwrap();
+        block.push(tx_hash);
     }
 
-    // Regardless of the execution result we mark this sub dag as processed and advance the timestamp
-    commit_consensus_output(host, &output, timestamp);
-
-    // Process transaction batches
-    apply_consensus_output(host, output);
+    let head = read_head(host);
+    write_block(host, head + 1, block);
+    write_head(host, head + 1);
+    write_timestamp(host, timestamp);
 }
 
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
-pub struct DsnConfig {
-    pub epoch: Epoch,
-    pub authorities: Vec<PublicKey>,
+fn process_external_message<Host: Runtime>(host: &mut Host, contents: &[u8], level: u32, timestamp: u64) {
+    let pre_block: PreBlock =
+        serde_json_wasm::from_slice(contents).expect("Failed to parse consensus output");
+
+    let epoch = (level % LEVELS_PER_EPOCH) as u64;
+    let authorities = read_authorities(host, epoch);
+    let config = DsnConfig::new(epoch, authorities);
+
+    {
+        let mut store = Store::new(host);
+        match pre_block.verify(&config, &store) {
+            Ok(()) => {
+                pre_block.commit(&mut store);
+            },
+            Err(_) => {
+                // Skip this pre-block
+                return
+            }
+        }
+    }
+
+    apply_pre_block(host, pre_block, timestamp);
 }
 
 fn process_internal_message<Host: Runtime>(host: &mut Host, contents: &[u8]) {
-    let config: DsnConfig = serde_json::from_slice(contents).expect("Failed to parse authorities");
+    let config: DsnConfig = serde_json_wasm::from_slice(contents).expect("Failed to parse authorities");
     write_authorities(host, config.epoch, &config.authorities);
 }
 
-pub fn kernel_run<Host: Runtime>(host: &mut Host) {
+pub fn kernel_loop<Host: Runtime>(host: &mut Host) {
     let smart_rollup_address = host.reveal_metadata().address();
     let mut chunked_message: Vec<u8> = Vec::new();
     let mut timestamp: u64 = 0;
@@ -101,4 +109,4 @@ pub fn kernel_run<Host: Runtime>(host: &mut Host) {
     }
 }
 
-tezos_smart_rollup_entrypoint::kernel_entry!(kernel_run);
+tezos_smart_rollup_entrypoint::kernel_entry!(kernel_loop);

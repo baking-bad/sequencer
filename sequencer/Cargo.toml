@@ -20,8 +20,10 @@ tezos-smart-rollup-encoding = { version = "0.2.2", default_features = false, fea
 hex = "*"
 tide = "0.16"
 env_logger = "0.10.0"
+log = "0.4"
 
 narwhal-types.workspace = true
+pre-block.workspace = true
 
 [[bin]]
 name = "sequencer"

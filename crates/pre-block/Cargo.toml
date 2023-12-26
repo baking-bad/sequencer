@@ -1,0 +1,16 @@
+# SPDX-FileCopyrightText: 2023 Baking Bad <hello@bakingbad.dev>
+#
+# SPDX-License-Identifier: MIT
+
+[package]
+name = "pre-block"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+publish = false
+
+[dependencies]
+serde.workspace = true
+anyhow.workspace = true
+
+tezos_crypto_rs = { version = "0.5.2", default-features = false, features = ["bls"] }
