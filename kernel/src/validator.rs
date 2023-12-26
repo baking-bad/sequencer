@@ -20,7 +20,7 @@ use tezos_smart_rollup_host::runtime::Runtime;
 
 use crate::storage::{
     is_known_certificate, read_authorities, read_last_sub_dag_index, remember_certificate,
-    write_last_sub_dag_index,
+    write_last_sub_dag_index, write_last_advanced_at,
 };
 
 fn load_committee<Host: Runtime>(host: &Host, epoch: Epoch) -> Committee {
@@ -109,8 +109,9 @@ fn verify_batches(certificate: &Certificate, batches: &[Batch]) -> anyhow::Resul
     Ok(())
 }
 
-pub fn commit_consensus_output<Host: Runtime>(host: &mut Host, output: &ConsensusOutput) {
+pub fn commit_consensus_output<Host: Runtime>(host: &mut Host, output: &ConsensusOutput, timestamp: u64) {
     write_last_sub_dag_index(host, output.sub_dag.sub_dag_index);
+    write_last_advanced_at(host, timestamp);
     for certificate in output.sub_dag.certificates.iter() {
         remember_certificate(host, output.sub_dag.sub_dag_index, &certificate.digest());
     }

@@ -3,12 +3,12 @@ use tonic::transport::Channel;
 use bytes::Bytes;
 
 #[derive(Clone, Debug)]
-pub struct ConsensusClient {
+pub struct WorkerClient {
     pub endpoint: String,
     client: Option<TransactionsClient<Channel>>,
 }
 
-impl ConsensusClient {
+impl WorkerClient {
     pub fn new(endpoint: String) -> Self {
         Self { endpoint, client: None }
     }
@@ -28,4 +28,3 @@ impl ConsensusClient {
         Ok(())
     }
 }
-

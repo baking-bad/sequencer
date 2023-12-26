@@ -21,7 +21,7 @@ use validator::{commit_consensus_output, verify_consensus_output};
 
 const LEVELS_PER_EPOCH: u32 = 100;
 
-fn process_external_message<Host: Runtime>(host: &mut Host, contents: &[u8], level: u32) {
+fn process_external_message<Host: Runtime>(host: &mut Host, contents: &[u8], level: u32, timestamp: u64) {
     let output: ConsensusOutput =
         serde_json::from_slice(contents).expect("Failed to parse consensus output");
 
@@ -32,8 +32,8 @@ fn process_external_message<Host: Runtime>(host: &mut Host, contents: &[u8], lev
         return;
     }
 
-    // Regardless of the execution result we mark this sub dag as processed
-    commit_consensus_output(host, &output);
+    // Regardless of the execution result we mark this sub dag as processed and advance the timestamp
+    commit_consensus_output(host, &output, timestamp);
 
     // Process transaction batches
     apply_consensus_output(host, output);
@@ -53,6 +53,7 @@ fn process_internal_message<Host: Runtime>(host: &mut Host, contents: &[u8]) {
 pub fn kernel_run<Host: Runtime>(host: &mut Host) {
     let smart_rollup_address = host.reveal_metadata().address();
     let mut chunked_message: Vec<u8> = Vec::new();
+    let mut timestamp: u64 = 0;
     loop {
         match host.read_input().expect("Failed to read inbox") {
             Some(message) => {
@@ -72,6 +73,7 @@ pub fn kernel_run<Host: Runtime>(host: &mut Host) {
                                             host,
                                             &chunked_message,
                                             message.level,
+                                            timestamp,
                                         );
                                         chunked_message.clear();
                                     }
@@ -85,6 +87,9 @@ pub fn kernel_run<Host: Runtime>(host: &mut Host) {
                         match msg {
                             InternalInboxMessage::Transfer(transfer) => {
                                 process_internal_message(host, &transfer.payload.0);
+                            }
+                            InternalInboxMessage::InfoPerLevel(info) => {
+                                timestamp = info.predecessor_timestamp.as_u64();
                             }
                             _ => { /* system messages */ }
                         }

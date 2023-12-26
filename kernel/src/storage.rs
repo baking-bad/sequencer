@@ -11,6 +11,7 @@ use tezos_smart_rollup_host::{
     runtime::Runtime,
 };
 
+const LAST_ADVANCED_AT_PATH: RefPath = RefPath::assert_from(b"/last_advanced_at");
 const SUB_DAG_INDEX_PATH: RefPath = RefPath::assert_from(b"/sub_dag_index");
 const CERTIFICATES_PATH: RefPath = RefPath::assert_from(b"/certificates");
 const AUTHORITIES_PATH: RefPath = RefPath::assert_from(b"/authorities");
@@ -18,6 +19,11 @@ const HEAD_PATH: RefPath = RefPath::assert_from(b"/head");
 const BLOCKS_PATH: RefPath = RefPath::assert_from(b"/blocks");
 
 pub const DIGEST_SIZE: usize = 32;
+
+pub fn write_last_advanced_at<Host: Runtime>(host: &mut Host, timestamp: u64) {
+    host.store_write_all(&LAST_ADVANCED_AT_PATH, &timestamp.to_be_bytes())
+        .unwrap();
+}
 
 pub fn read_last_sub_dag_index<Host: Runtime>(host: &Host) -> Option<SequenceNumber> {
     match host.store_read_all(&SUB_DAG_INDEX_PATH) {
