@@ -31,11 +31,13 @@ fn write_u64_be(host: &mut impl Runtime, path: &impl Path, value: u64) {
 }
 
 fn read_u64_be(host: &impl Runtime, path: &impl Path) -> Option<u64> {
-    match host.store_read_all(path) {
-        Ok(bytes) => Some(u64::from_be_bytes(
+    if host.store_has(path).unwrap().is_some() {
+        let bytes = host.store_read_all(path).unwrap();
+        Some(u64::from_be_bytes(
             bytes.try_into().expect("Expected 8 bytes"),
-        )),
-        Err(_) => None,
+        ))
+    } else {
+        None
     }
 }
 
@@ -71,10 +73,6 @@ impl<'cs, Host: Runtime> PreBlockStore for Store<'cs, Host> {
     }
 }
 
-pub fn write_timestamp(host: &mut impl Runtime, timestamp: u64) {
-    write_u64_be(host, &TIMESTAMP_PATH, timestamp)
-}
-
 fn authorities_path(epoch: u64) -> OwnedPath {
     let suffix = OwnedPath::try_from(format!("{}", epoch)).unwrap();
     concat(&AUTHORITIES_PATH, &suffix).unwrap()
@@ -94,10 +92,15 @@ pub fn write_authorities<Host: Runtime>(host: &mut Host, epoch: u64, authorities
 }
 
 pub fn read_head<Host: Runtime>(host: &Host) -> u32 {
-    let bytes = host
-        .store_read_all(&HEAD_PATH)
-        .unwrap_or_else(|_| vec![0u8, 0u8, 0u8, 0u8]);
-    u32::from_be_bytes(bytes.try_into().expect("Expected 4 bytes"))
+    if host.store_has(&HEAD_PATH).unwrap().is_some() {
+        let bytes = host
+            .store_read_all(&HEAD_PATH)
+            .unwrap();
+        u32::from_be_bytes(bytes.try_into().expect("Expected 4 bytes"))
+    } else {
+        0
+    }
+    
 }
 
 pub fn write_head<Host: Runtime>(host: &mut Host, level: u32) {

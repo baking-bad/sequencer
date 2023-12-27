@@ -61,6 +61,24 @@ impl RollupClient {
         }
     }
 
+    pub async fn get_inbox_level(&self) -> anyhow::Result<u32> {
+        let res = self
+            .client
+            .get(format!("{}/global/blocks/head/level", self.base_url))
+            .send()
+            .await?;
+
+        if res.status() == 200 {
+            let value: String = res.text().await?;
+            Ok(u32::from_str_radix(&value, 10)?)
+        } else {
+            Err(anyhow::anyhow!(
+                "Response status {0}",
+                res.status().as_u16()
+            ))
+        }
+    }
+
     pub async fn store_get(&self, key: String) -> anyhow::Result<Vec<u8>> {
         let res = self
             .client
@@ -119,23 +137,13 @@ impl RollupClient {
         Ok(serde_json::from_slice(&block_bytes)?)
     }
 
-    pub async fn get_sub_dag_index(&self) -> anyhow::Result<u64> {
-        let index_bytes = self.store_get("/sub_dag_index".into()).await?;
-        let sub_dag_index = u64::from_be_bytes(
-            index_bytes
-                .try_into()
-                .map_err(|b| anyhow::anyhow!("Failed to parse sub dag index: {}", hex::encode(b)))?
-        );
-        Ok(sub_dag_index)
-    }
-
-    pub async fn get_last_advanced_at(&self) -> anyhow::Result<u64> {
-        let bytes = self.store_get("/last_advanced_at".into()).await?;
-        let timestamp = u64::from_be_bytes(
+    pub async fn get_latest_index(&self) -> anyhow::Result<u64> {
+        let bytes = self.store_get("/index".into()).await?;
+        let index = u64::from_be_bytes(
             bytes
                 .try_into()
-                .map_err(|b| anyhow::anyhow!("Failed to parse timestamp: {}", hex::encode(b)))?
+                .map_err(|b| anyhow::anyhow!("Failed to parse pre-block index: {}", hex::encode(b)))?
         );
-        Ok(timestamp)
+        Ok(index)
     }
 }

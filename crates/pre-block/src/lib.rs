@@ -20,6 +20,10 @@ impl PreBlock {
         Self { index, batches }
     }
 
+    pub fn index(&self) -> u64 {
+        self.index
+    }
+
     pub fn into_transactions(self) -> Vec<Transaction> {
         self.batches.into_iter().flatten().collect()
     }

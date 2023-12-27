@@ -12,11 +12,11 @@ use pre_block::{DsnConfig, PreBlock};
 
 mod storage;
 
-use storage::{write_authorities, read_authorities, Store, read_head, write_block, write_head, write_timestamp};
+use storage::{write_authorities, read_authorities, Store, read_head, write_block, write_head};
 
 const LEVELS_PER_EPOCH: u32 = 100;
 
-pub fn apply_pre_block<Host: Runtime>(host: &mut Host, pre_block: PreBlock, timestamp: u64) {
+pub fn apply_pre_block<Host: Runtime>(host: &mut Host, pre_block: PreBlock) {
     let mut block: Vec<Vec<u8>> = Vec::new();
     for tx in pre_block.into_transactions() {
         let tx_hash = digest_256(&tx).unwrap();
@@ -26,10 +26,9 @@ pub fn apply_pre_block<Host: Runtime>(host: &mut Host, pre_block: PreBlock, time
     let head = read_head(host);
     write_block(host, head + 1, block);
     write_head(host, head + 1);
-    write_timestamp(host, timestamp);
 }
 
-fn process_external_message<Host: Runtime>(host: &mut Host, contents: &[u8], level: u32, timestamp: u64) {
+fn process_external_message<Host: Runtime>(host: &mut Host, contents: &[u8], level: u32) {
     let pre_block: PreBlock =
         serde_json_wasm::from_slice(contents).expect("Failed to parse consensus output");
 
@@ -50,7 +49,7 @@ fn process_external_message<Host: Runtime>(host: &mut Host, contents: &[u8], lev
         }
     }
 
-    apply_pre_block(host, pre_block, timestamp);
+    apply_pre_block(host, pre_block);
 }
 
 fn process_internal_message<Host: Runtime>(host: &mut Host, contents: &[u8]) {
@@ -61,7 +60,6 @@ fn process_internal_message<Host: Runtime>(host: &mut Host, contents: &[u8]) {
 pub fn kernel_loop<Host: Runtime>(host: &mut Host) {
     let smart_rollup_address = host.reveal_metadata().address();
     let mut chunked_message: Vec<u8> = Vec::new();
-    let mut timestamp: u64 = 0;
     loop {
         match host.read_input().expect("Failed to read inbox") {
             Some(message) => {
@@ -81,7 +79,6 @@ pub fn kernel_loop<Host: Runtime>(host: &mut Host) {
                                             host,
                                             &chunked_message,
                                             message.level,
-                                            timestamp,
                                         );
                                         chunked_message.clear();
                                     }
@@ -95,9 +92,6 @@ pub fn kernel_loop<Host: Runtime>(host: &mut Host) {
                         match msg {
                             InternalInboxMessage::Transfer(transfer) => {
                                 process_internal_message(host, &transfer.payload.0);
-                            }
-                            InternalInboxMessage::InfoPerLevel(info) => {
-                                timestamp = info.predecessor_timestamp.as_u64();
                             }
                             _ => { /* system messages */ }
                         }

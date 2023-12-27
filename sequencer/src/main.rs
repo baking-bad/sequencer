@@ -1,14 +1,16 @@
 use clap::Parser;
 use consensus_client::WorkerClient;
-use da_batcher::make_da_batch;
-use pre_block::PreBlock;
 use rollup_client::RollupClient;
 use fastcrypto::hash::{HashFunction, Keccak256};
 use log::{info, warn, error};
 use tokio::task::JoinHandle;
 use std::sync::Arc;
-use std::time::{SystemTime, Duration};
+use std::sync::mpsc;
+use std::time::Duration;
 use tokio::signal;
+
+use crate::da_batcher::fetch_pre_blocks;
+use crate::da_batcher::publish_pre_blocks;
 
 mod da_batcher;
 mod rollup_client;
@@ -65,10 +67,6 @@ async fn run_api_server(rpc_addr: String, rpc_port: u16, rollup_node_url: String
     Ok(())
 }
 
-fn now() -> u64 {
-    SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs()
-}
-
 async fn run_da_task(rollup_node_url: String, primary_node_url: String) -> anyhow::Result<()> {
     info!("[DA task] Starting...");
     
@@ -95,36 +93,22 @@ async fn run_da_task(rollup_node_url: String, primary_node_url: String) -> anyho
     // let primary_client = PrimaryClient::new(primary_node_url);
 
     loop {
-        let mut index = rollup_client.get_sub_dag_index().await?;
-        let mut synced_at = now();
+        let prev_index = rollup_client.get_latest_index().await?;
+        let (tx, rx) = mpsc::channel();
 
-        // let stream = primary_client.get_sub_dag_stream(sub_dag_index);
-        // while let Some(pre_block) = stream.next().await {
-
-        index += 1;
-
-        let pre_block = PreBlock::new(index, vec![vec![vec![1u8]]]);
-        if !pre_block.is_leader() {
-            continue;
-        }
-
-        let current_time = now();
-        if synced_at < current_time - 300 {
-            let last_advanced_at = rollup_client.get_last_advanced_at().await?;
-            if last_advanced_at < current_time - 300 {
-                break;
-            } else {
-                synced_at = current_time;
-            }
-        }
-
-        let batch = make_da_batch(&pre_block, &smart_rollup_address)?;
-        rollup_client.inject_batch(batch).await?;
-
-        // }
+        tokio::select! {
+            res = fetch_pre_blocks(prev_index, tx) => {
+                if let Err(err) = res {
+                    error!("[DA fetch] Failed with {}", err);
+                }
+            },
+            res = publish_pre_blocks(&rollup_client, &smart_rollup_address, rx) => {
+                if let Err(err) = res {
+                    error!("[DA publish] Failed with {}", err);
+                }
+            },
+        };
     }
-
-    Ok(())
 }
 
 #[derive(Parser, Debug)]

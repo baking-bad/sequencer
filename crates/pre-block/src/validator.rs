@@ -50,6 +50,8 @@
 //         anyhow::bail!("Mismatching epoch");
 //     }
 
+//
+
 //     // Genesis certificates are always valid
 //     if certificate.round() == 0 {
 //         // TODO: verify protocol config
@@ -77,6 +79,9 @@
 //     known_digests: &BTreeSet<CertificateDigest>,
 //     last_sub_dag_index: SequenceNumber,
 // ) -> anyhow::Result<()> {
+
+//     // TODO: ensure this cert is not yet known
+
 //     let parents = match certificate.header() {
 //         Header::V2(header) => &header.parents,
 //         _ => unimplemented!(),
