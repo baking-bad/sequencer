@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: MIT
 
-use pre_block::{CertificateDigest, PublicKey, PreBlockStore};
+use pre_block::{Digest, PublicKey, PreBlockStore};
 use tezos_smart_rollup_host::{
     path::{concat, OwnedPath, RefPath, Path},
     runtime::Runtime,
@@ -11,17 +11,11 @@ use tezos_smart_rollup_host::{
 const HEAD_PATH: RefPath = RefPath::assert_from(b"/head");
 const BLOCKS_PATH: RefPath = RefPath::assert_from(b"/blocks");
 const INDEX_PATH: RefPath = RefPath::assert_from(b"/index");
-const TIMESTAMP_PATH: RefPath = RefPath::assert_from(b"/timestamp");
 const AUTHORITIES_PATH: RefPath = RefPath::assert_from(b"/authorities");
 const CERTIFICATES_PATH: RefPath = RefPath::assert_from(b"/certificates");
 
-fn certificate_path(pre_block_index: u64, digest: &CertificateDigest) -> OwnedPath {
-    let suffix = OwnedPath::try_from(format!(
-        "{}/{}",
-        pre_block_index,
-        hex::encode(digest.as_ref())
-    ))
-    .unwrap();
+fn certificate_path(digest: &Digest) -> OwnedPath {
+    let suffix = OwnedPath::try_from(hex::encode(digest.as_ref())).unwrap();
     concat(&CERTIFICATES_PATH, &suffix).unwrap()
 }
 
@@ -53,22 +47,19 @@ impl<'cs, Host: Runtime> Store<'cs, Host> {
 }
 
 impl<'cs, Host: Runtime> PreBlockStore for Store<'cs, Host> {
-    fn has_certificate(&self, pre_block_index: u64, digest: &CertificateDigest) -> bool {
-        self.host.store_has(&certificate_path(pre_block_index, digest))
-            .unwrap()
-            .is_some()
+    fn get_certificate_index(&self, digest: &Digest) -> Option<u64> {
+        read_u64_be(self.host, &certificate_path(digest)) 
     }
 
-    fn mem_certificate(&mut self, pre_block_index: u64, digest: &CertificateDigest) {
-        self.host.store_write_all(&certificate_path(pre_block_index, digest), &[0u8])
-            .unwrap();
+    fn set_certificate_index(&mut self, digest: &Digest, index: u64) {
+        write_u64_be(self.host, &certificate_path(digest), index);
     }
 
-    fn get_index(&self) -> Option<u64> {
+    fn get_latest_index(&self) -> Option<u64> {
         read_u64_be(self.host, &INDEX_PATH)
     }
 
-    fn set_index(&mut self, index: u64) {
+    fn set_latest_index(&mut self, index: u64) {
         write_u64_be(self.host, &INDEX_PATH, index)
     }
 }

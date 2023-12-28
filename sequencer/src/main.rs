@@ -67,7 +67,7 @@ async fn run_api_server(rpc_addr: String, rpc_port: u16, rollup_node_url: String
     Ok(())
 }
 
-async fn run_da_task(rollup_node_url: String, primary_node_url: String) -> anyhow::Result<()> {
+async fn run_da_task(node_id: u8, rollup_node_url: String, primary_node_url: String) -> anyhow::Result<()> {
     info!("[DA task] Starting...");
     
     let rollup_client = RollupClient::new(rollup_node_url.clone());
@@ -102,7 +102,7 @@ async fn run_da_task(rollup_node_url: String, primary_node_url: String) -> anyho
                     error!("[DA fetch] Failed with {}", err);
                 }
             },
-            res = publish_pre_blocks(&rollup_client, &smart_rollup_address, rx) => {
+            res = publish_pre_blocks(&rollup_client, &smart_rollup_address, node_id, rx) => {
                 if let Err(err) = res {
                     error!("[DA publish] Failed with {}", err);
                 }
@@ -127,6 +127,9 @@ struct Args {
 
     #[arg(long, default_value_t = 8080)]
     rpc_port: u16,
+
+    #[arg(long, default_value_t = 1)]
+    node_id: u8,
 }
 
 async fn flatten(handle: JoinHandle<anyhow::Result<()>>) -> anyhow::Result<()> {
@@ -160,7 +163,7 @@ async fn main() {
     let da_task = tokio::spawn(async move {
         tokio::select! {
             _ = signal::ctrl_c() => Ok(()),
-            res = run_da_task(args.rollup_node_url, args.primary_node_url) => res,
+            res = run_da_task(args.node_id, args.rollup_node_url, args.primary_node_url) => res,
         }
     }); 
 

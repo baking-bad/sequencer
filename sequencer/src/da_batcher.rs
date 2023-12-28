@@ -10,6 +10,7 @@ use crate::rollup_client::RollupClient;
 pub const MAX_MESSAGE_SIZE: usize = 2048;
 // minus endian tag, smart rollup address, external message tag
 pub const MAX_MESSAGE_PAYLOAD_SIZE: usize = MAX_MESSAGE_SIZE - 22;
+pub const BATCH_SIZE_SOFT_LIMIT: usize = 100;
 
 pub type DaBatch = Vec<Vec<u8>>;
 
@@ -62,14 +63,18 @@ pub async fn fetch_pre_blocks(
     //}
 }
 
-pub fn is_leader(level: u32) -> bool {
-    // TODO: round robin + skip odd levels
-    level % 2 == 0
+pub fn is_leader(level: u32, node_id: u8) -> bool {
+    if level % 2 == 0 {
+        (level / 2) % (node_id as u32) == 0
+    } else {
+        false
+    }
 }
 
 pub async fn publish_pre_blocks(
     rollup_client: &RollupClient,
     smart_rollup_address: &SmartRollupAddress,
+    node_id: u8,
     pre_blocks_rx: mpsc::Receiver<PreBlock>
 ) -> anyhow::Result<()> {
     let mut prev_inbox_level = 0;
@@ -79,14 +84,17 @@ pub async fn publish_pre_blocks(
         if inbox_level > prev_inbox_level {
             prev_inbox_level = inbox_level;
 
-            if is_leader(inbox_level) {
+            if is_leader(inbox_level, node_id) {
                 let mut prev_index = rollup_client.get_latest_index().await?;
                 let mut batch = DaBatch::new();
 
                 while let Ok(pre_block) = pre_blocks_rx.try_recv() {
                     if pre_block.index() == prev_index + 1 {
                         batch_encode_to(&pre_block, &smart_rollup_address, &mut batch)?;
-                        prev_index += 1
+                        prev_index += 1;
+                        if batch.len() > BATCH_SIZE_SOFT_LIMIT {
+                            break
+                        }
                     } else if pre_block.index() > prev_index + 1 {
                         return Err(anyhow::anyhow!("Missing pre-blocks {0}..{1}", prev_index, pre_block.index()));
                     } else  {

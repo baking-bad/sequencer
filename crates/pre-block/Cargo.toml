@@ -11,6 +11,15 @@ publish = false
 
 [dependencies]
 serde.workspace = true
+serde_repr.workspace = true
 anyhow.workspace = true
+tezos_crypto_rs = { version = "0.5.2", default-features = false }
 
-tezos_crypto_rs = { version = "0.5.2", default-features = false, features = ["bls"] }
+blst = "=0.3.10"
+protobuf = "3.3.0"
+bcs = "0.1.6"
+
+[dev-dependencies]
+narwhal-types.workspace = true
+narwhal-crypto.workspace = true
+narwhal-test-utils.workspace = true

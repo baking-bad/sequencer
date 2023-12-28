@@ -2,157 +2,115 @@
 // //
 // // SPDX-License-Identifier: MIT
 
-// use std::collections::BTreeSet;
+use std::collections::BTreeSet;
 
-// use fastcrypto::{
-//     hash::{Digest, Hash},
-//     traits::ToFromBytes,
-// };
-// use narwhal_config::{Committee, CommitteeBuilder, Epoch};
-// use narwhal_crypto::{
-//     to_intent_message, AggregateSignature, NarwhalAuthorityAggregateSignature, NetworkPublicKey,
-//     DIGEST_LENGTH,
-// };
-// use narwhal_types::{
-//     Batch, Certificate, CertificateAPI, CertificateDigest, ConsensusOutput, Header, SequenceNumber,
-// };
-// use tezos_smart_rollup_host::runtime::Runtime;
+use crate::{Certificate, DsnConfig, PreBlockStore, Digest, Batch, digest::Blake2b256, bls_min_sig::aggregate_verify, PublicKey};
 
-// use crate::storage::{
-//     is_known_certificate, read_authorities, read_last_sub_dag_index, remember_certificate,
-//     write_last_sub_dag_index, write_last_advanced_at,
-// };
+pub fn validate_certificate_signature(cert: &Certificate, config: &DsnConfig) -> anyhow::Result<()> {
+    if config.epoch != cert.header.epoch {
+        anyhow::bail!("Incorrect epoch");
+    }
 
-// fn load_committee<Host: Runtime>(host: &Host, epoch: Epoch) -> Committee {
-//     let mut builder = CommitteeBuilder::new(epoch);
+    if cert.signers.iter().any(|x| (*x as usize) >= config.authorities.len()) {
+        anyhow::bail!("Unknown authority");
+    }
 
-//     let authorities = read_authorities(host, epoch);
-//     for protocol_key in authorities {
-//         // We need only epoch and public key for verification.
-//         // The rest is just filled with dummy values.
-//         builder = builder.add_authority(
-//             protocol_key,
-//             1,
-//             "127.0.0.1".try_into().unwrap(),
-//             NetworkPublicKey::from_bytes(&[0u8; 32]).unwrap(),
-//             String::new(),
-//         );
-//     }
-//     builder.build()
-// }
+    if cert.signers.len() < config.quorum_threshold() {
+        anyhow::bail!("Quorum is not met");
+    }
 
-// fn verify_certificate<Host: Runtime>(
-//     host: &Host,
-//     certificate: &Certificate,
-//     epoch: Epoch,
-// ) -> anyhow::Result<()> {
-//     if epoch != certificate.epoch() {
-//         anyhow::bail!("Mismatching epoch");
-//     }
+    let digest = cert.digest();
+    let keys: Vec<&PublicKey> = cert.signers.iter().map(|i| {
+        config.authorities.get(*i as usize).unwrap()
+    }).collect();
 
-//
+    aggregate_verify(&cert.signature, digest, keys.as_slice())
+}
 
-//     // Genesis certificates are always valid
-//     if certificate.round() == 0 {
-//         // TODO: verify protocol config
-//         return Ok(());
-//     }
+pub fn validate_certificate_chain(
+    cert: &Certificate,
+    index: u64,
+    store: &impl PreBlockStore,
+    neighbors: &BTreeSet<Digest>
+) -> anyhow::Result<()> {
+    for parent in cert.header.parents.iter() {
+        if neighbors.contains(parent) {
+            continue;
+        }
 
-//     let committee = load_committee(host, epoch);
-//     let (weight, pks) = certificate.signed_by(&committee);
+        match store.get_certificate_index(parent) {
+            Some(prev_index) if prev_index + 1 != index => {
+                anyhow::bail!("Parent certificate is not from a preceding sub dag")
+            },
+            None => {
+                anyhow::bail!("Parent certificate cannot be not found");
+            },
+            _ => (),
+        }
+    }
 
-//     if weight < committee.quorum_threshold() {
-//         anyhow::bail!("Quorum not met");
-//     }
+    Ok(())
+}
 
-//     let aggregrate_signature_bytes = certificate.aggregated_signature().unwrap();
-//     let certificate_digest: Digest<DIGEST_LENGTH> = Digest::from(certificate.digest());
-//     AggregateSignature::try_from(aggregrate_signature_bytes)?
-//         .verify_secure(&to_intent_message(certificate_digest), &pks[..])?;
+pub fn validate_certificate_batches(cert: &Certificate, batches: &[Batch]) -> anyhow::Result<()> {
+    for (idx, (digest, _)) in cert.header.payload.iter().enumerate() {
+        let actual = batches.get(idx).unwrap().digest();
+        if &actual != digest {
+            anyhow::bail!("Invalid batch content (digest mismatch)");
+        }
+    }
+    Ok(())
+}
 
-//     Ok(())
-// }
+#[cfg(test)]
+mod tests {
+    use narwhal_crypto::traits::ToFromBytes;
+    use narwhal_test_utils::{latest_protocol_version, CommitteeFixture};
+    use narwhal_types::{VoteAPI, CertificateV2, CertificateAPI};
 
-// fn verify_certificate_chain<Host: Runtime>(
-//     host: &Host,
-//     certificate: &Certificate,
-//     known_digests: &BTreeSet<CertificateDigest>,
-//     last_sub_dag_index: SequenceNumber,
-// ) -> anyhow::Result<()> {
+    use crate::{Certificate, CertificateHeader, DsnConfig};
 
-//     // TODO: ensure this cert is not yet known
+    use super::validate_certificate_signature;
 
-//     let parents = match certificate.header() {
-//         Header::V2(header) => &header.parents,
-//         _ => unimplemented!(),
-//     };
+    #[test]
+    fn test_aggregate_signature_compatibility() {
+        let cert_v2_config = latest_protocol_version();
+        let fixture = CommitteeFixture::builder().build();
+        let committee = fixture.committee();
+        let header = fixture.header(&cert_v2_config);
 
-//     for parent_digest in parents.iter() {
-//         if !known_digests.contains(parent_digest) {
-//             if !is_known_certificate(host, last_sub_dag_index, parent_digest) {
-//                 anyhow::bail!("Failed to verify certificate chain");
-//             }
-//         }
-//     }
-//     Ok(())
-// }
+        let mut signatures = Vec::new();
 
-// fn verify_batches(certificate: &Certificate, batches: &[Batch]) -> anyhow::Result<()> {
-//     for (index, digest) in certificate
-//         .header()
-//         .clone()
-//         .unwrap_v2()
-//         .payload
-//         .keys()
-//         .enumerate()
-//     {
-//         let batch_digest = batches.get(index).unwrap().digest();
-//         if &batch_digest != digest {
-//             anyhow::bail!("Unexpected batch digest");
-//         }
-//     }
-//     Ok(())
-// }
+        // 3 Signers satisfies the 2F + 1 signed stake requirement
+        for authority in fixture.authorities().take(3) {
+            let vote = authority.vote(&header);
+            signatures.push((vote.author(), vote.signature().clone()));
+        }
 
-// pub fn commit_consensus_output<Host: Runtime>(host: &mut Host, output: &ConsensusOutput, timestamp: u64) {
-//     write_last_sub_dag_index(host, output.sub_dag.sub_dag_index);
-//     write_last_advanced_at(host, timestamp);
-//     for certificate in output.sub_dag.certificates.iter() {
-//         remember_certificate(host, output.sub_dag.sub_dag_index, &certificate.digest());
-//     }
-// }
+        let narwhal_cert = match CertificateV2::new_unverified(&committee, header, signatures) {
+            Ok(narwhal_types::Certificate::V2(cert)) => cert,
+            _ => unreachable!()
+        };
 
-// pub fn verify_consensus_output<Host: Runtime>(
-//     host: &Host,
-//     output: &ConsensusOutput,
-//     epoch: Epoch,
-// ) -> anyhow::Result<()> {
-//     let last_sub_dag_index = match (read_last_sub_dag_index(host), output.sub_dag.sub_dag_index) {
-//         (None, 0) => u64::MAX,
-//         (Some(prev_index), next_index) if prev_index + 1 == next_index => prev_index,
-//         _ => anyhow::bail!("Unexpected sub dag index"),
-//     };
+        // Convert to pre-block certificate
+        let cert = Certificate {
+            header: CertificateHeader::default(),
+            signers: CertificateAPI::signed_authorities(&narwhal_cert)
+                .iter()
+                .map(|x| x as u8)
+                .collect(),
+            signature: narwhal_cert.aggregated_signature().unwrap().0.to_vec(),
+        };
 
-//     verify_certificate(host, &output.sub_dag.leader, epoch)?;
+        let config = DsnConfig::new(
+            0,
+            fixture
+                .authorities()
+                .map(|auth| auth.public_key().as_bytes().to_vec())
+                .collect()
+        );
 
-//     let known_digests: BTreeSet<CertificateDigest> = output
-//         .sub_dag
-//         .certificates
-//         .iter()
-//         .map(|c| c.digest())
-//         .collect();
+        validate_certificate_signature(&cert, &config).unwrap();
 
-//     verify_certificate_chain(
-//         host,
-//         &output.sub_dag.leader,
-//         &known_digests,
-//         last_sub_dag_index,
-//     )?;
-
-//     for (index, certificate) in output.sub_dag.certificates.iter().enumerate() {
-//         verify_certificate_chain(host, certificate, &known_digests, last_sub_dag_index)?;
-//         verify_batches(certificate, output.batches.get(index).unwrap())?;
-//     }
-
-//     Ok(())
-// }
+    }
+}
