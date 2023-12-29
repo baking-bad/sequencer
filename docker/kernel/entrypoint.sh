@@ -77,8 +77,9 @@ deploy_rollup() {
         exit 1
     fi
     kernel="$(xxd -p "/root/kernel.wasm" | tr -d '\n')"
+    rollup_type="bytes"
     
-    octez-client --endpoint "$endpoint" originate smart rollup "rollup" from operator of kind wasm_2_0_0 of type bytes with kernel "$kernel" --burn-cap 999 --force | tee originate.out
+    octez-client --endpoint "$endpoint" originate smart rollup "rollup" from operator of kind wasm_2_0_0 of type $rollup_type with kernel "$kernel" --burn-cap 999 --force | tee originate.out
     operator_address=$(octez-client --endpoint "$endpoint" show address "operator" 2>&1 | grep Hash | grep -oE "tz.*")
     octez-smart-rollup-node --base-dir "$client_dir" init operator config for "rollup" with operators "$operator_address" --data-dir "$rollup_dir"
 }

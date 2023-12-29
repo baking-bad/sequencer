@@ -1,6 +1,6 @@
-// // SPDX-FileCopyrightText: 2023 Baking Bad <hello@bakingbad.dev>
-// //
-// // SPDX-License-Identifier: MIT
+// SPDX-FileCopyrightText: 2023 Baking Bad <hello@bakingbad.dev>
+//
+// SPDX-License-Identifier: MIT
 
 use std::collections::BTreeSet;
 
@@ -68,7 +68,7 @@ mod tests {
     use narwhal_test_utils::{latest_protocol_version, CommitteeFixture};
     use narwhal_types::{VoteAPI, CertificateV2, CertificateAPI};
 
-    use crate::{Certificate, CertificateHeader, DsnConfig};
+    use crate::{Certificate, CertificateHeader, DsnConfig, digest::Blake2b256};
 
     use super::validate_certificate_signature;
 
@@ -91,16 +91,35 @@ mod tests {
             Ok(narwhal_types::Certificate::V2(cert)) => cert,
             _ => unreachable!()
         };
+        let digest = narwhal_cert.header.digest();
 
-        // Convert to pre-block certificate
+        // Make sure the original cert is valid
+        narwhal_cert.clone().verify(&committee, &fixture.worker_cache()).expect("Valid certificate");
+
+        // Convert certificate
+        let signers = CertificateAPI::signed_authorities(&narwhal_cert)
+            .iter()
+            .map(|x| x as u8)
+            .collect();
+        let signature = narwhal_cert.aggregated_signature().unwrap().0.to_vec();
+        let narwal_header = narwhal_cert.header.unwrap_v2();
+
         let cert = Certificate {
-            header: CertificateHeader::default(),
-            signers: CertificateAPI::signed_authorities(&narwhal_cert)
-                .iter()
-                .map(|x| x as u8)
-                .collect(),
-            signature: narwhal_cert.aggregated_signature().unwrap().0.to_vec(),
+            signers,
+            signature,
+            header: CertificateHeader {
+                author: narwal_header.author.0,
+                round: narwal_header.round,
+                epoch: narwal_header.epoch,
+                created_at: narwal_header.created_at,
+                payload: narwal_header.payload.into_iter().map(|x| (x.0.0, x.1)).collect(),
+                system_messages: vec![],
+                parents: narwal_header.parents.into_iter().map(|x| x.0).collect()
+            }
         };
+
+        // Make sure digests are the same
+        assert_eq!(cert.digest(), digest.0);
 
         let config = DsnConfig::new(
             0,

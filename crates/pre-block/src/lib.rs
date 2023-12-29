@@ -8,52 +8,49 @@ use digest::Blake2b256;
 use serde::{Serialize, Deserialize};
 use validator::{validate_certificate_signature, validate_certificate_chain, validate_certificate_batches};
 
-mod conversion;
+#[cfg(feature = "protobuf")]
 mod exporter;
+
+#[cfg(feature = "protobuf")]
+mod conversion;
+
 mod validator;
 mod digest;
 mod bls_min_sig;
 
 pub type Transaction = Vec<u8>;
 pub type Batch = Vec<Transaction>;
-pub type PublicKey = Vec<u8>; // 96 bytes
-pub type AggregateSignature = Vec<u8>; // 48 bytes
+/// BLS12-381 G2 element — 96 bytes
+pub type PublicKey = Vec<u8>;
+/// BLS12-381 G1 element — 48 bytes
+pub type AggregateSignature = Vec<u8>;
+/// Blake2B 256 bit
 pub type Digest = [u8; 32];
-
-#[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct RandomnessRound(pub u64);
-
-#[derive(Debug, Clone, Deserialize, Serialize)]
-pub enum SystemMessage {
-    DkgMessage(Vec<u8>),
-    DkgConfirmation(Vec<u8>),
-    RandomnessSignature(RandomnessRound, Vec<u8>),
-}
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct CertificateHeader {
-    pub author: u32,
+    pub author: u16,
     pub round: u64,
     pub epoch: u64,
     pub created_at: u64,
     pub payload: Vec<(Digest, (u32, u64))>,
-    pub system_messages: Vec<SystemMessage>,
+    pub system_messages: Vec<()>, // not used
     pub parents: BTreeSet<Digest>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Certificate {
-    header: CertificateHeader,
-    signers: Vec<u8>,
-    signature: AggregateSignature,
+    pub header: CertificateHeader,
+    pub signers: Vec<u8>,
+    pub signature: AggregateSignature,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PreBlock {
-    index: u64,
-    leader: Certificate,
-    certificates: Vec<Certificate>,
-    batches: Vec<Vec<Vec<Transaction>>>,
+    pub index: u64,
+    pub leader: Certificate,
+    pub certificates: Vec<Certificate>,
+    pub batches: Vec<Vec<Vec<Transaction>>>,
 }
 
 impl PreBlock {
@@ -68,13 +65,16 @@ impl PreBlock {
     pub fn verify(&self, config: &DsnConfig, store: &impl PreBlockStore) -> anyhow::Result<()> {
         let prev_index = store.get_latest_index();
         if prev_index.map(|x| x + 1).unwrap_or(0) != self.index {
+            // NOTE that index is not enforced by any signature, so technically one can craft a
+            // pre-block with a mismatched (sub dag) index.
+            // The validation would fail either way, because of the parents check.
             anyhow::bail!("Non-sequential index");
         }
 
         // TODO: check that leader is actually leader — or is it implied by consensus?
         validate_certificate_signature(&self.leader, config)?;
 
-        let mut digests: BTreeSet::<Digest> = self.certificates
+        let digests: BTreeSet::<Digest> = self.certificates
             .iter()
             .map(|cert| cert.digest())
             .collect();

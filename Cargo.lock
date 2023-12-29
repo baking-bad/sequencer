@@ -1924,10 +1924,10 @@ name = "dsn_kernel"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "bcs",
  "hex",
  "pre-block",
  "serde",
- "serde-json-wasm",
  "tezos-smart-rollup-core",
  "tezos-smart-rollup-encoding",
  "tezos-smart-rollup-entrypoint",
@@ -4349,12 +4349,13 @@ dependencies = [
  "anyhow",
  "bcs",
  "blst",
+ "fastcrypto",
+ "hex",
  "narwhal-crypto",
  "narwhal-test-utils",
  "narwhal-types",
  "protobuf 3.3.0",
  "serde",
- "serde_repr",
  "tezos_crypto_rs",
 ]
 
@@ -5245,7 +5246,6 @@ dependencies = [
  "pre-block",
  "reqwest",
  "serde",
- "serde_json",
  "tezos-smart-rollup-encoding",
  "tezos_data_encoding",
  "tide",
@@ -5260,15 +5260,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "25dd9975e68d0cb5aa1120c288333fc98731bd1dd12f561e468ea4728c042b89"
 dependencies = [
  "serde_derive",
-]
-
-[[package]]
-name = "serde-json-wasm"
-version = "1.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "83c37d03f3b0f6b5f77c11af1e7c772de1c9af83e50bef7bb6069601900ba67b"
-dependencies = [
- "serde",
 ]
 
 [[package]]
@@ -6012,7 +6003,6 @@ checksum = "284fa6f4be10eff67ca5b2f9e8ec9544be81a07223f6a4c8d3a49a13aecce768"
 dependencies = [
  "anyhow",
  "base58",
- "blst",
  "byteorder",
  "cryptoxide",
  "ed25519-dalek",

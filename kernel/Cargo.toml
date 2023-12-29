@@ -12,17 +12,17 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 tezos-smart-rollup-host = { version = "0.2.2" }
-tezos-smart-rollup-encoding = { version = "0.2.2" }
+tezos-smart-rollup-encoding = { version = "0.2.2", default_features = false, features = ["alloc", "tezos-encoding"] }
 tezos-smart-rollup-entrypoint = { version = "0.2.2" }
 tezos-smart-rollup-core = { version = "0.2.2" }
 tezos_data_encoding = { version = "0.5.2" }
 tezos_crypto_rs = { version = "0.5.2", default-features = false }
-serde-json-wasm = "1.0.0"
 
 hex = "*"
 
 anyhow.workspace = true
 serde.workspace = true
+bcs.workspace = true
 
 pre-block.workspace = true
 

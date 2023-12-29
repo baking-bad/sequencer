@@ -13,3 +13,6 @@ target/
 
 # Kernel output
 bin/
+
+# Tezos wallet
+.tezos-client

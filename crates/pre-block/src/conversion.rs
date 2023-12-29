@@ -1,22 +1,16 @@
+// SPDX-FileCopyrightText: 2023 Baking Bad <hello@bakingbad.dev>
+//
+// SPDX-License-Identifier: MIT
+
 use std::collections::BTreeSet;
 
-use crate::{exporter, PreBlock, Certificate, CertificateHeader, SystemMessage, RandomnessRound};
-use crate::exporter::system_message::Message as ExporterMessage;
-
-impl From<exporter::SystemMessage> for SystemMessage {
-    fn from(msg: exporter::SystemMessage) -> Self {
-        match msg.message.unwrap() {
-            ExporterMessage::DkgConfirmation(value) => Self::DkgConfirmation(value),
-            ExporterMessage::DkgMessage(value) => Self::DkgConfirmation(value),
-            ExporterMessage::RandomnessSignature(value) => Self::RandomnessSignature(RandomnessRound(value.randomness_round), value.bytes),
-        }
-    }
-}
+use crate::{exporter, PreBlock, Certificate, CertificateHeader};
 
 impl From<exporter::Header> for CertificateHeader {
     fn from(header: exporter::Header) -> Self {
+        assert!(header.system_messages.is_empty());
         Self {
-            author: header.author,
+            author: header.author as u16,
             round: header.round,
             epoch: header.epoch,
             created_at: header.created_at,
@@ -24,10 +18,7 @@ impl From<exporter::Header> for CertificateHeader {
                 .into_iter()
                 .map(|info| (info.digest.try_into().unwrap(), (info.worker_id, info.created_at)))
                 .collect(),
-            system_messages: header.system_messages
-                .into_iter()
-                .map(|msg| msg.into())
-                .collect(),
+            system_messages: vec![],
             parents: BTreeSet::from_iter(
                 header
                     .parents

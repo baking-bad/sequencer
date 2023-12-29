@@ -22,7 +22,7 @@ build-kernel:
 		--release \
 		-Z sparse-registry \
 		-Z avoid-dev-deps
-	wasm-strip -o $(BIN_DIR)/kernel.wasm $(TARGET_DIR)/wasm32-unknown-unknown/release/kernel.wasm
+	wasm-strip -o $(BIN_DIR)/kernel.wasm $(TARGET_DIR)/wasm32-unknown-unknown/release/dsn_kernel.wasm
 
 build-installer:
 	smart-rollup-installer get-reveal-installer \
@@ -34,3 +34,29 @@ build-operator:
 	mkdir $(BIN_DIR) || true
 	$(MAKE) build-kernel
 	$(MAKE) build-installer
+
+build-sequencer:
+	cargo build --package sequencer
+
+image-operator:
+	docker build -t dsn/operator:$(OCTEZ_TAG) --file ./docker/kernel/local.dockerfile \
+		--build-arg OCTEZ_TAG=$(OCTEZ_TAG) \
+		--build-arg OCTEZ_PROTO=$(OCTEZ_PROTO) \
+		.
+
+run-operator:
+	$(MAKE) build-operator
+	$(MAKE) image-operator OCTEZ_TAG=$(OCTEZ_TAG) OCTEZ_PROTO=$(OCTEZ_PROTO)
+	docker stop dsn-operator || true
+	docker run --rm -it \
+		--name dsn-operator \
+		--entrypoint=/bin/sh \
+		-v $$PWD/.tezos-client:/root/.tezos-client/ \
+		-v dsn-operator:/root/.tezos-smart-rollup-node \
+		-v $(BIN_DIR):/root/bin -p 127.0.0.1:8932:8932 \
+		-e NETWORK=$(NETWORK) \
+		dsn/operator:$(OCTEZ_TAG)
+
+run-sequencer:
+	$(MAKE) build-sequencer
+	RUST_LOG=debug ./target/debug/sequencer

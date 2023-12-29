@@ -73,11 +73,11 @@ pub fn read_authorities<Host: Runtime>(host: &Host, epoch: u64) -> Vec<PublicKey
     let bytes = host
         .store_read_all(&authorities_path(epoch))
         .expect("Failed to read authorities");
-    serde_json_wasm::from_slice(&bytes).expect("Failed to parse authorities")
+    bcs::from_bytes(&bytes).expect("Failed to parse authorities")
 }
 
 pub fn write_authorities<Host: Runtime>(host: &mut Host, epoch: u64, authorities: &[PublicKey]) {
-    let bytes = serde_json_wasm::to_vec(authorities).unwrap();
+    let bytes = bcs::to_bytes(authorities).unwrap();
     host.store_write_all(&authorities_path(epoch), &bytes)
         .expect("Failed to write authorities");
 }
@@ -105,6 +105,6 @@ fn block_path(level: u32) -> OwnedPath {
 }
 
 pub fn write_block<Host: Runtime>(host: &mut Host, level: u32, block: Vec<Vec<u8>>) {
-    let payload = serde_json_wasm::to_vec(&block).unwrap();
+    let payload = bcs::to_bytes(&block).unwrap();
     host.store_write_all(&block_path(level), &payload).unwrap();
 }

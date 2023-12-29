@@ -30,7 +30,7 @@ pub fn apply_pre_block<Host: Runtime>(host: &mut Host, pre_block: PreBlock) {
 
 fn process_external_message<Host: Runtime>(host: &mut Host, contents: &[u8], level: u32) {
     let pre_block: PreBlock =
-        serde_json_wasm::from_slice(contents).expect("Failed to parse consensus output");
+        bcs::from_bytes(contents).expect("Failed to parse consensus output");
 
     let epoch = (level % LEVELS_PER_EPOCH) as u64;
     let authorities = read_authorities(host, epoch);
@@ -53,7 +53,7 @@ fn process_external_message<Host: Runtime>(host: &mut Host, contents: &[u8], lev
 }
 
 fn process_internal_message<Host: Runtime>(host: &mut Host, contents: &[u8]) {
-    let config: DsnConfig = serde_json_wasm::from_slice(contents).expect("Failed to parse authorities");
+    let config: DsnConfig = bcs::from_bytes(contents).expect("Failed to parse authorities");
     write_authorities(host, config.epoch, &config.authorities);
 }
 

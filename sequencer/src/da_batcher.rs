@@ -1,5 +1,5 @@
 use log::info;
-use pre_block::PreBlock;
+use pre_block::{PreBlock, Certificate, CertificateHeader};
 use serde::Serialize;
 use tezos_data_encoding::enc::BinWriter;
 use tezos_smart_rollup_encoding::{inbox::ExternalMessageFrame, smart_rollup::SmartRollupAddress};
@@ -19,7 +19,7 @@ pub fn batch_encode_to<T: Serialize>(
     smart_rollup_address: &SmartRollupAddress,
     batch: &mut DaBatch,
 ) -> anyhow::Result<()> {
-    let payload = serde_json::to_vec(&value)?;
+    let payload = bcs::to_bytes(&value)?;
     let num_messages = payload.len().div_ceil(MAX_MESSAGE_PAYLOAD_SIZE);
 
     for (idx, chunk) in payload.chunks(MAX_MESSAGE_PAYLOAD_SIZE).enumerate() {
@@ -41,6 +41,19 @@ pub fn batch_encode_to<T: Serialize>(
     Ok(())
 }
 
+// TODO: replace by stream
+fn dummy_pre_block(index: u64) -> PreBlock {
+    PreBlock {
+        index,
+        leader: Certificate {
+            header: CertificateHeader::default(),
+            signature: vec![],
+            signers: vec![],
+        },
+        certificates: vec![],
+        batches: vec![]
+    }
+}
 
 pub async fn fetch_pre_blocks(
     prev_index: u64,
@@ -52,9 +65,7 @@ pub async fn fetch_pre_blocks(
     // while let Some(pre_block) = stream.next().await {
 
     loop {
-        let pre_block = PreBlock::new(index, vec![vec![vec![1u8]]]);
-        pre_blocks_tx.send(pre_block)?;
-
+        pre_blocks_tx.send(dummy_pre_block(index))?;
         index += 1;
 
         tokio::time::sleep(Duration::from_secs(1)).await;

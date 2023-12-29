@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2023 Baking Bad <hello@bakingbad.dev>
+//
+// SPDX-License-Identifier: MIT
+
 use tezos_crypto_rs::blake2b;
 use crate::{Certificate, Digest, Batch};
 
@@ -23,13 +27,19 @@ impl Blake2b256 for Batch {
 
 #[cfg(test)]
 mod tests {
-    #[test]
-    fn test_certificate_digest_compatibility() {
+    use narwhal_test_utils::latest_protocol_version;
+    use narwhal_types::BatchV2;
+    use fastcrypto::hash::Hash;
 
-    }
+    use super::Blake2b256;
 
     #[test]
     fn test_batch_digest_compatibility() {
-        
+        let txs = vec![vec![1u8]];
+        let batch = BatchV2::new(txs.clone(), &latest_protocol_version());
+
+        let expected = batch.digest().0;
+        let actual = txs.digest();
+        assert_eq!(expected, actual);
     }
 }

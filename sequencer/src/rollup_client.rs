@@ -134,7 +134,7 @@ impl RollupClient {
         let block_bytes = self
             .store_get(format!("/blocks/{level}"))
             .await?;
-        Ok(serde_json::from_slice(&block_bytes)?)
+        Ok(bcs::from_bytes(&block_bytes)?)
     }
 
     pub async fn get_latest_index(&self) -> anyhow::Result<u64> {
