@@ -28,7 +28,8 @@ build-installer:
 	smart-rollup-installer get-reveal-installer \
 		--upgrade-to $(BIN_DIR)/kernel.wasm \
 		--output $(BIN_DIR)/kernel_installer.wasm \
-		--preimages-dir $(BIN_DIR)/wasm_2_0_0
+		--preimages-dir $(BIN_DIR)/wasm_2_0_0 \
+		--setup-file $(BIN_DIR)/kernel_config.yaml
 
 build-operator:
 	mkdir $(BIN_DIR) || true
@@ -59,4 +60,4 @@ run-operator:
 
 run-sequencer:
 	$(MAKE) build-sequencer
-	RUST_LOG=debug ./target/debug/sequencer
+	RUST_LOG=info ./target/debug/sequencer

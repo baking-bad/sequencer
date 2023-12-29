@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2023 Baking Bad <hello@bakingbad.dev>
+//
+// SPDX-License-Identifier: MIT
+
 use log::info;
 use pre_block::{PreBlock, Certificate, CertificateHeader};
 use serde::Serialize;
@@ -89,17 +93,21 @@ pub async fn publish_pre_blocks(
     pre_blocks_rx: mpsc::Receiver<PreBlock>
 ) -> anyhow::Result<()> {
     let mut prev_inbox_level = 0;
+    info!("[DA Publish] Latest inbox level is {}", prev_inbox_level);
      
     loop {
         let inbox_level = rollup_client.get_inbox_level().await?;
         if inbox_level > prev_inbox_level {
             prev_inbox_level = inbox_level;
+            info!("[DA Publish] New inbox level {}", inbox_level);
 
-            if is_leader(inbox_level, node_id) {
+            if is_leader(inbox_level, node_id) {                
                 let mut prev_index = rollup_client.get_latest_index().await?;
                 let mut batch = DaBatch::new();
+                info!("[DA Publish] Previous pre-block index {}", prev_index);
 
                 while let Ok(pre_block) = pre_blocks_rx.try_recv() {
+                    info!("[DA publish] Encoding pre-block #{}", pre_block.index());
                     if pre_block.index() == prev_index + 1 {
                         batch_encode_to(&pre_block, &smart_rollup_address, &mut batch)?;
                         prev_index += 1;
@@ -107,12 +115,13 @@ pub async fn publish_pre_blocks(
                             break
                         }
                     } else if pre_block.index() > prev_index + 1 {
-                        return Err(anyhow::anyhow!("Missing pre-blocks {0}..{1}", prev_index, pre_block.index()));
+                        return Err(anyhow::anyhow!("Missing pre-blocks #{0}..{1}", prev_index, pre_block.index()));
                     } else  {
-                        info!("[DA publish] skipping pre-block {}", pre_block.index());
+                        info!("[DA publish] Skipping pre-block #{}", pre_block.index());
                     }
                 }
 
+                info!("[DA publish] Sending inbox messages");
                 rollup_client.inject_batch(batch).await?;
             }
         }

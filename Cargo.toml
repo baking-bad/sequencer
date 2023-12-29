@@ -204,7 +204,3 @@ narwhal-worker = { path = "crates/worker" }
 
 # pre-block
 pre-block = { path = "crates/pre-block" }
-
-[patch.crates-io]
-# FIXME: use "custom" feature to avoid unexpected behavior
-getrandom = { git = "https://github.com/baking-bad/getrandom", branch = "patch/0.2" }

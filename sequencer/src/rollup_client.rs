@@ -1,9 +1,13 @@
+// SPDX-FileCopyrightText: 2023 Baking Bad <hello@bakingbad.dev>
+//
+// SPDX-License-Identifier: MIT
+
 use serde::Deserialize;
 use tezos_smart_rollup_encoding::smart_rollup::SmartRollupAddress;
 
 use crate::da_batcher::DaBatch;
 
-#[derive(Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct DurableStorageError {
     pub kind: String,
     pub id: String,
@@ -55,7 +59,7 @@ impl RollupClient {
             Ok(SmartRollupAddress::from_b58check(&value)?)
         } else {
             Err(anyhow::anyhow!(
-                "Response status {0}",
+                "Get rollup address: response status {0}",
                 res.status().as_u16()
             ))
         }
@@ -64,22 +68,22 @@ impl RollupClient {
     pub async fn get_inbox_level(&self) -> anyhow::Result<u32> {
         let res = self
             .client
-            .get(format!("{}/global/blocks/head/level", self.base_url))
+            .get(format!("{}/global/block/head/level", self.base_url))
             .send()
             .await?;
 
         if res.status() == 200 {
-            let value: String = res.text().await?;
-            Ok(u32::from_str_radix(&value, 10)?)
+            let value: u32 = res.json().await?;
+            Ok(value)
         } else {
             Err(anyhow::anyhow!(
-                "Response status {0}",
+                "Get inbox level: response status {0}",
                 res.status().as_u16()
             ))
         }
     }
 
-    pub async fn store_get(&self, key: String) -> anyhow::Result<Vec<u8>> {
+    pub async fn store_get(&self, key: String) -> anyhow::Result<Option<Vec<u8>>> {
         let res = self
             .client
             .get(format!(
@@ -94,17 +98,18 @@ impl RollupClient {
             match content {
                 Some(DurableStorageResponse::Value(value)) => {
                     let payload = hex::decode(value)?;
-                    Ok(payload)
+                    Ok(Some(payload))
                 }
                 Some(DurableStorageResponse::Errors(errors)) => {
                     let message = errors.first().unwrap().to_string();
                     Err(anyhow::anyhow!(message))
                 }
-                None => Err(anyhow::anyhow!("Key not found: {0}", key)),
+                // Key not found
+                None => Ok(None)
             }
         } else {
             Err(anyhow::anyhow!(
-                "Response status {0}",
+                "Store get: response status {0}",
                 res.status().as_u16()
             ))
         }
@@ -124,26 +129,35 @@ impl RollupClient {
             Ok(())
         } else {
             Err(anyhow::anyhow!(
-                "Response status {0}",
+                "Inject batch: response status {0}",
                 res.status().as_u16()
             ))
         }
     }
 
-    pub async fn get_block_by_level(&self, level: u32) -> anyhow::Result<Vec<[u8; 32]>> {
-        let block_bytes = self
+    pub async fn get_block_by_level(&self, level: u32) -> anyhow::Result<Option<Vec<[u8; 32]>>> {
+        let res = self
             .store_get(format!("/blocks/{level}"))
             .await?;
-        Ok(bcs::from_bytes(&block_bytes)?)
+        if let Some(bytes) = res {
+            Ok(bcs::from_bytes(&bytes)?)
+        } else {
+            Ok(None)
+        }
+        
     }
 
     pub async fn get_latest_index(&self) -> anyhow::Result<u64> {
-        let bytes = self.store_get("/index".into()).await?;
-        let index = u64::from_be_bytes(
-            bytes
-                .try_into()
-                .map_err(|b| anyhow::anyhow!("Failed to parse pre-block index: {}", hex::encode(b)))?
-        );
-        Ok(index)
+        let res = self.store_get("/index".into()).await?;
+        if let Some(bytes) = res {
+            let index = u64::from_be_bytes(
+                bytes
+                    .try_into()
+                    .map_err(|b| anyhow::anyhow!("Failed to parse pre-block index: {}", hex::encode(b)))?
+            );
+            Ok(index)
+        } else {
+            Ok(0)
+        }
     }
 }

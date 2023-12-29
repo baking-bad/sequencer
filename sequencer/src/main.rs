@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2023 Baking Bad <hello@bakingbad.dev>
+//
+// SPDX-License-Identifier: MIT
+
 use clap::Parser;
 use consensus_client::WorkerClient;
 use rollup_client::RollupClient;
@@ -49,11 +53,16 @@ async fn get_block_by_level(req: tide::Request<State>) -> tide::Result<tide::Bod
         .rollup_client
         .get_block_by_level(level)
         .await?;
-    let res: Vec<String> = block
-        .iter()
-        .map(|tx_digest| hex::encode(tx_digest))
-        .collect();
-    tide::Body::from_json(&res)
+
+    if let Some(txs) = block {
+        let res: Vec<String> = txs
+            .iter()
+            .map(|tx_digest| hex::encode(tx_digest))
+            .collect();
+        tide::Body::from_json(&res)
+    } else {
+        Err(tide::Error::new(404, anyhow::anyhow!("Block not found")))
+    }
 }
 
 async fn run_api_server(rpc_addr: String, rpc_port: u16, rollup_node_url: String, worker_node_url: String) -> anyhow::Result<()> {
@@ -95,19 +104,22 @@ async fn run_da_task(node_id: u8, rollup_node_url: String, primary_node_url: Str
     loop {
         let prev_index = rollup_client.get_latest_index().await?;
         let (tx, rx) = mpsc::channel();
+        info!("[DA task] Starting from index #{}", prev_index + 1);
 
         tokio::select! {
-            res = fetch_pre_blocks(prev_index, tx) => {
+            res = fetch_pre_blocks(prev_index + 1, tx) => {
                 if let Err(err) = res {
-                    error!("[DA fetch] Failed with {}", err);
+                    error!("[DA fetch] Failed with: {}", err);
                 }
             },
             res = publish_pre_blocks(&rollup_client, &smart_rollup_address, node_id, rx) => {
                 if let Err(err) = res {
-                    error!("[DA publish] Failed with {}", err);
+                    error!("[DA publish] Failed with: {}", err);
                 }
             },
         };
+
+        tokio::time::sleep(Duration::from_secs(5)).await;
     }
 }
 

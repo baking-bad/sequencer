@@ -33,6 +33,14 @@ pub fn validate_certificate_chain(
     store: &impl PreBlockStore,
     neighbors: &BTreeSet<Digest>
 ) -> anyhow::Result<()> {
+    // We need to ensure the sub dag is:
+    //  1) Not overlapping with the previous one
+    //  2) Not partially withdrawn
+    //
+    // In order to do that we need to check
+    // that every parent certificate is either:
+    //  1) From this sub dag
+    //  2) From a known sub dag (previous one)
     for parent in cert.header.parents.iter() {
         if neighbors.contains(parent) {
             continue;
