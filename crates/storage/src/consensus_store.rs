@@ -93,6 +93,21 @@ impl ConsensusStore {
             .map(|(_, sub_dag)| sub_dag)
     }
 
+    /// Load up to `limit` sub dags committed with sequence number of at least `from`.
+    pub fn read_committed_sub_dags(
+        &self,
+        from: &SequenceNumber,
+        limit: usize,
+    ) -> StoreResult<Vec<ConsensusCommit>> {
+        Ok(self
+            .committed_sub_dags_by_index_v2
+            .unbounded_iter()
+            .skip_to(from)?
+            .take(limit)
+            .map(|(_, sub_dag)| sub_dag)
+            .collect::<Vec<ConsensusCommit>>())
+    }
+
     /// Load all the sub dags committed with sequence number of at least `from`.
     pub fn read_committed_sub_dags_from(
         &self,

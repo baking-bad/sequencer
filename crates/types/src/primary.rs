@@ -1517,7 +1517,7 @@ pub struct CertificateV2 {
     pub header: Header,
     pub signature_verification_state: SignatureVerificationState,
     #[serde_as(as = "NarwhalBitmap")]
-    signed_authorities: roaring::RoaringBitmap,
+    pub signed_authorities: roaring::RoaringBitmap,
     pub metadata: Metadata,
 }
 
