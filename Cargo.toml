@@ -21,6 +21,7 @@ members = [
     "launcher",
     "playground",
     "simple-listener",
+    "simple-spammer",
 ]
 
 [workspace.package]
