@@ -61,12 +61,15 @@ pub fn validate_certificate_chain(
 }
 
 pub fn validate_certificate_batches(cert: &Certificate, batches: &[Batch]) -> anyhow::Result<()> {
-    for (idx, (digest, _)) in cert.header.payload.iter().enumerate() {
-        let actual = batches.get(idx).unwrap().digest();
-        if &actual != digest {
+    let digests: BTreeSet<&Digest> = cert.header.payload.iter().map(|x| &x.0).collect();
+
+    for batch in batches {
+        let digest = batch.digest();
+        if !digests.contains(&digest) {
             anyhow::bail!("Invalid batch content (digest mismatch)");
         }
     }
+
     Ok(())
 }
 

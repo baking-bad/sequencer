@@ -8,15 +8,15 @@ use digest::Blake2b256;
 use serde::{Serialize, Deserialize};
 use validator::{validate_certificate_signature, validate_certificate_chain, validate_certificate_batches};
 
-#[cfg(feature = "protobuf")]
-mod exporter;
+#[cfg(feature = "conversions")]
+pub mod exporter;
 
-#[cfg(feature = "protobuf")]
-mod conversion;
+#[cfg(feature = "conversions")]
+pub mod conversion;
 
-mod validator;
-mod digest;
-mod bls_min_sig;
+pub mod validator;
+pub mod digest;
+pub mod bls_min_sig;
 
 pub type Transaction = Vec<u8>;
 pub type Batch = Vec<Transaction>;
@@ -50,7 +50,7 @@ pub struct PreBlock {
     pub index: u64,
     pub leader: Certificate,
     pub certificates: Vec<Certificate>,
-    pub batches: Vec<Vec<Vec<Transaction>>>,
+    pub batches: Vec<Vec<Batch>>,
 }
 
 impl PreBlock {

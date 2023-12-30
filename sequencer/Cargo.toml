@@ -26,7 +26,11 @@ env_logger = "0.10.0"
 log = "0.4"
 
 narwhal-types.workspace = true
-pre-block.workspace = true
+narwhal-crypto.workspace = true
+narwhal-utils.workspace = true
+narwhal-test-utils.workspace = true
+
+pre-block = { workspace = true, features = ["conversions"] }
 
 [[bin]]
 name = "sequencer"

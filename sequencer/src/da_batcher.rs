@@ -9,11 +9,11 @@ use tezos_data_encoding::enc::BinWriter;
 use tezos_smart_rollup_encoding::{inbox::ExternalMessageFrame, smart_rollup::SmartRollupAddress};
 use std::{sync::mpsc, time::Duration};
 
-use crate::rollup_client::RollupClient;
+use crate::{rollup_client::RollupClient, narwhal_fixture::NarwalFixture};
 
 pub const MAX_MESSAGE_SIZE: usize = 2048;
 // minus endian tag, smart rollup address, external message tag
-pub const MAX_MESSAGE_PAYLOAD_SIZE: usize = MAX_MESSAGE_SIZE - 22;
+pub const MAX_MESSAGE_PAYLOAD_SIZE: usize = 2020;
 pub const BATCH_SIZE_SOFT_LIMIT: usize = 100;
 
 pub type DaBatch = Vec<Vec<u8>>;
@@ -38,6 +38,7 @@ pub fn batch_encode_to<T: Serialize>(
 
         let mut output = Vec::with_capacity(MAX_MESSAGE_SIZE);
         message.bin_write(&mut output)?;
+        assert!(output.len() <= MAX_MESSAGE_SIZE);
 
         batch.push(output);
     }
@@ -45,7 +46,6 @@ pub fn batch_encode_to<T: Serialize>(
     Ok(())
 }
 
-// TODO: replace by stream
 fn dummy_pre_block(index: u64) -> PreBlock {
     PreBlock {
         index,
@@ -64,15 +64,21 @@ pub async fn fetch_pre_blocks(
     pre_blocks_tx: mpsc::Sender<PreBlock>
 ) -> anyhow::Result<()> {
     let mut index = prev_index;
+    let mut fixture = NarwalFixture::new(4);
 
     // let stream = primary_client.get_sub_dag_stream(sub_dag_index);
     // while let Some(pre_block) = stream.next().await {
 
     loop {
-        pre_blocks_tx.send(dummy_pre_block(index))?;
-        index += 1;
+        // let pre_block = dummy_pre_block(index);
+        let pre_block = fixture.next_pre_block();
+        if pre_block.index() == index {
+            info!("[DA fetch] received pre-block #{}", index);
+            pre_blocks_tx.send(pre_block)?;
+            index += 1;
 
-        tokio::time::sleep(Duration::from_secs(1)).await;
+            tokio::time::sleep(Duration::from_secs(1)).await;
+        }
     }
 
     //}

@@ -129,8 +129,9 @@ impl RollupClient {
             Ok(())
         } else {
             Err(anyhow::anyhow!(
-                "Inject batch: response status {0}",
-                res.status().as_u16()
+                "Inject batch: response status {0} - {1}",
+                res.status().as_u16(),
+                res.text().await?,
             ))
         }
     }
