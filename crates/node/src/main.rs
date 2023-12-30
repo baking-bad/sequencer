@@ -98,6 +98,33 @@ enum Commands {
         #[command(subcommand)]
         subcommand: NodeType,
     },
+    /// Run a primary with a single worker
+    RunComb {
+        /// The file containing the node's primary keys
+        #[arg(long)]
+        primary_keys: PathBuf,
+        /// The file containing the node's primary network keys
+        #[arg(long)]
+        primary_network_keys: PathBuf,
+        /// The file containing the node's worker network keys
+        #[arg(long)]
+        worker_keys: PathBuf,
+        /// The file containing committee information
+        #[arg(long)]
+        committee: String,
+        /// The file containing worker information
+        #[arg(long)]
+        workers: String,
+        /// The file containing the node parameters
+        #[arg(long)]
+        parameters: Option<String>,
+        /// The path where to create the data store
+        #[arg(long)]
+        primary_store: PathBuf,
+        /// The path where to create the data store
+        #[arg(long)]
+        worker_store: PathBuf,
+    },
 }
 
 #[derive(Subcommand)]
@@ -220,6 +247,39 @@ async fn main() -> Result<(), eyre::Report> {
             )
             .await?
         }
+        Commands::RunComb {
+            primary_keys,
+            primary_network_keys,
+            worker_keys,
+            committee,
+            workers,
+            parameters,
+            primary_store,
+            worker_store
+        } => {
+            let primary_keypair = read_authority_keypair_from_file(primary_keys)
+                .expect("Failed to load the node's primary keypair");
+            let primary_network_keypair = read_network_keypair_from_file(primary_network_keys)
+                .expect("Failed to load the node's primary network keypair");
+            let worker_keypair = read_network_keypair_from_file(worker_keys)
+                .expect("Failed to load the node's worker keypair");
+
+            let mut committee =
+                Committee::import(committee).context("Failed to load the committee information")?;
+            committee.load();
+
+            run_comb(
+                primary_keypair,
+                primary_network_keypair,
+                worker_keypair,
+                committee,
+                workers,
+                parameters.as_deref(),
+                primary_store,
+                worker_store,
+            )
+            .await?;
+        }
     }
 
     Ok(())
@@ -320,6 +380,105 @@ async fn run(
     } else if let Some(worker) = worker {
         worker.wait().await;
     }
+
+    // If this expression is reached, the program ends and all other tasks terminate.
+    Ok(())
+}
+
+// Runs either a worker or a primary.
+async fn run_comb(
+    primary_keypair: KeyPair,
+    primary_network_keypair: NetworkKeyPair,
+    worker_keypair: NetworkKeyPair,
+    committee: Committee,
+    workers: &str,
+    parameters: Option<&str>,
+    primary_store: &Path,
+    worker_store: &Path,
+) -> Result<(), eyre::Report> {
+
+    let authority_id = committee
+        .authority_by_key(primary_keypair.public())
+        .unwrap()
+        .id();
+
+    // Read the workers and node's keypair from file.
+    let worker_cache =
+        WorkerCache::import(workers).context("Failed to load the worker information")?;
+
+    // Load default parameters if none are specified.
+    let parameters = match parameters {
+        Some(filename) => {
+            Parameters::import(filename).context("Failed to load the node's parameters")?
+        }
+        None => Parameters::default(),
+    };
+
+    // Make primary's data store.
+    let primary_registry_service = RegistryService::new(Registry::new());
+    let primary_store_cache_metrics = CertificateStoreCacheMetrics::new(&primary_registry_service.default_registry());
+    let primary_store = NodeStorage::reopen(primary_store, Some(primary_store_cache_metrics));
+
+    // Make worker's data store.
+    let worker_registry_service = RegistryService::new(Registry::new());
+    let worker_store_cache_metrics = CertificateStoreCacheMetrics::new(&worker_registry_service.default_registry());
+    let worker_store = NodeStorage::reopen(worker_store, Some(worker_store_cache_metrics));
+
+    let client = NetworkClient::new_from_keypair(&primary_network_keypair);
+
+    // The channel returning the result for each transaction's execution.
+    let (_tx_transaction_confirmation, _rx_transaction_confirmation) = channel(100);
+
+    let primary = PrimaryNode::new(parameters.clone(), primary_registry_service);
+
+    primary
+        .start(
+            primary_keypair.copy(),
+            primary_network_keypair,
+            committee.clone(),
+            ChainIdentifier::unknown(),
+            ProtocolConfig::get_for_version(ProtocolVersion::max(), Chain::Unknown),
+            worker_cache.clone(),
+            client.clone(),
+            &primary_store,
+            SimpleExecutionState::new(_tx_transaction_confirmation),
+        )
+        .await?;
+
+    let worker = WorkerNode::new(
+        0,
+        ProtocolConfig::get_for_version(ProtocolVersion::max(), Chain::Unknown),
+        parameters.clone(),
+        worker_registry_service,
+    );
+
+    worker
+        .start(
+            primary_keypair.public().clone(),
+            worker_keypair,
+            committee,
+            worker_cache,
+            client,
+            &worker_store,
+            TrivialTransactionValidator,
+            None,
+        )
+        .await?;
+
+    // spin up prometheus server exporter
+    let primary_registry = primary_metrics_registry(authority_id);
+    let prom_address = parameters.prometheus_metrics.socket_addr;
+    info!("Starting Prometheus HTTP metrics endpoint at {prom_address}");
+    let _primary_metrics_server_handle = start_prometheus_server(prom_address, &primary_registry);
+    
+    // spin up prometheus server exporter
+    let worker_registry = worker_metrics_registry(0, authority_id);
+    let worker_prom_address = parameters.worker_prometheus_metrics.socket_addr;
+    info!("Starting Worker Prometheus HTTP metrics endpoint at {worker_prom_address}");
+    let _worker_metrics_server_handle = start_prometheus_server(worker_prom_address, &worker_registry);
+
+    primary.wait().await;
+    worker.wait().await;
 
     // If this expression is reached, the program ends and all other tasks terminate.
     Ok(())

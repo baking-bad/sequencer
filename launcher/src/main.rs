@@ -37,45 +37,65 @@ fn main() {
     register(SIGTERM, Arc::clone(&terminate))
         .expect("Failed to register SIGTERM handler");
 
-    // run primary
-    let mut primary = run(NodeType::Primary, args.id, args.log_level)
-        .expect("Failed to run primary");
+    // // run primary
+    // let mut primary = run(NodeType::Primary, args.id, args.log_level)
+    //     .expect("Failed to run primary");
 
-    println!("Primary started with pid {}", primary.id());
+    // println!("Primary started with pid {}", primary.id());
 
-    // run worker
-    let mut worker = run(NodeType::Worker, args.id, args.log_level)
-        .expect("Failed to run worker");
+    // // run worker
+    // let mut worker = run(NodeType::Worker, args.id, args.log_level)
+    //     .expect("Failed to run worker");
 
-    println!("Worker started with pid {}", worker.id());
+    // println!("Worker started with pid {}", worker.id());
+
+    // run comb
+    let mut comb = run_comb(args.id, args.log_level)
+        .expect("Failed to run comb");
+
+    println!("Comb started with pid {}", comb.id());
 
     // wait for termination
     while !terminate.load(Ordering::Relaxed) {
-        // check if primary is ok
-        match primary.try_wait() {
+        // // check if primary is ok
+        // match primary.try_wait() {
+        //     Ok(None) => {
+        //         // primary is ok
+        //     },
+        //     Ok(Some(exit_code)) => {
+        //         println!("Primary exited with {}", exit_code);
+        //         break;
+        //     },
+        //     Err(e) => {
+        //         println!("Failed to check primary's status: {:?}", e);
+        //         break;
+        //     }
+        // }
+        // // check if worker is ok
+        // match worker.try_wait() {
+        //     Ok(None) => {
+        //         // worker is ok
+        //     },
+        //     Ok(Some(exit_code)) => {
+        //         println!("Worker exited with {}", exit_code);
+        //         break;
+        //     },
+        //     Err(e) => {
+        //         println!("Failed to check worker's status: {:?}", e);
+        //         break;
+        //     }
+        // }
+        // check if comb is ok
+        match comb.try_wait() {
             Ok(None) => {
-                // primary is ok
+                // comb is ok
             },
             Ok(Some(exit_code)) => {
-                println!("Primary exited with {}", exit_code);
+                println!("Comb exited with {}", exit_code);
                 break;
             },
             Err(e) => {
-                println!("Failed to check primary's status: {:?}", e);
-                break;
-            }
-        }
-        // check if worker is ok
-        match worker.try_wait() {
-            Ok(None) => {
-                // worker is ok
-            },
-            Ok(Some(exit_code)) => {
-                println!("Worker exited with {}", exit_code);
-                break;
-            },
-            Err(e) => {
-                println!("Failed to check worker's status: {:?}", e);
+                println!("Failed to check comb's status: {:?}", e);
                 break;
             }
         }
@@ -84,19 +104,62 @@ fn main() {
     
     println!("Killing child processes...");
 
-    primary.kill().expect("Failed to kill primary");
-    worker.kill().expect("Failed to kill worker");
+    // primary.kill().expect("Failed to kill primary");
+    // worker.kill().expect("Failed to kill worker");
+    comb.kill().expect("Failed to kill worker");
 
-    println!("Primary exited with {}", primary.wait().unwrap());
-    println!("Worker exited with {}", worker.wait().unwrap());
+    // println!("Primary exited with {}", primary.wait().unwrap());
+    // println!("Worker exited with {}", worker.wait().unwrap());
+    println!("Comb exited with {}", comb.wait().unwrap());
 }
 
-enum NodeType {
-    Primary,
-    Worker
-}
+// enum NodeType {
+//     Primary,
+//     Worker,
+// }
 
-fn run(node_type: NodeType, id: u8, log_level: u8) -> std::io::Result<Child> {
+// fn run(node_type: NodeType, id: u8, log_level: u8) -> std::io::Result<Child> {
+//     let mut cmd = Command::new("cargo");
+    
+//     cmd.args(vec![
+//         "run",
+//         "--bin", "narwhal-node",
+//         "--",
+//     ]);
+
+//     if log_level > 0 {
+//         let verbosity = format!("-{}", (0..log_level).map(|_| "v").collect::<String>());
+//         cmd.arg(verbosity);
+//     }
+
+//     cmd.args(vec![
+//         "run",
+//         "--primary-keys", format!("./launcher/defaults/primary-{}.key", id).as_str(),
+//         "--primary-network-keys", format!("./launcher/defaults/primary-network-{}.key", id).as_str(),
+//         "--worker-keys", format!("./launcher/defaults/worker-network-{}.key", id).as_str(),
+//         "--committee", "./launcher/defaults/committee.json",
+//         "--workers", "./launcher/defaults/workers.json",
+//     ]);
+
+//     match node_type {
+//         NodeType::Primary => {
+//             cmd.args(vec![
+//                 "--store", format!("./.db/primary-{}", id).as_str(),
+//                 "primary",
+//             ]);
+//         }
+//         NodeType::Worker => {
+//             cmd.args(vec![
+//                 "--store", format!("./.db/worker-{}", id).as_str(),
+//                 "worker", "0",
+//             ]);
+//         }
+//     }
+    
+//     cmd.spawn()
+// }
+
+fn run_comb(id: u8, log_level: u8) -> std::io::Result<Child> {
     let mut cmd = Command::new("cargo");
     
     cmd.args(vec![
@@ -111,28 +174,15 @@ fn run(node_type: NodeType, id: u8, log_level: u8) -> std::io::Result<Child> {
     }
 
     cmd.args(vec![
-        "run",
+        "run-comb",
         "--primary-keys", format!("./launcher/defaults/primary-{}.key", id).as_str(),
         "--primary-network-keys", format!("./launcher/defaults/primary-network-{}.key", id).as_str(),
         "--worker-keys", format!("./launcher/defaults/worker-network-{}.key", id).as_str(),
         "--committee", "./launcher/defaults/committee.json",
         "--workers", "./launcher/defaults/workers.json",
+        "--primary-store", format!("./.db/primary-{}", id).as_str(),
+        "--worker-store", format!("./.db/worker-{}", id).as_str(),
     ]);
-
-    match node_type {
-        NodeType::Primary => {
-            cmd.args(vec![
-                "--store", format!("./.db/primary-{}", id).as_str(),
-                "primary",
-            ]);
-        }
-        NodeType::Worker => {
-            cmd.args(vec![
-                "--store", format!("./.db/worker-{}", id).as_str(),
-                "worker", "0",
-            ]);
-        }
-    }
     
     cmd.spawn()
 }

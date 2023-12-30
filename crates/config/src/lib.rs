@@ -180,6 +180,9 @@ pub struct Parameters {
     /// Properties for the prometheus metrics
     #[serde(default = "PrometheusMetricsParameters::default")]
     pub prometheus_metrics: PrometheusMetricsParameters,
+    /// Properties for the worker prometheus metrics, in case of 'comb' mode
+    #[serde(default = "PrometheusMetricsParameters::default")]
+    pub worker_prometheus_metrics: PrometheusMetricsParameters,
     /// Network admin server ports for primary & worker.
     #[serde(default = "NetworkAdminServerParameters::default")]
     pub network_admin_server: NetworkAdminServerParameters,
@@ -347,6 +350,7 @@ impl Default for Parameters {
             max_batch_delay: Parameters::default_max_batch_delay(),
             max_concurrent_requests: Parameters::default_max_concurrent_requests(),
             prometheus_metrics: PrometheusMetricsParameters::default(),
+            worker_prometheus_metrics: PrometheusMetricsParameters::default(),
             network_admin_server: NetworkAdminServerParameters::default(),
             anemo: AnemoParameters::default(),
         }
@@ -357,6 +361,7 @@ impl Parameters {
     pub fn with_available_ports(&self) -> Self {
         let mut params = self.clone();
         params.prometheus_metrics = params.prometheus_metrics.with_available_port();
+        params.worker_prometheus_metrics = params.worker_prometheus_metrics.with_available_port();
         params.network_admin_server = params.network_admin_server.with_available_port();
         params
     }
@@ -396,6 +401,10 @@ impl Parameters {
         info!(
             "Prometheus metrics server will run on {}",
             self.prometheus_metrics.socket_addr
+        );
+        info!(
+            "Worker prometheus metrics server will run on {}",
+            self.worker_prometheus_metrics.socket_addr
         );
         info!(
             "Primary network admin server will run on 127.0.0.1:{}",
