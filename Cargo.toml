@@ -20,6 +20,7 @@ members = [
     "executor",
     "launcher",
     "playground",
+    "simple-listener",
 ]
 
 [workspace.package]
