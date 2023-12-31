@@ -1,0 +1,40 @@
+# SPDX-FileCopyrightText: 2023 Baking Bad <hello@bakingbad.dev>
+#
+# SPDX-License-Identifier: MIT
+
+[package]
+name = "dsn_kernel"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+tezos-smart-rollup-host = { version = "0.2.2" }
+tezos-smart-rollup-encoding = { version = "0.2.2", default_features = false, features = ["alloc", "tezos-encoding"] }
+tezos-smart-rollup-entrypoint = { version = "0.2.2" }
+tezos-smart-rollup-core = { version = "0.2.2" }
+tezos_data_encoding = { version = "0.5.2" }
+tezos_crypto_rs = { version = "0.5.2", default-features = false }
+
+hex = "*"
+
+anyhow.workspace = true
+serde.workspace = true
+bcs.workspace = true
+
+pre-block.workspace = true
+
+[dev-dependencies]
+tezos-smart-rollup-mock = { version = "0.2.2", features = ["proto-nairobi"] }
+
+[build-dependencies]
+serde_yaml = "0.9.29"
+hex = "*"
+
+rand.workspace = true
+serde.workspace = true
+bcs.workspace = true
+pre-block.workspace = true
+narwhal-test-utils.workspace = true

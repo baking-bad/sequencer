@@ -16,10 +16,13 @@ members = [
     "crates/types",
     "crates/utils",
     "crates/worker",
+    "crates/pre-block",
     
     "executor",
     "launcher",
     "playground",
+    "kernel",
+    "sequencer",
     "simple-listener",
     "simple-spammer",
 ]
@@ -37,21 +40,10 @@ strip = 'debuginfo'
 # Exit process with SIGABRT when any thread panics
 panic = 'abort'
 
-# Same as release, but build binary with debug symbols (binary size will be ~ 1GB).
-[profile.release-dbgsym]
-inherits = "release"
-split-debuginfo = 'off'
-strip = 'none'
-
 # Inherits from the release profile above.
 [profile.bench]
 # For convenience.
 strip = 'none'
-
-[profile.test.package.move-compiler]
-# opt-level 2 for move-compiler reduces the size of some of its
-# (recursive) stack frames by up to 10x, avoiding stack overflows.
-opt-level = 2
 
 [profile.simulator]
 inherits = "test"
@@ -213,3 +205,6 @@ narwhal-typed-store = { path = "crates/typed-store" }
 narwhal-types = { path = "crates/types" }
 narwhal-utils = { path = "crates/utils" }
 narwhal-worker = { path = "crates/worker" }
+
+# pre-block
+pre-block = { path = "crates/pre-block" }

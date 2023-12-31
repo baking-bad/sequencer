@@ -1,0 +1,38 @@
+# SPDX-FileCopyrightText: 2023 Baking Bad <hello@bakingbad.dev>
+#
+# SPDX-License-Identifier: MIT
+
+[package]
+name = "sequencer"
+edition = "2021"
+version.workspace = true
+
+[dependencies]
+reqwest.workspace = true
+anyhow.workspace = true
+serde.workspace = true
+tokio = { workspace = true, features = ["rt-multi-thread"] }
+fastcrypto.workspace = true
+clap.workspace = true
+tonic.workspace = true
+bytes.workspace = true
+bcs.workspace = true
+rand.workspace = true
+
+tezos_data_encoding = { version = "0.5.2" }
+tezos-smart-rollup-encoding = { version = "0.2.2", default_features = false, features = ["alloc", "tezos-encoding" ] }
+hex = "*"
+tide = "0.16"
+env_logger = "0.10.0"
+log = "0.4"
+
+narwhal-types.workspace = true
+narwhal-crypto.workspace = true
+narwhal-utils.workspace = true
+narwhal-test-utils.workspace = true
+
+pre-block = { workspace = true, features = ["conversions"] }
+
+[[bin]]
+name = "sequencer"
+path = "src/main.rs"

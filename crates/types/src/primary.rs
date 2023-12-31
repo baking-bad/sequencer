@@ -871,7 +871,7 @@ impl HeaderV2 {
     Ord,
     Arbitrary,
 )]
-pub struct HeaderDigest([u8; crypto::DIGEST_LENGTH]);
+pub struct HeaderDigest(pub [u8; crypto::DIGEST_LENGTH]);
 
 impl From<HeaderDigest> for Digest<{ crypto::DIGEST_LENGTH }> {
     fn from(hd: HeaderDigest) -> Self {
@@ -1833,7 +1833,7 @@ pub fn validate_received_certificate_version(
     Arbitrary,
 )]
 
-pub struct CertificateDigest([u8; crypto::DIGEST_LENGTH]);
+pub struct CertificateDigest(pub [u8; crypto::DIGEST_LENGTH]);
 
 impl CertificateDigest {
     pub fn new(digest: [u8; crypto::DIGEST_LENGTH]) -> CertificateDigest {

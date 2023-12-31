@@ -1,0 +1,31 @@
+# SPDX-FileCopyrightText: 2023 Baking Bad <hello@bakingbad.dev>
+#
+# SPDX-License-Identifier: MIT
+
+[package]
+name = "pre-block"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+publish = false
+
+[dependencies]
+serde.workspace = true
+anyhow.workspace = true
+tezos_crypto_rs = { version = "0.5.2", default-features = false }
+hex = "*"
+blst = "=0.3.10"
+bcs = "0.1.6"
+
+protobuf = { version = "3.3.0", optional = true }
+narwhal-types = { workspace = true, optional = true }
+
+[dev-dependencies]
+narwhal-types.workspace = true
+narwhal-crypto.workspace = true
+narwhal-test-utils.workspace = true
+fastcrypto.workspace = true
+
+[features]
+default = []
+conversions = ["dep:protobuf", "dep:narwhal-types"]
