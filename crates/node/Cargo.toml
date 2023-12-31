@@ -27,6 +27,7 @@ config = { path = "../config", package = "narwhal-config" }
 fastcrypto.workspace = true
 crypto = { path = "../crypto", package = "narwhal-crypto" }
 executor = { path = "../executor", package = "narwhal-executor" }
+exporter = { path = "../exporter", package = "narwhal-exporter" }
 network = { path = "../network", package = "narwhal-network" }
 primary = { path = "../primary", package = "narwhal-primary" }
 prometheus.workspace = true

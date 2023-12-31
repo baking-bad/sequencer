@@ -154,6 +154,7 @@ fn generate_committee() -> Committee {
             get_key_pair_from_bytes::<AuthorityKeyPair>([1; 128].as_slice()).unwrap().public().clone(),
             100,
             Multiaddr::from_str("/ip4/127.0.0.1/udp/0").unwrap(),
+            Multiaddr::from_str("/ip4/127.0.0.1/tcp/0").unwrap(),
             get_key_pair_from_bytes::<NetworkKeyPair>([1; 64].as_slice()).unwrap().public().clone(),
             String::from("/ip4/127.0.0.1/udp/0"),
         )
@@ -161,6 +162,7 @@ fn generate_committee() -> Committee {
             get_key_pair_from_bytes::<AuthorityKeyPair>([2; 128].as_slice()).unwrap().public().clone(),
             100,
             Multiaddr::from_str("/ip4/127.0.0.1/udp/0").unwrap(),
+            Multiaddr::from_str("/ip4/127.0.0.1/tcp/0").unwrap(),
             get_key_pair_from_bytes::<NetworkKeyPair>([2; 64].as_slice()).unwrap().public().clone(),
             String::from("/ip4/127.0.0.1/udp/0"),
         )
@@ -168,6 +170,7 @@ fn generate_committee() -> Committee {
             get_key_pair_from_bytes::<AuthorityKeyPair>([3; 128].as_slice()).unwrap().public().clone(),
             100,
             Multiaddr::from_str("/ip4/127.0.0.1/udp/0").unwrap(),
+            Multiaddr::from_str("/ip4/127.0.0.1/tcp/0").unwrap(),
             get_key_pair_from_bytes::<NetworkKeyPair>([3; 64].as_slice()).unwrap().public().clone(),
             String::from("/ip4/127.0.0.1/udp/0"),
         )

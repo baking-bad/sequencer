@@ -50,11 +50,13 @@ fn get_registry() -> Result<Registry> {
     let mut committee_builder = CommitteeBuilder::new(Epoch::default());
     for (i, (kp, network_key)) in keys.iter().zip(network_keys.iter()).enumerate() {
         let primary_address: Multiaddr = format!("/ip4/127.0.0.1/udp/{}", 100 + i).parse().unwrap();
+        let grpc_address: Multiaddr = format!("/ip4/127.0.0.1/tcp/{}", 10000 + i).parse().unwrap();
 
         committee_builder = committee_builder.add_authority(
             kp.public().clone(),
             1,
             primary_address,
+            grpc_address,
             network_key.public().clone(),
             i.to_string(),
         );

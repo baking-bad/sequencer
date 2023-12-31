@@ -5,7 +5,8 @@ use crate::{try_join_all, FuturesUnordered, NodeError};
 use anemo::PeerId;
 use config::{AuthorityIdentifier, ChainIdentifier, Committee, Parameters, WorkerCache};
 use crypto::{KeyPair, NetworkKeyPair, PublicKey};
-use executor::{get_restored_consensus_output, ExecutionState, Executor, SubscriberResult};
+use executor::{get_restored_consensus_output, ExecutionState, SubscriberResult};
+use exporter::ExporterService;
 use fastcrypto::traits::{KeyPair as _, VerifyingKey};
 use utils::metered_channel;
 use utils::metrics::{RegistryID, RegistryService};
@@ -340,7 +341,7 @@ impl PrimaryNodeInner {
             Self::CONSENSUS_SCHEDULE_CHANGE_SUB_DAGS,
             leader_schedule.clone(),
         );
-        let consensus_handles = Consensus::spawn(
+        let consensus_handle = Consensus::spawn(
             committee.clone(),
             parameters.gc_depth,
             store.consensus_store.clone(),
@@ -354,25 +355,41 @@ impl PrimaryNodeInner {
             consensus_metrics.clone(),
         );
 
-        // Spawn the client executing the transactions. It can also synchronize with the
-        // subscriber handler if it missed some transactions.
-        let executor_handles = Executor::spawn(
-            authority_id,
-            worker_cache,
-            committee.clone(),
-            protocol_config,
-            client,
-            execution_state,
-            shutdown_receivers,
+        let exporter_handle = ExporterService::spawn(
+            Arc::new(authority_id),
+            Arc::new(worker_cache),
+            Arc::new(committee),
+            Arc::new(client),
+            store.consensus_store.clone(),
+            Arc::new(store.certificate_store.clone()),
+            shutdown_receivers.pop().unwrap(),
             rx_sequence,
-            registry,
-            restored_consensus_output,
-        )?;
+        );
 
-        let handles = executor_handles
-            .into_iter()
-            .chain(std::iter::once(consensus_handles))
-            .collect();
+        let handles = vec![
+            consensus_handle,
+            exporter_handle,
+        ];
+
+        // // Spawn the client executing the transactions. It can also synchronize with the
+        // // subscriber handler if it missed some transactions.
+        // let executor_handles = Executor::spawn(
+        //     authority_id,
+        //     worker_cache,
+        //     committee.clone(),
+        //     protocol_config,
+        //     client,
+        //     execution_state,
+        //     shutdown_receivers,
+        //     rx_sequence,
+        //     registry,
+        //     restored_consensus_output,
+        // )?;
+
+        // let handles = executor_handles
+        //     .into_iter()
+        //     .chain(std::iter::once(consensus_handles))
+        //     .collect();
 
         Ok((handles, leader_schedule))
     }

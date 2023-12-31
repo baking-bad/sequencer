@@ -28,6 +28,8 @@ pub struct Authority {
     stake: Stake,
     /// The network address of the primary.
     primary_address: Multiaddr,
+    /// The address of the grpc server.
+    grpc_address: Multiaddr,
     /// Network key of the primary.
     network_key: NetworkPublicKey,
     /// The validator's hostname
@@ -47,6 +49,7 @@ impl Authority {
         protocol_key: PublicKey,
         stake: Stake,
         primary_address: Multiaddr,
+        grpc_address: Multiaddr,
         network_key: NetworkPublicKey,
         hostname: String,
     ) -> Self {
@@ -58,6 +61,7 @@ impl Authority {
             protocol_key_bytes,
             stake,
             primary_address,
+            grpc_address,
             network_key,
             hostname,
             initialised: false,
@@ -92,6 +96,11 @@ impl Authority {
     pub fn primary_address(&self) -> Multiaddr {
         assert!(self.initialised);
         self.primary_address.clone()
+    }
+
+    pub fn grpc_address(&self) -> Multiaddr {
+        assert!(self.initialised);
+        self.grpc_address.clone()
     }
 
     pub fn network_key(&self) -> NetworkPublicKey {
@@ -508,6 +517,7 @@ impl CommitteeBuilder {
         protocol_key: PublicKey,
         stake: Stake,
         primary_address: Multiaddr,
+        grpc_address: Multiaddr,
         network_key: NetworkPublicKey,
         hostname: String,
     ) -> Self {
@@ -515,6 +525,7 @@ impl CommitteeBuilder {
             protocol_key.clone(),
             stake,
             primary_address,
+            grpc_address,
             network_key,
             hostname,
         );
@@ -550,6 +561,7 @@ mod tests {
                 let a = Authority::new(
                     keypair.public().clone(),
                     1,
+                    Multiaddr::empty(),
                     Multiaddr::empty(),
                     network_keypair.public().clone(),
                     i.to_string(),

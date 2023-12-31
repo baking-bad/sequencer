@@ -1,0 +1,32 @@
+[package]
+name = "narwhal-exporter"
+edition = "2021"
+version.workspace = true
+
+[dependencies]
+async-trait.workspace = true
+clap.workspace = true
+prost.workspace = true
+tokio = { workspace = true, features = ["rt-multi-thread"] }
+tokio-stream.workspace = true
+tonic.workspace = true
+tracing.workspace = true
+futures.workspace = true
+fastcrypto.workspace = true
+roaring.workspace = true
+
+config = { path = "../config", package = "narwhal-config" }
+crypto = { path = "../crypto", package = "narwhal-crypto" }
+network = { path = "../network", package = "narwhal-network" }
+storage = { path = "../storage", package = "narwhal-storage" }
+typed-store = { path = "../typed-store", package = "narwhal-typed-store" }
+types = { path = "../types", package = "narwhal-types" }
+utils = { path = "../utils", package = "narwhal-utils" }
+
+[target.'cfg(not(target_env = "msvc"))'.build-dependencies]
+protobuf-src.workspace = true
+
+[build-dependencies]
+tonic-build.workspace = true
+
+

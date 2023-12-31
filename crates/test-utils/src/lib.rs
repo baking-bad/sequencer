@@ -991,6 +991,7 @@ impl<R: rand::RngCore + rand::CryptoRng> Builder<R> {
                 a.public_key().clone(),
                 self.stake.pop_front().unwrap_or(1),
                 a.address.clone(),
+                a.grpc_address.clone(),
                 a.network_public_key(),
                 a.address.to_string(),
             );
@@ -1141,6 +1142,7 @@ pub struct AuthorityFixture {
     network_keypair: NetworkKeyPair,
     stake: Stake,
     address: Multiaddr,
+    grpc_address: Multiaddr,
     workers: BTreeMap<WorkerId, WorkerFixture>,
 }
 
@@ -1171,6 +1173,10 @@ impl AuthorityFixture {
 
     pub fn address(&self) -> &Multiaddr {
         &self.address
+    }
+
+    pub fn grpc_address(&self) -> &Multiaddr {
+        &self.grpc_address
     }
 
     pub fn worker(&self, id: WorkerId) -> &WorkerFixture {
@@ -1257,6 +1263,9 @@ impl AuthorityFixture {
         let address: Multiaddr = format!("/ip4/{}/udp/{}", host, get_port(host))
             .parse()
             .unwrap();
+        let grpc_address: Multiaddr = format!("/ip4/{}/tcp/{}", host, get_port(host))
+            .parse()
+            .unwrap();
 
         let workers = (0..number_of_workers.get())
             .map(|idx| {
@@ -1272,6 +1281,7 @@ impl AuthorityFixture {
             network_keypair,
             stake: 1,
             address,
+            grpc_address,
             workers,
         }
     }

@@ -5,6 +5,7 @@ members = [
     "crates/config",
     "crates/crypto",
     "crates/executor",
+    "crates/exporter",
     "crates/macros",
     "crates/network",
     "crates/node",
@@ -22,6 +23,8 @@ members = [
     "playground",
     "kernel",
     "sequencer",
+    "simple-listener",
+    "simple-spammer",
 ]
 
 [workspace.package]
@@ -191,6 +194,7 @@ anemo-tower = { git = "https://github.com/mystenlabs/anemo.git", rev = "1169850e
 narwhal-config = { path = "crates/config" }
 narwhal-crypto = { path = "crates/crypto" }
 narwhal-executor = { path = "crates/executor" }
+narwhal-exporter = { path = "crates/exporter" }
 narwhal-macros = { path = "crates/macros" }
 narwhal-network = { path = "crates/network" }
 narwhal-node = { path = "crates/node" }
