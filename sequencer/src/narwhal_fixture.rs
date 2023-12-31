@@ -5,6 +5,35 @@ use narwhal_types::{VoteAPI, CertificateV2, CertificateDigest, Header};
 use narwhal_utils::protocol_config::ProtocolConfig;
 use pre_block::conversion::convert_batch;
 
+#[derive(Default)]
+pub struct NoRng {
+    counter: u8
+}
+
+impl rand::RngCore for NoRng {
+    fn next_u32(&mut self) -> u32 {
+        self.counter += 1;
+        self.counter as u32
+    }
+
+    fn next_u64(&mut self) -> u64 {
+        self.counter += 1;
+        self.counter as u64
+    }
+
+    fn fill_bytes(&mut self, dest: &mut [u8]) {
+        self.counter += 1;
+        dest.fill(self.counter)
+    }
+
+    fn try_fill_bytes(&mut self, dest: &mut [u8]) -> Result<(), rand::Error> {
+        self.counter += 1;
+        Ok(dest.fill(self.counter))
+    }
+}
+
+impl rand::CryptoRng for NoRng {}
+
 pub struct NarwalFixture {
     fixture: CommitteeFixture,
     config: ProtocolConfig,
@@ -17,6 +46,7 @@ impl NarwalFixture {
     pub fn new(committee_size: usize) -> Self {
         let config = latest_protocol_version();
         let fixture = CommitteeFixture::builder()
+            .rng(NoRng::default())
             .committee_size(NonZeroUsize::new(committee_size).unwrap())
             .build();
         Self { config, fixture, round: 0, index: 0, parents: BTreeSet::new() }

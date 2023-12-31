@@ -32,7 +32,7 @@ fn process_external_message<Host: Runtime>(host: &mut Host, contents: &[u8], lev
     let pre_block: PreBlock =
         bcs::from_bytes(contents).expect("Failed to parse consensus output");
 
-    let epoch = (level % LEVELS_PER_EPOCH) as u64;
+    let epoch = 0; // (level % LEVELS_PER_EPOCH) as u64;
     let authorities = read_authorities(host, epoch);
     let config = DsnConfig::new(epoch, authorities);
 
@@ -42,8 +42,8 @@ fn process_external_message<Host: Runtime>(host: &mut Host, contents: &[u8], lev
             Ok(()) => {
                 pre_block.commit(&mut store);
             },
-            Err(_) => {
-                // Skip this pre-block
+            Err(err) => {
+                host.write_debug(&format!("Skipping pre-block: {}", err));
                 return
             }
         }

@@ -108,20 +108,20 @@ pub async fn publish_pre_blocks(
             info!("[DA Publish] New inbox level {}", inbox_level);
 
             if is_leader(inbox_level, node_id) {                
-                let mut prev_index = rollup_client.get_latest_index().await?;
+                let mut index = rollup_client.get_next_index().await?;
                 let mut batch = DaBatch::new();
-                info!("[DA Publish] Previous pre-block index {}", prev_index);
+                info!("[DA Publish] Next pre-block index {}", index);
 
                 while let Ok(pre_block) = pre_blocks_rx.try_recv() {
                     info!("[DA publish] Encoding pre-block #{}", pre_block.index());
-                    if pre_block.index() == prev_index + 1 {
+                    if pre_block.index() == index {
                         batch_encode_to(&pre_block, &smart_rollup_address, &mut batch)?;
-                        prev_index += 1;
+                        index += 1;
                         if batch.len() > BATCH_SIZE_SOFT_LIMIT {
                             break
                         }
-                    } else if pre_block.index() > prev_index + 1 {
-                        return Err(anyhow::anyhow!("Missing pre-blocks #{0}..{1}", prev_index, pre_block.index()));
+                    } else if pre_block.index() > index {
+                        return Err(anyhow::anyhow!("Missing pre-blocks #{0}..{1}", index, pre_block.index()));
                     } else  {
                         info!("[DA publish] Skipping pre-block #{}", pre_block.index());
                     }

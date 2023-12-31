@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: MIT
 
+use pre_block::PublicKey;
 use serde::Deserialize;
 use tezos_smart_rollup_encoding::smart_rollup::SmartRollupAddress;
 
@@ -148,7 +149,7 @@ impl RollupClient {
         
     }
 
-    pub async fn get_latest_index(&self) -> anyhow::Result<u64> {
+    pub async fn get_next_index(&self) -> anyhow::Result<u64> {
         let res = self.store_get("/index".into()).await?;
         if let Some(bytes) = res {
             let index = u64::from_be_bytes(
@@ -156,9 +157,19 @@ impl RollupClient {
                     .try_into()
                     .map_err(|b| anyhow::anyhow!("Failed to parse pre-block index: {}", hex::encode(b)))?
             );
-            Ok(index)
+            Ok(index + 1)
         } else {
             Ok(0)
+        }
+    }
+
+    pub async fn get_authorities(&self, epoch: u64) -> anyhow::Result<Vec<PublicKey>> {
+        let res = self.store_get(format!("/authorities/{}", epoch)).await?;
+        if let Some(bytes) = res {
+            let pks: Vec<PublicKey> = bcs::from_bytes(bytes.as_slice())?;
+            Ok(pks)
+        } else {
+            Err(anyhow::anyhow!("Authorities not found for epoch {}", epoch))
         }
     }
 }

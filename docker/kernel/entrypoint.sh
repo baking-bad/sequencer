@@ -16,9 +16,9 @@ if [ -z "$NODE_URI" ]; then
         echo "NETWORK is not set"
         exit 1
     fi
-    #endpoint="https://rpc.$NETWORK.teztnets.xyz"
+    endpoint="https://rpc.$NETWORK.teztnets.xyz"
     #endpoint="https://$NETWORK.ecadinfra.com"
-    endpoint="https://rpc.tzkt.io/$NETWORK"
+    #endpoint="https://rpc.tzkt.io/$NETWORK"
 fi
 
 command=$1

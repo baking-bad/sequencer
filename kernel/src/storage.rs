@@ -15,7 +15,7 @@ const AUTHORITIES_PATH: RefPath = RefPath::assert_from(b"/authorities");
 const CERTIFICATES_PATH: RefPath = RefPath::assert_from(b"/certificates");
 
 fn certificate_path(digest: &Digest) -> OwnedPath {
-    let suffix = OwnedPath::try_from(hex::encode(digest.as_ref())).unwrap();
+    let suffix = OwnedPath::try_from(format!("/{}", hex::encode(digest.as_ref()))).unwrap();
     concat(&CERTIFICATES_PATH, &suffix).unwrap()
 }
 
@@ -65,7 +65,7 @@ impl<'cs, Host: Runtime> PreBlockStore for Store<'cs, Host> {
 }
 
 fn authorities_path(epoch: u64) -> OwnedPath {
-    let suffix = OwnedPath::try_from(format!("{}", epoch)).unwrap();
+    let suffix = OwnedPath::try_from(format!("/{}", epoch)).unwrap();
     concat(&AUTHORITIES_PATH, &suffix).unwrap()
 }
 
@@ -100,7 +100,7 @@ pub fn write_head<Host: Runtime>(host: &mut Host, level: u32) {
 }
 
 fn block_path(level: u32) -> OwnedPath {
-    let suffix = OwnedPath::try_from(format!("{}", level)).unwrap();
+    let suffix = OwnedPath::try_from(format!("/{}", level)).unwrap();
     concat(&BLOCKS_PATH, &suffix).unwrap()
 }
 

@@ -103,12 +103,12 @@ async fn run_da_task(node_id: u8, rollup_node_url: String, primary_node_url: Str
     // let primary_client = PrimaryClient::new(primary_node_url);
 
     loop {
-        let prev_index = rollup_client.get_latest_index().await?;
+        let index = rollup_client.get_next_index().await?;
         let (tx, rx) = mpsc::channel();
-        info!("[DA task] Starting from index #{}", prev_index + 1);
+        info!("[DA task] Starting from index #{}", index);
 
         tokio::select! {
-            res = fetch_pre_blocks(prev_index + 1, tx) => {
+            res = fetch_pre_blocks(index, tx) => {
                 if let Err(err) = res {
                     error!("[DA fetch] Failed with: {}", err);
                 }
