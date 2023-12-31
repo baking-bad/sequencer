@@ -10,3 +10,5 @@ The consensus part is based on the Narwhal codebase from [Sui](https://github.co
 2. Instead of calling an external executor, consensus node stores pre-blocks (sub DAGs) and serves them via streaming gRPC endpoint;
 3. Both primary and worker run as a single node, for simplicity;
 4. No transaction validation, as we assume a closed network;
+
+![image](https://github.com/baking-bad/sequencer/assets/44951260/7f7604c9-af1b-4c57-8daa-c2d330979b7f)
