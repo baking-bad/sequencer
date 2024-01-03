@@ -17,15 +17,30 @@ hex = "*"
 blst = "=0.3.10"
 bcs = "0.1.6"
 
-protobuf = { version = "3.3.0", optional = true }
 narwhal-types = { workspace = true, optional = true }
+narwhal-utils = { workspace = true, optional = true }
+narwhal-test-utils = { workspace = true, optional = true }
+rand = { workspace = true, optional = true }
+narwhal-exporter = { workspace = true, optional = true }
 
 [dev-dependencies]
 narwhal-types.workspace = true
 narwhal-crypto.workspace = true
+narwhal-exporter.workspace = true
+narwhal-utils.workspace = true
 narwhal-test-utils.workspace = true
+narwhal-config.workspace = true
+
+indexmap.workspace = true
 fastcrypto.workspace = true
+rand.workspace = true
 
 [features]
 default = []
-conversions = ["dep:protobuf", "dep:narwhal-types"]
+conversions = [
+    "dep:rand",
+    "dep:narwhal-exporter",
+    "dep:narwhal-types",
+    "dep:narwhal-utils",
+    "dep:narwhal-test-utils"
+]

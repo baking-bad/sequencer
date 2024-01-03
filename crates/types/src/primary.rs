@@ -413,7 +413,7 @@ impl Hash<{ crypto::DIGEST_LENGTH }> for BatchV2 {
 
 // Messages generated internally by Narwhal that are included in headers for sequencing.
 #[allow(clippy::large_enum_variant)]
-#[derive(Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub enum SystemMessage {
     // DKG is used to generate keys for use in the random beacon protocol.
     // `DkgMessage` is sent out at start-of-epoch to initiate the process.
@@ -683,7 +683,7 @@ impl HeaderV1 {
     }
 }
 
-#[derive(Builder, Clone, Default, Deserialize, Serialize)]
+#[derive(Debug, Builder, Clone, Default, Deserialize, Serialize)]
 #[builder(pattern = "owned", build_fn(skip))]
 pub struct HeaderV2 {
     // Primary that created the header. Must be the same primary that broadcasted the header.
@@ -771,7 +771,7 @@ impl HeaderV2Builder {
 }
 
 impl HeaderV2 {
-    pub async fn new(
+    pub fn new(
         author: AuthorityIdentifier,
         round: Round,
         epoch: Epoch,

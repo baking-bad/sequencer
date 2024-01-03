@@ -19,7 +19,6 @@ use crate::da_batcher::publish_pre_blocks;
 mod da_batcher;
 mod rollup_client;
 mod consensus_client;
-mod narwhal_fixture;
 
 #[derive(Clone)]
 struct State {

@@ -28,13 +28,13 @@ pre-block.workspace = true
 
 [dev-dependencies]
 tezos-smart-rollup-mock = { version = "0.2.2", features = ["proto-nairobi"] }
+pre-block = { workspace = true, features = ["conversions"] }
 
 [build-dependencies]
 serde_yaml = "0.9.29"
 hex = "*"
 
-rand.workspace = true
 serde.workspace = true
 bcs.workspace = true
-pre-block.workspace = true
-narwhal-test-utils.workspace = true
+
+pre-block = { workspace = true, features = ["conversions"] }

@@ -4,9 +4,10 @@
 
 use std::collections::BTreeSet;
 
-use narwhal_types::{CertificateAPI, CertificateV2};
+use narwhal_types::{CertificateAPI, CertificateV2, HeaderV2};
+use narwhal_exporter::proto as exporter;
 
-use crate::{exporter, PreBlock, Certificate, CertificateHeader, Batch};
+use crate::{PreBlock, Certificate, CertificateHeader, Batch};
 
 impl From<exporter::Header> for CertificateHeader {
     fn from(header: exporter::Header) -> Self {
@@ -34,7 +35,7 @@ impl From<exporter::Header> for CertificateHeader {
 impl From<exporter::Certificate> for Certificate {
     fn from(cert: exporter::Certificate) -> Self {
         Self {
-            header: (*cert.header.0.unwrap()).into(),
+            header: cert.header.unwrap().into(),
             signers: cert.signers,
             signature:cert.signature,
         }
@@ -50,11 +51,25 @@ impl From<exporter::SubDag> for PreBlock {
                 .map(|batches| batches.into_iter().map(|batch| batch.transactions).collect())
                 .collect(),
             index: sub_dag.id,
-            leader: (*sub_dag.leader.0.unwrap()).into(),
+            leader: sub_dag.leader.unwrap().into(),
             certificates: sub_dag.certificates
                 .into_iter()
                 .map(|cert| cert.into())
                 .collect(),
+        }
+    }
+}
+
+impl From<HeaderV2> for CertificateHeader {
+    fn from(narwhal_header: HeaderV2) -> Self {
+        CertificateHeader {
+            author: narwhal_header.author.0,
+            round: narwhal_header.round,
+            epoch: narwhal_header.epoch,
+            created_at: narwhal_header.created_at,
+            payload: narwhal_header.payload.into_iter().map(|x| (x.0.0, x.1)).collect(),
+            system_messages: vec![],
+            parents: narwhal_header.parents.into_iter().map(|x| x.0).collect()
         }
     }
 }
@@ -71,15 +86,7 @@ impl From<CertificateV2> for Certificate {
         Certificate {
             signers,
             signature,
-            header: CertificateHeader {
-                author: narwhal_header.author.0,
-                round: narwhal_header.round,
-                epoch: narwhal_header.epoch,
-                created_at: narwhal_header.created_at,
-                payload: narwhal_header.payload.into_iter().map(|x| (x.0.0, x.1)).collect(),
-                system_messages: vec![],
-                parents: narwhal_header.parents.into_iter().map(|x| x.0).collect()
-            }
+            header: narwhal_header.into()
         }
     }
 }

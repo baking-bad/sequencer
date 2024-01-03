@@ -1,5 +1,5 @@
-mod proto;
-mod client;
-mod server;
+pub mod proto;
+pub mod client;
+pub mod server;
 
 pub use server::ExporterService;

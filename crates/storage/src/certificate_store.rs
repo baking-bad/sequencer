@@ -813,7 +813,7 @@ mod test {
                         .digest()
                 })
                 .collect();
-            (_, current_round) = fixture.headers_round(i, &parents, &latest_protocol_version());
+            (_, current_round, _) = fixture.headers_round(i, &parents, &latest_protocol_version(), 10);
 
             result.extend(
                 current_round

@@ -12,6 +12,9 @@ use pre_block::{DsnConfig, PreBlock};
 
 mod storage;
 
+#[cfg(test)]
+mod tests;
+
 use storage::{write_authorities, read_authorities, Store, read_head, write_block, write_head};
 
 const LEVELS_PER_EPOCH: u32 = 100;

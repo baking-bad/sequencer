@@ -4,12 +4,13 @@
 
 use log::info;
 use pre_block::{PreBlock, Certificate, CertificateHeader};
+use pre_block::fixture::NarwhalFixture;
 use serde::Serialize;
 use tezos_data_encoding::enc::BinWriter;
 use tezos_smart_rollup_encoding::{inbox::ExternalMessageFrame, smart_rollup::SmartRollupAddress};
 use std::{sync::mpsc, time::Duration};
 
-use crate::{rollup_client::RollupClient, narwhal_fixture::NarwalFixture};
+use crate::rollup_client::RollupClient;
 
 pub const MAX_MESSAGE_SIZE: usize = 2048;
 // minus endian tag, smart rollup address, external message tag
@@ -64,14 +65,14 @@ pub async fn fetch_pre_blocks(
     pre_blocks_tx: mpsc::Sender<PreBlock>
 ) -> anyhow::Result<()> {
     let mut index = prev_index;
-    let mut fixture = NarwalFixture::new(4);
+    let mut fixture = NarwhalFixture::default();
 
     // let stream = primary_client.get_sub_dag_stream(sub_dag_index);
     // while let Some(pre_block) = stream.next().await {
 
     loop {
         // let pre_block = dummy_pre_block(index);
-        let pre_block = fixture.next_pre_block();
+        let pre_block = fixture.next_pre_block(1);
         if pre_block.index() == index {
             info!("[DA fetch] received pre-block #{}", index);
             pre_blocks_tx.send(pre_block)?;

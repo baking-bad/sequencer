@@ -62,11 +62,11 @@ pub fn validate_certificate_chain(
 
 pub fn validate_certificate_batches(cert: &Certificate, batches: &[Batch]) -> anyhow::Result<()> {
     let digests: BTreeSet<&Digest> = cert.header.payload.iter().map(|x| &x.0).collect();
-
-    for batch in batches {
+  
+    for (i, batch) in batches.iter().enumerate() {
         let digest = batch.digest();
         if !digests.contains(&digest) {
-            anyhow::bail!("Invalid batch content (digest mismatch)");
+            anyhow::bail!("Invalid batch content (digest mismatch), idx = {}, digest = {}", i, hex::encode(&digest));
         }
     }
 
@@ -77,9 +77,9 @@ pub fn validate_certificate_batches(cert: &Certificate, batches: &[Batch]) -> an
 mod tests {
     use narwhal_crypto::traits::ToFromBytes;
     use narwhal_test_utils::{latest_protocol_version, CommitteeFixture};
-    use narwhal_types::{VoteAPI, CertificateV2, CertificateAPI};
+    use narwhal_types::{VoteAPI, CertificateV2};
 
-    use crate::{Certificate, CertificateHeader, DsnConfig, digest::Blake2b256};
+    use crate::{Certificate, DsnConfig, digest::Blake2b256, fixture::{NarwhalFixture, SimpleStore}};
 
     use super::validate_certificate_signature;
 
@@ -108,26 +108,7 @@ mod tests {
         narwhal_cert.clone().verify(&committee, &fixture.worker_cache()).expect("Valid certificate");
 
         // Convert certificate
-        let signers = CertificateAPI::signed_authorities(&narwhal_cert)
-            .iter()
-            .map(|x| x as u8)
-            .collect();
-        let signature = narwhal_cert.aggregated_signature().unwrap().0.to_vec();
-        let narwal_header = narwhal_cert.header.unwrap_v2();
-
-        let cert = Certificate {
-            signers,
-            signature,
-            header: CertificateHeader {
-                author: narwal_header.author.0,
-                round: narwal_header.round,
-                epoch: narwal_header.epoch,
-                created_at: narwal_header.created_at,
-                payload: narwal_header.payload.into_iter().map(|x| (x.0.0, x.1)).collect(),
-                system_messages: vec![],
-                parents: narwal_header.parents.into_iter().map(|x| x.0).collect()
-            }
-        };
+        let cert: Certificate = narwhal_cert.into();
 
         // Make sure digests are the same
         assert_eq!(cert.digest(), digest.0);
@@ -141,6 +122,19 @@ mod tests {
         );
 
         validate_certificate_signature(&cert, &config).unwrap();
+    }
 
+    #[test]
+    fn test_pre_block_verification() {
+        let mut fixture = NarwhalFixture::default();
+        let mut store = SimpleStore::default();
+
+        let pre_block = fixture.next_pre_block(1);
+        let config = DsnConfig {
+            epoch: 0,
+            authorities: fixture.authorities()
+        };
+
+        pre_block.verify(&config, &mut store).expect("Failed to verify");
     }
 }

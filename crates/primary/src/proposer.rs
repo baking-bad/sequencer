@@ -253,7 +253,6 @@ impl Proposer {
                 system_messages.clone(),
                 parents.iter().map(|x| x.digest()).collect(),
             )
-            .await
             .into()
         } else {
             HeaderV1::new(

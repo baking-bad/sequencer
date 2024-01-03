@@ -1044,7 +1044,7 @@ async fn test_fetch_certificates_v1_handler() {
                     .digest()
             })
             .collect();
-        (_, current_round) = fixture.headers_round(i, &parents, &cert_v1_protocol_config);
+        (_, current_round, _) = fixture.headers_round(i, &parents, &cert_v1_protocol_config, 10);
         headers.extend(current_round.clone());
     }
 
@@ -1219,7 +1219,7 @@ async fn test_fetch_certificates_v2_handler() {
             .into_iter()
             .map(|header| fixture.certificate(&cert_v2_config, &header).digest())
             .collect();
-        (_, current_round) = fixture.headers_round(i, &parents, &cert_v2_config);
+        (_, current_round, _) = fixture.headers_round(i, &parents, &cert_v2_config, 10);
         headers.extend(current_round.clone());
     }
 

@@ -991,7 +991,7 @@ impl<R: rand::RngCore + rand::CryptoRng> Builder<R> {
                 a.public_key().clone(),
                 self.stake.pop_front().unwrap_or(1),
                 a.address.clone(),
-                a.grpc_address.clone(),
+                a.address.clone(),
                 a.network_public_key(),
                 a.address.to_string(),
             );
@@ -1089,26 +1089,29 @@ impl CommitteeFixture {
         prior_round: Round,
         parents: &BTreeSet<CertificateDigest>,
         protocol_config: &ProtocolConfig,
-    ) -> (Round, Vec<Header>) {
+        number_of_transactions: u32,
+    ) -> (Round, Vec<Header>, Vec<Vec<Batch>>) {
         let round = prior_round + 1;
-        let next_headers = self
-            .authorities
-            .iter()
-            .map(|a| {
-                let builder = types::HeaderV2Builder::default();
-                let header = builder
-                    .author(a.id())
-                    .round(round)
-                    .epoch(0)
-                    .parents(parents.clone())
-                    .with_payload_batch(fixture_batch_with_transactions(10, protocol_config), 0, 0)
-                    .build()
-                    .unwrap();
-                Header::V2(header)
-            })
-            .collect();
+        let mut headers: Vec<Header> = Vec::new();
+        let mut batches: Vec<Vec<Batch>> = Vec::new();
 
-        (round, next_headers)
+        for a in self.authorities.iter() {
+            let builder = types::HeaderV2Builder::default();
+            let batch = fixture_batch_with_transactions(number_of_transactions, protocol_config);
+            let header = builder
+                .author(a.id())
+                .round(round)
+                .epoch(0)
+                .parents(parents.clone())
+                .with_payload_batch(batch.clone(), 0, 0)
+                .build()
+                .unwrap();
+
+            headers.push(Header::V2(header));
+            batches.push(vec![batch]);
+        }
+
+        (round, headers, batches)
     }
 
     pub fn votes(&self, header: &Header) -> Vec<Vote> {
@@ -1142,7 +1145,6 @@ pub struct AuthorityFixture {
     network_keypair: NetworkKeyPair,
     stake: Stake,
     address: Multiaddr,
-    grpc_address: Multiaddr,
     workers: BTreeMap<WorkerId, WorkerFixture>,
 }
 
@@ -1173,10 +1175,6 @@ impl AuthorityFixture {
 
     pub fn address(&self) -> &Multiaddr {
         &self.address
-    }
-
-    pub fn grpc_address(&self) -> &Multiaddr {
-        &self.grpc_address
     }
 
     pub fn worker(&self, id: WorkerId) -> &WorkerFixture {
@@ -1263,9 +1261,6 @@ impl AuthorityFixture {
         let address: Multiaddr = format!("/ip4/{}/udp/{}", host, get_port(host))
             .parse()
             .unwrap();
-        let grpc_address: Multiaddr = format!("/ip4/{}/tcp/{}", host, get_port(host))
-            .parse()
-            .unwrap();
 
         let workers = (0..number_of_workers.get())
             .map(|idx| {
@@ -1281,7 +1276,6 @@ impl AuthorityFixture {
             network_keypair,
             stake: 1,
             address,
-            grpc_address,
             workers,
         }
     }

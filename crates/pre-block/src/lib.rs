@@ -8,11 +8,11 @@ use digest::Blake2b256;
 use serde::{Serialize, Deserialize};
 use validator::{validate_certificate_signature, validate_certificate_chain, validate_certificate_batches};
 
-#[cfg(feature = "conversions")]
-pub mod exporter;
-
-#[cfg(feature = "conversions")]
+#[cfg(any(test, feature = "conversions"))]
 pub mod conversion;
+
+#[cfg(any(test, feature = "conversions"))]
+pub mod fixture;
 
 pub mod validator;
 pub mod digest;
