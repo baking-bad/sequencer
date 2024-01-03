@@ -1,13 +1,13 @@
-use std::time::Duration;
 use clap::Parser;
+use std::time::Duration;
 use tokio::time::sleep;
 use tonic::transport::Channel;
 
 mod exporter {
     tonic::include_proto!("exporter");
 }
-use exporter::*;
 use exporter::exporter_client::ExporterClient;
+use exporter::*;
 
 /// Simple consensus output listener that connects to a primary
 /// and prints all received subdags
@@ -18,7 +18,7 @@ struct Args {
     #[arg(short, long, default_value_t=("http://127.0.0.1:64011".parse()).unwrap())]
     endpoint: String,
     /// Subdag id from which to receive updates
-    #[arg(short, long, default_value_t=0)]
+    #[arg(short, long, default_value_t = 0)]
     from_id: u64,
 }
 
@@ -52,14 +52,18 @@ async fn connect(endpoint: String) -> Result<ExporterClient<Channel>, tonic::tra
     ExporterClient::connect(endpoint).await
 }
 
-async fn export(mut client: ExporterClient<Channel>, from_id: u64) -> Result<(), Box<dyn std::error::Error>> {
-    let mut stream = client
-        .export(ExportRequest {from_id})
-        .await?
-        .into_inner();
-    
+async fn export(
+    mut client: ExporterClient<Channel>,
+    from_id: u64,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let mut stream = client.export(ExportRequest { from_id }).await?.into_inner();
+
     while let Some(subdag) = stream.message().await? {
-        println!("Received subdag #{} with {} txs", subdag.id, total_txs(&subdag));
+        println!(
+            "Received subdag #{} with {} txs",
+            subdag.id,
+            total_txs(&subdag)
+        );
     }
 
     println!("Close client");

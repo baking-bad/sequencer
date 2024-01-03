@@ -2,14 +2,14 @@
 //
 // SPDX-License-Identifier: MIT
 
-use serde::{Serialize, Deserialize};
-use std::path::PathBuf;
 use pre_block::fixture::NarwhalFixture;
+use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Set {
     value: String,
-    to: String
+    to: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -19,7 +19,7 @@ struct Instruction {
 
 #[derive(Debug, Serialize, Deserialize)]
 struct KernelSetup {
-    pub instructions: Vec<Instruction>
+    pub instructions: Vec<Instruction>,
 }
 
 fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
@@ -32,14 +32,12 @@ fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
     let value = bcs::to_bytes(&fixture.authorities())?;
 
     let kernel_setup = KernelSetup {
-        instructions: vec![
-            Instruction {
-                set: Set {
-                    value: hex::encode(&value),
-                    to: format!("/authorities/{}", epoch)
-                }
-            }
-        ]
+        instructions: vec![Instruction {
+            set: Set {
+                value: hex::encode(&value),
+                to: format!("/authorities/{}", epoch),
+            },
+        }],
     };
 
     let file = std::fs::File::create(output_path).expect("Could not create file");

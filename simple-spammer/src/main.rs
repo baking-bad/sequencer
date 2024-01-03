@@ -1,14 +1,14 @@
-use std::time::Duration;
 use clap::Parser;
 use rand::Rng;
+use std::time::Duration;
 use tokio::time::sleep;
 use tonic::transport::Channel;
 
 mod narwhal {
     tonic::include_proto!("narwhal");
 }
-use narwhal::Transaction;
 use narwhal::transactions_client::TransactionsClient;
+use narwhal::Transaction;
 
 /// Simple transactions generator that connects to a worker
 /// and sends generated transactions with a given interval
@@ -19,13 +19,13 @@ struct Args {
     #[arg(short, long, default_value_t=("http://127.0.0.1:64013".parse()).unwrap())]
     endpoint: String,
     /// Sleep duration, ms
-    #[arg(short, long, default_value_t=100)]
+    #[arg(short, long, default_value_t = 100)]
     sleep: u64,
     /// Sleep duration, ms
-    #[arg(long, default_value_t=10)]
+    #[arg(long, default_value_t = 10)]
     min_size: u32,
     /// Sleep duration, ms
-    #[arg(long, default_value_t=100)]
+    #[arg(long, default_value_t = 100)]
     max_size: u32,
 }
 
@@ -41,7 +41,7 @@ async fn main() {
                     .map(|_| rng.gen_range(0..255))
                     .collect();
                 println!("Connected. Sending transaction {:?}", transaction);
-                match client.submit_transaction(Transaction {transaction}).await {
+                match client.submit_transaction(Transaction { transaction }).await {
                     Ok(_) => println!("Done. Sleep for {}ms", args.sleep),
                     Err(e) => println!("Failed to send transaction: {}", e),
                 }

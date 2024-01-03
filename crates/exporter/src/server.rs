@@ -1,30 +1,25 @@
+use async_trait::async_trait;
+use futures::FutureExt;
 use std::net::SocketAddr;
 use std::result::Result;
 use std::sync::Arc;
 use std::time::Duration;
-use futures::FutureExt;
+use tokio::sync::mpsc;
 use tokio::sync::Mutex;
-use async_trait::async_trait;
 use tokio::task::JoinHandle;
 use tokio::time::timeout;
-use tonic::{Request, Response, Status, transport::Server};
-use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
-use tracing::{warn, info, debug};
+use tonic::{transport::Server, Request, Response, Status};
+use tracing::{debug, info, warn};
 
-use config::{AuthorityIdentifier, WorkerCache, Committee};
-use types::{CommittedSubDag, ConditionalBroadcastReceiver};
-use storage::{CertificateStore, ConsensusStore};
+use config::{AuthorityIdentifier, Committee, WorkerCache};
 use network::client::NetworkClient;
+use storage::{CertificateStore, ConsensusStore};
+use types::{CommittedSubDag, ConditionalBroadcastReceiver};
 use utils::metered_channel;
 
-use crate::proto::{
-    SubDag,
-    ExportRequest,
-    Exporter,
-    ExporterServer
-};
 use crate::client::Client;
+use crate::proto::{ExportRequest, Exporter, ExporterServer, SubDag};
 
 pub struct ExporterService {
     authority_id: Arc<AuthorityIdentifier>,
@@ -41,7 +36,10 @@ pub struct ExporterService {
 impl Exporter for ExporterService {
     type ExportStream = ReceiverStream<Result<SubDag, Status>>;
 
-    async fn export(&self, request: Request<ExportRequest>) -> Result<Response<Self::ExportStream>, Status> {
+    async fn export(
+        &self,
+        request: Request<ExportRequest>,
+    ) -> Result<Response<Self::ExportStream>, Status> {
         let (tx_subdags, rx_subdags) = mpsc::channel(32);
         let last_subdag = request.into_inner().from_id;
         let client = Arc::new(Client::new(
@@ -59,7 +57,7 @@ impl Exporter for ExporterService {
         let handle = tokio::spawn(async move {
             _client.run().await;
         });
-        
+
         let mut clients = self.clients.lock().await;
         clients.push((client, handle));
 
@@ -82,7 +80,7 @@ impl ExporterService {
         consensus_store: Arc<ConsensusStore>,
         certificate_store: Arc<CertificateStore>,
         mut rx_shutdown: ConditionalBroadcastReceiver,
-        rx_subdags: metered_channel::Receiver<CommittedSubDag>
+        rx_subdags: metered_channel::Receiver<CommittedSubDag>,
     ) -> JoinHandle<()> {
         let grpc_address = committee
             .authority(&authority_id)
@@ -90,7 +88,7 @@ impl ExporterService {
             .grpc_address()
             .to_socket_addr()
             .expect("Invalid primary's grpc address");
-        
+
         let service = Arc::new(ExporterService {
             authority_id,
             worker_cache,
@@ -103,18 +101,19 @@ impl ExporterService {
         let _service = service.clone();
 
         let (tx_server_shutdown, rx_server_shutdown) = tokio::sync::oneshot::channel::<()>();
-        let server_handle = tokio::spawn(
-            Self::run_server(grpc_address, _service, rx_server_shutdown)
-        );
+        let server_handle =
+            tokio::spawn(Self::run_server(grpc_address, _service, rx_server_shutdown));
 
         let (tx_processor_shutdown, rx_processor_shutdown) = tokio::sync::oneshot::channel::<()>();
         let processor_handle = tokio::spawn(async move {
-            Self::run_processor(service, rx_subdags, rx_processor_shutdown).await.unwrap();
+            Self::run_processor(service, rx_subdags, rx_processor_shutdown)
+                .await
+                .unwrap();
         });
-        
+
         tokio::spawn(async move {
             let _ = rx_shutdown.receiver.recv().await;
-            
+
             info!("Shutdown signal received");
 
             tx_server_shutdown.send(()).unwrap();
@@ -128,7 +127,7 @@ impl ExporterService {
                     warn!("Exporter server timed out: {}", err);
                 }
             }
-            
+
             match timeout(Duration::from_secs(2), processor_handle).await {
                 Ok(_) => {
                     info!("Exporter processor gracefully shut down");
@@ -143,7 +142,7 @@ impl ExporterService {
     async fn run_server(
         addr: SocketAddr,
         service: Arc<ExporterService>,
-        rx_shutdown: tokio::sync::oneshot::Receiver<()>
+        rx_shutdown: tokio::sync::oneshot::Receiver<()>,
     ) -> Result<(), Box<tonic::transport::Error>> {
         info!("Run exporter gRPC server at {addr}");
         Server::builder()
@@ -152,11 +151,11 @@ impl ExporterService {
             .await?;
         Ok(())
     }
-    
+
     async fn run_processor(
         service: Arc<ExporterService>,
         mut rx_subdags: metered_channel::Receiver<CommittedSubDag>,
-        mut rx_shutdown: tokio::sync::oneshot::Receiver<()>
+        mut rx_shutdown: tokio::sync::oneshot::Receiver<()>,
     ) -> Result<(), Box<dyn std::error::Error>> {
         info!("Run exporter processor");
         loop {

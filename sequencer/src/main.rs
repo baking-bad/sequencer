@@ -4,21 +4,21 @@
 
 use clap::Parser;
 use consensus_client::WorkerClient;
-use rollup_client::RollupClient;
 use fastcrypto::hash::{HashFunction, Keccak256};
-use log::{info, warn, error};
-use tokio::task::JoinHandle;
-use std::sync::Arc;
+use log::{error, info, warn};
+use rollup_client::RollupClient;
 use std::sync::mpsc;
+use std::sync::Arc;
 use std::time::Duration;
 use tokio::signal;
+use tokio::task::JoinHandle;
 
 use crate::da_batcher::fetch_pre_blocks;
 use crate::da_batcher::publish_pre_blocks;
 
+mod consensus_client;
 mod da_batcher;
 mod rollup_client;
-mod consensus_client;
 
 #[derive(Clone)]
 struct State {
@@ -42,30 +42,29 @@ async fn broadcast_transaction(mut req: tide::Request<State>) -> tide::Result<St
         .worker_client
         .as_ref()
         .clone() // cloning channel is cheap and encouraged
-        .send_transaction(tx_payload).await?;
+        .send_transaction(tx_payload)
+        .await?;
     Ok(hex::encode(tx_digest))
 }
 
 async fn get_block_by_level(req: tide::Request<State>) -> tide::Result<tide::Body> {
     let level: u32 = req.param("level")?.parse().unwrap_or(0);
-    let block = req
-        .state()
-        .rollup_client
-        .get_block_by_level(level)
-        .await?;
+    let block = req.state().rollup_client.get_block_by_level(level).await?;
 
     if let Some(txs) = block {
-        let res: Vec<String> = txs
-            .iter()
-            .map(|tx_digest| hex::encode(tx_digest))
-            .collect();
+        let res: Vec<String> = txs.iter().map(|tx_digest| hex::encode(tx_digest)).collect();
         tide::Body::from_json(&res)
     } else {
         Err(tide::Error::new(404, anyhow::anyhow!("Block not found")))
     }
 }
 
-async fn run_api_server(rpc_addr: String, rpc_port: u16, rollup_node_url: String, worker_node_url: String) -> anyhow::Result<()> {
+async fn run_api_server(
+    rpc_addr: String,
+    rpc_port: u16,
+    rollup_node_url: String,
+    worker_node_url: String,
+) -> anyhow::Result<()> {
     info!("[RPC server] Starting...");
 
     let rpc_host = format!("http://{}:{}", rpc_addr, rpc_port);
@@ -76,9 +75,13 @@ async fn run_api_server(rpc_addr: String, rpc_port: u16, rollup_node_url: String
     Ok(())
 }
 
-async fn run_da_task(node_id: u8, rollup_node_url: String, primary_node_url: String) -> anyhow::Result<()> {
+async fn run_da_task(
+    node_id: u8,
+    rollup_node_url: String,
+    primary_node_url: String,
+) -> anyhow::Result<()> {
     info!("[DA task] Starting...");
-    
+
     let rollup_client = RollupClient::new(rollup_node_url.clone());
     let mut connection_attempts = 0;
 
@@ -89,7 +92,7 @@ async fn run_da_task(node_id: u8, rollup_node_url: String, primary_node_url: Str
                 connection_attempts += 1;
                 if connection_attempts == 10 {
                     error!("[DA task] Max attempts to connect to SR node: {}", err);
-                    return Err(err)
+                    return Err(err);
                 } else {
                     warn!("[DA task] Attempt #{} {}", connection_attempts, err);
                     tokio::time::sleep(Duration::from_secs(connection_attempts)).await;
@@ -97,8 +100,11 @@ async fn run_da_task(node_id: u8, rollup_node_url: String, primary_node_url: Str
             }
         }
     };
-    info!("Connected to SR node: {} at {}", smart_rollup_address, rollup_node_url);
-    
+    info!(
+        "Connected to SR node: {} at {}",
+        smart_rollup_address, rollup_node_url
+    );
+
     // let primary_client = PrimaryClient::new(primary_node_url);
 
     loop {
@@ -159,7 +165,7 @@ async fn main() {
 
     let args = Args::parse();
     let rollup_node_url = args.rollup_node_url.clone();
-    
+
     let api_server = tokio::spawn(async move {
         tokio::select! {
             _ = signal::ctrl_c() => Ok(()),
@@ -177,7 +183,7 @@ async fn main() {
             _ = signal::ctrl_c() => Ok(()),
             res = run_da_task(args.node_id, args.rollup_node_url, args.primary_node_url) => res,
         }
-    }); 
+    });
 
     tokio::try_join!(flatten(api_server), flatten(da_task)).unwrap();
 }

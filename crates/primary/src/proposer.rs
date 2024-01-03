@@ -6,12 +6,9 @@ use crate::consensus::LeaderSchedule;
 use crate::metrics::PrimaryMetrics;
 use config::{AuthorityIdentifier, Committee, WorkerId};
 use fastcrypto::hash::Hash as _;
-use utils::metered_channel::{Receiver, Sender};
-use utils::spawn_logged_monitored_task;
 use std::collections::{BTreeMap, VecDeque};
 use std::{cmp::Ordering, sync::Arc};
 use storage::ProposerStore;
-use utils::protocol_config::ProtocolConfig;
 use tokio::time::{sleep_until, Instant};
 use tokio::{
     sync::{oneshot, watch},
@@ -24,6 +21,9 @@ use types::{
     BatchDigest, Certificate, CertificateAPI, Header, HeaderAPI, Round, TimestampMs,
 };
 use types::{now, ConditionalBroadcastReceiver, HeaderV1, HeaderV2, SystemMessage};
+use utils::metered_channel::{Receiver, Sender};
+use utils::protocol_config::ProtocolConfig;
+use utils::spawn_logged_monitored_task;
 
 /// Messages sent to the proposer about our own batch digests
 #[derive(Debug)]

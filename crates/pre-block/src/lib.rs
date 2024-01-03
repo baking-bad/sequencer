@@ -5,8 +5,10 @@
 use std::collections::BTreeSet;
 
 use digest::Blake2b256;
-use serde::{Serialize, Deserialize};
-use validator::{validate_certificate_signature, validate_certificate_chain, validate_certificate_batches};
+use serde::{Deserialize, Serialize};
+use validator::{
+    validate_certificate_batches, validate_certificate_chain, validate_certificate_signature,
+};
 
 #[cfg(any(test, feature = "conversions"))]
 pub mod conversion;
@@ -14,9 +16,9 @@ pub mod conversion;
 #[cfg(any(test, feature = "conversions"))]
 pub mod fixture;
 
-pub mod validator;
-pub mod digest;
 pub mod bls_min_sig;
+pub mod digest;
+pub mod validator;
 
 pub type Transaction = Vec<u8>;
 pub type Batch = Vec<Transaction>;
@@ -74,10 +76,8 @@ impl PreBlock {
         // TODO: check that leader is actually leader — or is it implied by consensus?
         validate_certificate_signature(&self.leader, config)?;
 
-        let digests: BTreeSet::<Digest> = self.certificates
-            .iter()
-            .map(|cert| cert.digest())
-            .collect();
+        let digests: BTreeSet<Digest> =
+            self.certificates.iter().map(|cert| cert.digest()).collect();
 
         validate_certificate_chain(&self.leader, self.index, store, &digests)?;
 

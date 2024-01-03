@@ -8,8 +8,6 @@ use crypto::{KeyPair, NetworkKeyPair, PublicKey};
 use executor::{get_restored_consensus_output, ExecutionState, SubscriberResult};
 use exporter::ExporterService;
 use fastcrypto::traits::{KeyPair as _, VerifyingKey};
-use utils::metered_channel;
-use utils::metrics::{RegistryID, RegistryService};
 use network::client::NetworkClient;
 use primary::consensus::{
     Bullshark, ChannelMetrics, Consensus, ConsensusMetrics, ConsensusRound, LeaderSchedule,
@@ -19,11 +17,13 @@ use prometheus::{IntGauge, Registry};
 use std::sync::Arc;
 use std::time::Instant;
 use storage::NodeStorage;
-use utils::protocol_config::ProtocolConfig;
 use tokio::sync::{watch, RwLock};
 use tokio::task::JoinHandle;
 use tracing::{info, instrument};
 use types::{Certificate, ConditionalBroadcastReceiver, PreSubscribedBroadcastSender, Round};
+use utils::metered_channel;
+use utils::metrics::{RegistryID, RegistryService};
+use utils::protocol_config::ProtocolConfig;
 
 struct PrimaryNodeInner {
     // The configuration parameters.
@@ -366,10 +366,7 @@ impl PrimaryNodeInner {
             rx_sequence,
         );
 
-        let handles = vec![
-            consensus_handle,
-            exporter_handle,
-        ];
+        let handles = vec![consensus_handle, exporter_handle];
 
         // // Spawn the client executing the transactions. It can also synchronize with the
         // // subscriber handler if it missed some transactions.

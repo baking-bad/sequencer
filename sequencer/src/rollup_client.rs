@@ -106,7 +106,7 @@ impl RollupClient {
                     Err(anyhow::anyhow!(message))
                 }
                 // Key not found
-                None => Ok(None)
+                None => Ok(None),
             }
         } else {
             Err(anyhow::anyhow!(
@@ -138,25 +138,20 @@ impl RollupClient {
     }
 
     pub async fn get_block_by_level(&self, level: u32) -> anyhow::Result<Option<Vec<[u8; 32]>>> {
-        let res = self
-            .store_get(format!("/blocks/{level}"))
-            .await?;
+        let res = self.store_get(format!("/blocks/{level}")).await?;
         if let Some(bytes) = res {
             Ok(bcs::from_bytes(&bytes)?)
         } else {
             Ok(None)
         }
-        
     }
 
     pub async fn get_next_index(&self) -> anyhow::Result<u64> {
         let res = self.store_get("/index".into()).await?;
         if let Some(bytes) = res {
-            let index = u64::from_be_bytes(
-                bytes
-                    .try_into()
-                    .map_err(|b| anyhow::anyhow!("Failed to parse pre-block index: {}", hex::encode(b)))?
-            );
+            let index = u64::from_be_bytes(bytes.try_into().map_err(|b| {
+                anyhow::anyhow!("Failed to parse pre-block index: {}", hex::encode(b))
+            })?);
             Ok(index + 1)
         } else {
             Ok(0)

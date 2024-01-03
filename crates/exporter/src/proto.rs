@@ -1,25 +1,14 @@
-use std::collections::HashMap;
 use roaring::RoaringBitmap;
-use types::{CertificateAPI, HeaderAPI, BatchAPI};
+use std::collections::HashMap;
+use types::{BatchAPI, CertificateAPI, HeaderAPI};
 
 mod exporter {
     tonic::include_proto!("exporter");
 }
 pub use exporter::{
-    SubDag,
-    Certificate,
-    Header,
-    BatchInfo,
-    SystemMessage,
-    RandomnessSignature,
-    Payload,
-    Batch,
-    ExportRequest,
-    system_message,
-    exporter_server::{
-        Exporter,
-        ExporterServer
-    }
+    exporter_server::{Exporter, ExporterServer},
+    system_message, Batch, BatchInfo, Certificate, ExportRequest, Header, Payload,
+    RandomnessSignature, SubDag, SystemMessage,
 };
 
 impl SubDag {
@@ -30,11 +19,13 @@ impl SubDag {
         SubDag {
             id: subdag.sub_dag_index,
             leader: Some(Certificate::from(&subdag.leader)),
-            certificates: subdag.certificates
+            certificates: subdag
+                .certificates
                 .iter()
                 .map(|cert| Certificate::from(cert))
                 .collect(),
-            payloads: subdag.certificates
+            payloads: subdag
+                .certificates
                 .iter()
                 .map(|cert| Payload {
                     batches: cert
@@ -46,11 +37,11 @@ impl SubDag {
                                 .get(digest)
                                 .expect("Batches cannot be missed")
                                 .transactions()
-                                .clone()
+                                .clone(),
                         })
-                        .collect()
+                        .collect(),
                 })
-                .collect()
+                .collect(),
         }
     }
 }
@@ -61,15 +52,15 @@ impl Certificate {
             types::Certificate::V2(c) => Certificate {
                 header: Some(Header::from(&c.header)),
                 signature: match &c.signature_verification_state {
-                    types::SignatureVerificationState::VerifiedDirectly(bytes) |
-                    types::SignatureVerificationState::VerifiedIndirectly(bytes) |
-                    types::SignatureVerificationState::Unverified(bytes) |
-                    types::SignatureVerificationState::Unsigned(bytes) => Vec::from(bytes.0),
-                    types::SignatureVerificationState::Genesis => Vec::new()
+                    types::SignatureVerificationState::VerifiedDirectly(bytes)
+                    | types::SignatureVerificationState::VerifiedIndirectly(bytes)
+                    | types::SignatureVerificationState::Unverified(bytes)
+                    | types::SignatureVerificationState::Unsigned(bytes) => Vec::from(bytes.0),
+                    types::SignatureVerificationState::Genesis => Vec::new(),
                 },
-                signers: rb_to_bytes(&c.signed_authorities)
+                signers: rb_to_bytes(&c.signed_authorities),
             },
-            _ => panic!("CertificateV1 is not expected")
+            _ => panic!("CertificateV1 is not expected"),
         }
     }
 }
@@ -82,7 +73,8 @@ impl Header {
                 round: h.round,
                 epoch: h.epoch,
                 created_at: h.created_at,
-                payload_info: h.payload
+                payload_info: h
+                    .payload
                     .iter()
                     .map(|(digest, (worker_id, created_at))| BatchInfo {
                         digest: Vec::from(digest.as_ref()),
@@ -90,31 +82,33 @@ impl Header {
                         created_at: *created_at,
                     })
                     .collect(),
-                system_messages: h.system_messages
+                system_messages: h
+                    .system_messages
                     .iter()
-                    .map(|item| {
-                        match item {
-                            types::SystemMessage::DkgConfirmation(bytes) => SystemMessage {
-                                message: Some(system_message::Message::DkgConfirmation(bytes.clone()))
-                            },
-                            types::SystemMessage::DkgMessage(bytes) => SystemMessage {
-                                message: Some(system_message::Message::DkgMessage(bytes.clone()))
-                            },
-                            types::SystemMessage::RandomnessSignature(round, bytes) => SystemMessage {
-                                message: Some(system_message::Message::RandomnessSignature(RandomnessSignature {
+                    .map(|item| match item {
+                        types::SystemMessage::DkgConfirmation(bytes) => SystemMessage {
+                            message: Some(system_message::Message::DkgConfirmation(bytes.clone())),
+                        },
+                        types::SystemMessage::DkgMessage(bytes) => SystemMessage {
+                            message: Some(system_message::Message::DkgMessage(bytes.clone())),
+                        },
+                        types::SystemMessage::RandomnessSignature(round, bytes) => SystemMessage {
+                            message: Some(system_message::Message::RandomnessSignature(
+                                RandomnessSignature {
                                     randomness_round: round.0,
-                                    bytes: bytes.clone()
-                                }))
-                            }
-                        }
+                                    bytes: bytes.clone(),
+                                },
+                            )),
+                        },
                     })
                     .collect(),
-                parents: h.parents
+                parents: h
+                    .parents
                     .iter()
                     .map(|digest| Vec::from(digest.as_ref()))
-                    .collect()
+                    .collect(),
             },
-            _ => panic!("HeaderV1 is not expected")
+            _ => panic!("HeaderV1 is not expected"),
         }
     }
 }

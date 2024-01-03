@@ -1,18 +1,26 @@
+use config::{AuthorityIdentifier, Committee, WorkerCache, WorkerId};
+use crypto::NetworkPublicKey;
+use network::client::NetworkClient;
+use network::PrimaryToWorkerClient;
 use std::{
-    collections::{HashMap, HashSet, VecDeque}, time::Duration,
-    sync::{Arc, atomic::{AtomicBool, Ordering, AtomicU64}}, error::Error
+    collections::{HashMap, HashSet, VecDeque},
+    error::Error,
+    sync::{
+        atomic::{AtomicBool, AtomicU64, Ordering},
+        Arc,
+    },
+    time::Duration,
+};
+use storage::{CertificateStore, ConsensusStore};
+use tokio::{
+    sync::{mpsc::Sender, Mutex},
+    time::{self, timeout},
 };
 use tonic::Status;
-use config::{AuthorityIdentifier, WorkerCache, Committee, WorkerId};
-use crypto::NetworkPublicKey;
-use network::PrimaryToWorkerClient;
-use network::client::NetworkClient;
-use storage::{CertificateStore, ConsensusStore};
-use tokio::{sync::{mpsc::Sender, Mutex}, time::{self, timeout}};
-use tracing::{error, warn, info, debug};
+use tracing::{debug, error, info, warn};
 use types::{
-    ConsensusCommit, CommittedSubDag, Certificate, CertificateAPI,
-    BatchDigest, Batch, FetchBatchesRequest, HeaderAPI
+    Batch, BatchDigest, Certificate, CertificateAPI, CommittedSubDag, ConsensusCommit,
+    FetchBatchesRequest, HeaderAPI,
 };
 
 use crate::proto::SubDag;
@@ -67,8 +75,7 @@ impl Client {
                     self.close();
                     return;
                 }
-            }
-            else {
+            } else {
                 // send historical data
                 if let Err(e) = self.process_history().await {
                     warn!("Failed to process client's history: {}", e);
@@ -107,11 +114,11 @@ impl Client {
     async fn pending_subdag_id(&self) -> Option<u64> {
         match self.queue.lock().await.front() {
             Some(subdag) => Some(subdag.sub_dag_index),
-            _ => None
+            _ => None,
         }
     }
 
-    async fn process_queue(&self) -> Result<(), Box<dyn Error>>{
+    async fn process_queue(&self) -> Result<(), Box<dyn Error>> {
         if let Some(subdag) = self.dequeue().await {
             let next_id = self.last_subdag.load(Ordering::Relaxed) + 1;
             if subdag.sub_dag_index < next_id {
@@ -131,7 +138,7 @@ impl Client {
         Ok(())
     }
 
-    async fn process_history(&self) -> Result<(), Box<dyn Error>>{
+    async fn process_history(&self) -> Result<(), Box<dyn Error>> {
         let next_id = self.last_subdag.load(Ordering::Relaxed) + 1;
         if let Some(pending_subdag_id) = self.pending_subdag_id().await {
             if next_id >= pending_subdag_id {
@@ -164,9 +171,7 @@ impl Client {
 
     async fn output_from_subdag(&self, subdag: &CommittedSubDag) -> Result<SubDag, Box<dyn Error>> {
         match timeout(Duration::from_secs(30), self.fetch_batches(subdag)).await {
-            Ok(batches) => {
-                Ok(SubDag::from(&subdag, &batches))
-            }
+            Ok(batches) => Ok(SubDag::from(&subdag, &batches)),
             Err(err) => {
                 warn!("Fetching batches failed with {}", err);
                 Err(err.into())
@@ -174,7 +179,10 @@ impl Client {
         }
     }
 
-    fn load_certs(&self, commit: ConsensusCommit) -> Result<CommittedSubDag, Box<dyn std::error::Error>> {
+    fn load_certs(
+        &self,
+        commit: ConsensusCommit,
+    ) -> Result<CommittedSubDag, Box<dyn std::error::Error>> {
         let digests = commit.certificates();
         debug!(
             "Load {} certificates for subdag #{}",
@@ -182,21 +190,16 @@ impl Client {
             commit.sub_dag_index()
         );
 
-        let certificates = self.certificate_store
+        let certificates = self
+            .certificate_store
             .read_all(digests)?
             .into_iter()
             .flatten()
             .collect();
 
-        let leader = self.certificate_store
-            .read(commit.leader())?
-            .unwrap();
+        let leader = self.certificate_store.read(commit.leader())?.unwrap();
 
-        Ok(CommittedSubDag::from_commit(
-            commit,
-            certificates,
-            leader,
-        ))
+        Ok(CommittedSubDag::from_commit(commit, certificates, leader))
     }
 
     async fn fetch_batches(&self, subdag: &CommittedSubDag) -> HashMap<BatchDigest, Batch> {
@@ -206,18 +209,16 @@ impl Client {
             debug!("No batches to fetch, payload is empty");
             return fetched_batches;
         }
-        
-        let mut workers_and_digests
-            = HashMap::<NetworkPublicKey, (HashSet<BatchDigest>, HashSet<NetworkPublicKey>)>::new();
+
+        let mut workers_and_digests =
+            HashMap::<NetworkPublicKey, (HashSet<BatchDigest>, HashSet<NetworkPublicKey>)>::new();
 
         for cert in &subdag.certificates {
             for (digest, (worker_id, _)) in cert.header().payload().iter() {
                 let own_worker = self.get_own_worker(worker_id);
                 let known_workers = self.get_known_workers(cert, worker_id);
 
-                let (batches_set, workers_set) = workers_and_digests
-                    .entry(own_worker)
-                    .or_default();
+                let (batches_set, workers_set) = workers_and_digests.entry(own_worker).or_default();
 
                 batches_set.insert(*digest);
                 workers_set.extend(known_workers);
@@ -258,14 +259,15 @@ impl Client {
 
         fetched_batches
     }
-    
+
     fn get_own_worker(&self, worker_id: &WorkerId) -> NetworkPublicKey {
         self.worker_cache
             .worker(
-                self
-                    .committee
+                self.committee
                     .authority(&self.authority_id)
-                    .unwrap_or_else(|| panic!("Authority {} is not in the committee", self.authority_id))
+                    .unwrap_or_else(|| {
+                        panic!("Authority {} is not in the committee", self.authority_id)
+                    })
                     .protocol_key(),
                 worker_id,
             )
@@ -273,7 +275,11 @@ impl Client {
             .name
     }
 
-    fn get_known_workers(&self, certificate: &Certificate, worker_id: &WorkerId) -> Vec<NetworkPublicKey> {
+    fn get_known_workers(
+        &self,
+        certificate: &Certificate,
+        worker_id: &WorkerId,
+    ) -> Vec<NetworkPublicKey> {
         let authorities = certificate.signed_authorities(&self.committee);
         authorities
             .into_iter()

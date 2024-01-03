@@ -11,9 +11,9 @@ use config::{Authority, AuthorityIdentifier, Committee, Stake};
 use parking_lot::RwLock;
 use rand::{rngs::StdRng, seq::SliceRandom, SeedableRng};
 use storage::ConsensusStore;
-use utils::protocol_config::ProtocolConfig;
 use tracing::{debug, trace};
 use types::{Certificate, ReputationScores, Round};
+use utils::protocol_config::ProtocolConfig;
 
 use super::Dag;
 

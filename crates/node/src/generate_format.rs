@@ -7,7 +7,6 @@ use fastcrypto::{
     hash::Hash,
     traits::{KeyPair as _, Signer},
 };
-use utils::network::Multiaddr;
 use rand::{prelude::StdRng, SeedableRng};
 use serde_reflection::{Registry, Result, Samples, Tracer, TracerConfig};
 use std::{fs::File, io::Write};
@@ -17,6 +16,7 @@ use types::{
     MetadataV1, VersionedMetadata, WorkerOthersBatchMessage, WorkerOwnBatchMessage,
     WorkerSynchronizeMessage,
 };
+use utils::network::Multiaddr;
 
 #[allow(clippy::mutable_key_type)]
 fn get_registry() -> Result<Registry> {

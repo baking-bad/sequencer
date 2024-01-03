@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 mod errors;
+mod metrics;
 mod state;
 mod subscriber;
-mod metrics;
 
 pub use errors::{SubscriberError, SubscriberResult};
 pub use state::ExecutionIndices;
@@ -16,7 +16,6 @@ use crate::subscriber::spawn_subscriber;
 use async_trait::async_trait;
 use config::{AuthorityIdentifier, Committee, WorkerCache};
 use mockall::automock;
-use utils::metered_channel;
 use network::client::NetworkClient;
 use prometheus::Registry;
 use std::sync::Arc;
@@ -24,6 +23,7 @@ use storage::{CertificateStore, ConsensusStore};
 use tokio::task::JoinHandle;
 use tracing::info;
 use types::{CertificateDigest, CommittedSubDag, ConditionalBroadcastReceiver, ConsensusOutput};
+use utils::metered_channel;
 
 /// Convenience type representing a serialized transaction.
 pub type SerializedTransaction = Vec<u8>;

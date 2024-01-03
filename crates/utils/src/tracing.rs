@@ -1,8 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use once_cell::sync::Lazy;
 use crossterm::tty::IsTty;
+use once_cell::sync::Lazy;
 use std::io::{stdout, Write};
 use tracing::metadata::LevelFilter;
 use tracing_appender::non_blocking::WorkerGuard;
@@ -26,8 +26,7 @@ pub fn setup_tracing(tracing_level: &str, network_tracing_level: &str) -> Worker
     layers.push(fmt_layer);
 
     let subscriber = tracing_subscriber::registry().with(layers);
-    ::tracing::subscriber::set_global_default(subscriber)
-        .expect("unable to initialize tracing");
+    ::tracing::subscriber::set_global_default(subscriber).expect("unable to initialize tracing");
 
     set_panic_hook(false);
 

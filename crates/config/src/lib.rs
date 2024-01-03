@@ -9,9 +9,9 @@
 )]
 #![allow(clippy::mutable_key_type)]
 
+use ::utils::network::Multiaddr;
 use crypto::{NetworkPublicKey, PublicKey};
 use fastcrypto::traits::EncodeDecodeBase64;
-use ::utils::network::Multiaddr;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use std::{
     collections::{BTreeMap, HashSet},

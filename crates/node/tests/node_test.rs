@@ -3,7 +3,6 @@
 
 use config::{ChainIdentifier, Parameters};
 use fastcrypto::traits::KeyPair;
-use utils::metrics::RegistryService;
 use narwhal_node::execution_state::SimpleExecutionState;
 use narwhal_node::primary_node::PrimaryNode;
 use narwhal_node::worker_node::WorkerNodes;
@@ -15,6 +14,7 @@ use storage::NodeStorage;
 use test_utils::{latest_protocol_version, temp_dir, CommitteeFixture};
 use tokio::sync::mpsc::channel;
 use tokio::time::sleep;
+use utils::metrics::RegistryService;
 use worker::TrivialTransactionValidator;
 
 #[tokio::test]

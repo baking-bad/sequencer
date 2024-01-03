@@ -2,11 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 use axum::{routing::get, Extension, Router};
 use config::{AuthorityIdentifier, WorkerId};
-use utils::{metrics::metrics, spawn_logged_monitored_task};
-use utils::network::Multiaddr;
 use prometheus::Registry;
 use std::collections::HashMap;
 use tokio::task::JoinHandle;
+use utils::network::Multiaddr;
+use utils::{metrics::metrics, spawn_logged_monitored_task};
 
 const METRICS_ROUTE: &str = "/metrics";
 const PRIMARY_METRICS_PREFIX: &str = "narwhal_primary";

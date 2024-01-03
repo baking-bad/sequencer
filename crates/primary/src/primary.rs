@@ -43,9 +43,6 @@ use fastcrypto_tbls::{
     tbls::ThresholdBls,
     types::{PublicVssKey, ThresholdBls12381MinSig},
 };
-use utils::metered_channel::{channel_with_total, Receiver, Sender};
-use utils::metrics::monitored_scope;
-use utils::network::{Protocol, Multiaddr};
 use network::{
     client::NetworkClient,
     epoch_filter::{AllowedEpoch, EPOCH_HEADER_KEY},
@@ -66,7 +63,6 @@ use std::{
     sync::OnceLock,
 };
 use storage::{CertificateStore, PayloadStore, ProposerStore, VoteDigestStore};
-use utils::protocol_config::ProtocolConfig;
 use tokio::{sync::oneshot, time::Instant};
 use tokio::{sync::watch, task::JoinHandle};
 use tower::ServiceBuilder;
@@ -82,6 +78,10 @@ use types::{
     VoteInfoAPI, WorkerOthersBatchMessage, WorkerOwnBatchMessage, WorkerToPrimary,
     WorkerToPrimaryServer,
 };
+use utils::metered_channel::{channel_with_total, Receiver, Sender};
+use utils::metrics::monitored_scope;
+use utils::network::{Multiaddr, Protocol};
+use utils::protocol_config::ProtocolConfig;
 
 #[cfg(test)]
 #[path = "tests/primary_tests.rs"]

@@ -2,9 +2,9 @@
 //
 // SPDX-License-Identifier: MIT
 
-use pre_block::{Digest, PublicKey, PreBlockStore};
+use pre_block::{Digest, PreBlockStore, PublicKey};
 use tezos_smart_rollup_host::{
-    path::{concat, OwnedPath, RefPath, Path},
+    path::{concat, OwnedPath, Path, RefPath},
     runtime::Runtime,
 };
 
@@ -20,8 +20,7 @@ fn certificate_path(digest: &Digest) -> OwnedPath {
 }
 
 fn write_u64_be(host: &mut impl Runtime, path: &impl Path, value: u64) {
-    host.store_write_all(path, &value.to_be_bytes())
-        .unwrap();
+    host.store_write_all(path, &value.to_be_bytes()).unwrap();
 }
 
 fn read_u64_be(host: &impl Runtime, path: &impl Path) -> Option<u64> {
@@ -48,7 +47,7 @@ impl<'cs, Host: Runtime> Store<'cs, Host> {
 
 impl<'cs, Host: Runtime> PreBlockStore for Store<'cs, Host> {
     fn get_certificate_index(&self, digest: &Digest) -> Option<u64> {
-        read_u64_be(self.host, &certificate_path(digest)) 
+        read_u64_be(self.host, &certificate_path(digest))
     }
 
     fn set_certificate_index(&mut self, digest: &Digest, index: u64) {
@@ -84,14 +83,11 @@ pub fn write_authorities<Host: Runtime>(host: &mut Host, epoch: u64, authorities
 
 pub fn read_head<Host: Runtime>(host: &Host) -> u32 {
     if host.store_has(&HEAD_PATH).unwrap().is_some() {
-        let bytes = host
-            .store_read_all(&HEAD_PATH)
-            .unwrap();
+        let bytes = host.store_read_all(&HEAD_PATH).unwrap();
         u32::from_be_bytes(bytes.try_into().expect("Expected 4 bytes"))
     } else {
         0
     }
-    
 }
 
 pub fn write_head<Host: Runtime>(host: &mut Host, level: u32) {

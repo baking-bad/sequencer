@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: MIT
 
+use crate::{Batch, Certificate, CertificateHeader, Digest};
 use tezos_crypto_rs::blake2b;
-use crate::{Certificate, Digest, Batch, CertificateHeader};
 
 pub trait Blake2b256 {
     fn digest(&self) -> Digest;
@@ -30,16 +30,15 @@ impl Blake2b256 for Batch {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use std::collections::BTreeSet;
 
-    use narwhal_test_utils::latest_protocol_version;
-    use narwhal_types::{BatchV2, HeaderV2, CertificateDigest, BatchDigest, TimestampMs};
-    use narwhal_config::{AuthorityIdentifier, WorkerId};
     use fastcrypto::hash::Hash;
     use indexmap::IndexMap;
+    use narwhal_config::{AuthorityIdentifier, WorkerId};
+    use narwhal_test_utils::latest_protocol_version;
+    use narwhal_types::{BatchDigest, BatchV2, CertificateDigest, HeaderV2, TimestampMs};
 
     use crate::CertificateHeader;
 
@@ -71,7 +70,7 @@ mod tests {
             3u64,
             payload,
             vec![],
-            parents
+            parents,
         );
         let expected = header_v2.digest().0;
 
@@ -79,6 +78,5 @@ mod tests {
         let actual = header.digest();
 
         assert_eq!(expected, actual);
-        
     }
 }

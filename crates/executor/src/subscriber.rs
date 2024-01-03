@@ -18,15 +18,15 @@ use std::{sync::Arc, time::Duration, vec};
 use types::FetchBatchesRequest;
 
 use fastcrypto::hash::Hash;
-use utils::metered_channel;
-use utils::spawn_logged_monitored_task;
-use utils::protocol_config::ProtocolConfig;
 use tokio::task::JoinHandle;
 use tracing::{debug, error, info};
 use types::{
     Batch, BatchAPI, BatchDigest, Certificate, CertificateAPI, CommittedSubDag,
     ConditionalBroadcastReceiver, ConsensusOutput, HeaderAPI, MetadataAPI, Timestamp,
 };
+use utils::metered_channel;
+use utils::protocol_config::ProtocolConfig;
+use utils::spawn_logged_monitored_task;
 
 /// The `Subscriber` receives certificates sequenced by the consensus and waits until the
 /// downloaded all the transactions references by the certificates; it then

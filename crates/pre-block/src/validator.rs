@@ -4,14 +4,24 @@
 
 use std::collections::BTreeSet;
 
-use crate::{Certificate, DsnConfig, PreBlockStore, Digest, Batch, digest::Blake2b256, bls_min_sig::aggregate_verify, PublicKey};
+use crate::{
+    bls_min_sig::aggregate_verify, digest::Blake2b256, Batch, Certificate, Digest, DsnConfig,
+    PreBlockStore, PublicKey,
+};
 
-pub fn validate_certificate_signature(cert: &Certificate, config: &DsnConfig) -> anyhow::Result<()> {
+pub fn validate_certificate_signature(
+    cert: &Certificate,
+    config: &DsnConfig,
+) -> anyhow::Result<()> {
     if config.epoch != cert.header.epoch {
         anyhow::bail!("Incorrect epoch");
     }
 
-    if cert.signers.iter().any(|x| (*x as usize) >= config.authorities.len()) {
+    if cert
+        .signers
+        .iter()
+        .any(|x| (*x as usize) >= config.authorities.len())
+    {
         anyhow::bail!("Unknown authority");
     }
 
@@ -20,9 +30,11 @@ pub fn validate_certificate_signature(cert: &Certificate, config: &DsnConfig) ->
     }
 
     let digest = cert.digest();
-    let keys: Vec<&PublicKey> = cert.signers.iter().map(|i| {
-        config.authorities.get(*i as usize).unwrap()
-    }).collect();
+    let keys: Vec<&PublicKey> = cert
+        .signers
+        .iter()
+        .map(|i| config.authorities.get(*i as usize).unwrap())
+        .collect();
 
     aggregate_verify(&cert.signature, digest, keys.as_slice())
 }
@@ -31,7 +43,7 @@ pub fn validate_certificate_chain(
     cert: &Certificate,
     index: u64,
     store: &impl PreBlockStore,
-    neighbors: &BTreeSet<Digest>
+    neighbors: &BTreeSet<Digest>,
 ) -> anyhow::Result<()> {
     // We need to ensure the sub dag is:
     //  1) Not overlapping with the previous one
@@ -49,10 +61,10 @@ pub fn validate_certificate_chain(
         match store.get_certificate_index(parent) {
             Some(prev_index) if prev_index + 1 != index => {
                 anyhow::bail!("Parent certificate is not from a preceding sub dag")
-            },
+            }
             None => {
                 anyhow::bail!("Parent certificate cannot be not found");
-            },
+            }
             _ => (),
         }
     }
@@ -62,11 +74,15 @@ pub fn validate_certificate_chain(
 
 pub fn validate_certificate_batches(cert: &Certificate, batches: &[Batch]) -> anyhow::Result<()> {
     let digests: BTreeSet<&Digest> = cert.header.payload.iter().map(|x| &x.0).collect();
-  
+
     for (i, batch) in batches.iter().enumerate() {
         let digest = batch.digest();
         if !digests.contains(&digest) {
-            anyhow::bail!("Invalid batch content (digest mismatch), idx = {}, digest = {}", i, hex::encode(&digest));
+            anyhow::bail!(
+                "Invalid batch content (digest mismatch), idx = {}, digest = {}",
+                i,
+                hex::encode(&digest)
+            );
         }
     }
 
@@ -77,9 +93,13 @@ pub fn validate_certificate_batches(cert: &Certificate, batches: &[Batch]) -> an
 mod tests {
     use narwhal_crypto::traits::ToFromBytes;
     use narwhal_test_utils::{latest_protocol_version, CommitteeFixture};
-    use narwhal_types::{VoteAPI, CertificateV2};
+    use narwhal_types::{CertificateV2, VoteAPI};
 
-    use crate::{Certificate, DsnConfig, digest::Blake2b256, fixture::{NarwhalFixture, SimpleStore}};
+    use crate::{
+        digest::Blake2b256,
+        fixture::{NarwhalFixture, SimpleStore},
+        Certificate, DsnConfig,
+    };
 
     use super::validate_certificate_signature;
 
@@ -100,12 +120,15 @@ mod tests {
 
         let narwhal_cert = match CertificateV2::new_unverified(&committee, header, signatures) {
             Ok(narwhal_types::Certificate::V2(cert)) => cert,
-            _ => unreachable!()
+            _ => unreachable!(),
         };
         let digest = narwhal_cert.header.digest();
 
         // Make sure the original cert is valid
-        narwhal_cert.clone().verify(&committee, &fixture.worker_cache()).expect("Valid certificate");
+        narwhal_cert
+            .clone()
+            .verify(&committee, &fixture.worker_cache())
+            .expect("Valid certificate");
 
         // Convert certificate
         let cert: Certificate = narwhal_cert.into();
@@ -118,7 +141,7 @@ mod tests {
             fixture
                 .authorities()
                 .map(|auth| auth.public_key().as_bytes().to_vec())
-                .collect()
+                .collect(),
         );
 
         validate_certificate_signature(&cert, &config).unwrap();
@@ -132,9 +155,11 @@ mod tests {
         let pre_block = fixture.next_pre_block(1);
         let config = DsnConfig {
             epoch: 0,
-            authorities: fixture.authorities()
+            authorities: fixture.authorities(),
         };
 
-        pre_block.verify(&config, &mut store).expect("Failed to verify");
+        pre_block
+            .verify(&config, &mut store)
+            .expect("Failed to verify");
     }
 }

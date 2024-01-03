@@ -9,8 +9,6 @@ use crate::consensus::utils::gc_round;
 use crate::consensus::{metrics::ConsensusMetrics, ConsensusError};
 use config::{AuthorityIdentifier, Committee};
 use fastcrypto::hash::Hash;
-use utils::metered_channel;
-use utils::spawn_logged_monitored_task;
 use std::fmt::Debug;
 use std::{
     cmp::{max, Ordering},
@@ -24,6 +22,8 @@ use types::{
     Certificate, CertificateAPI, CertificateDigest, CommittedSubDag, ConditionalBroadcastReceiver,
     ConsensusCommit, HeaderAPI, Round, SequenceNumber, Timestamp,
 };
+use utils::metered_channel;
+use utils::spawn_logged_monitored_task;
 
 #[cfg(test)]
 #[path = "tests/consensus_tests.rs"]

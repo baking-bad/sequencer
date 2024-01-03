@@ -2,20 +2,20 @@
 //
 // SPDX-License-Identifier: MIT
 
+use pre_block::{DsnConfig, PreBlock};
+use tezos_crypto_rs::blake2b::digest_256;
 use tezos_smart_rollup_encoding::{
     inbox::{ExternalMessageFrame, InboxMessage, InternalInboxMessage},
     michelson::MichelsonBytes,
 };
 use tezos_smart_rollup_host::runtime::Runtime;
-use tezos_crypto_rs::blake2b::digest_256;
-use pre_block::{DsnConfig, PreBlock};
 
 mod storage;
 
 #[cfg(test)]
 mod tests;
 
-use storage::{write_authorities, read_authorities, Store, read_head, write_block, write_head};
+use storage::{read_authorities, read_head, write_authorities, write_block, write_head, Store};
 
 const LEVELS_PER_EPOCH: u32 = 100;
 
@@ -32,8 +32,7 @@ pub fn apply_pre_block<Host: Runtime>(host: &mut Host, pre_block: PreBlock) {
 }
 
 fn process_external_message<Host: Runtime>(host: &mut Host, contents: &[u8], level: u32) {
-    let pre_block: PreBlock =
-        bcs::from_bytes(contents).expect("Failed to parse consensus output");
+    let pre_block: PreBlock = bcs::from_bytes(contents).expect("Failed to parse consensus output");
 
     let epoch = 0; // (level % LEVELS_PER_EPOCH) as u64;
     let authorities = read_authorities(host, epoch);
@@ -44,10 +43,10 @@ fn process_external_message<Host: Runtime>(host: &mut Host, contents: &[u8], lev
         match pre_block.verify(&config, &store) {
             Ok(()) => {
                 pre_block.commit(&mut store);
-            },
+            }
             Err(err) => {
                 host.write_debug(&format!("Skipping pre-block: {}", err));
-                return
+                return;
             }
         }
     }

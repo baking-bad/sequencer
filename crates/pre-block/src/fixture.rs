@@ -2,17 +2,17 @@ use std::collections::HashMap;
 use std::{collections::BTreeSet, num::NonZeroUsize};
 
 use narwhal_test_utils::{latest_protocol_version, CommitteeFixture};
-use narwhal_types::{VoteAPI, CertificateV2, CertificateDigest, Header};
+use narwhal_types::{CertificateDigest, CertificateV2, Header, VoteAPI};
 use narwhal_utils::protocol_config::ProtocolConfig;
 
 use crate::conversion::convert_batch;
-use crate::{PublicKey, Certificate, PreBlock, Batch, PreBlockStore, Digest};
+use crate::{Batch, Certificate, Digest, PreBlock, PreBlockStore, PublicKey};
 
 pub const COMMITTEE_SIZE: usize = 4;
 
 #[derive(Default)]
 pub struct NoRng {
-    counter: u8
+    counter: u8,
 }
 
 impl rand::RngCore for NoRng {
@@ -84,7 +84,13 @@ impl NarwhalFixture {
             .rng(NoRng::default())
             .committee_size(NonZeroUsize::new(committee_size).unwrap())
             .build();
-        Self { config, fixture, round: 0, index: 0, parents: BTreeSet::new() }
+        Self {
+            config,
+            fixture,
+            round: 0,
+            index: 0,
+            parents: BTreeSet::new(),
+        }
     }
 
     pub fn authorities(&self) -> Vec<PublicKey> {
@@ -105,20 +111,15 @@ impl NarwhalFixture {
         }
 
         match CertificateV2::new_unverified(&committee, header, signatures) {
-            Ok(narwhal_types::Certificate::V2(cert)) => {
-               cert.into()
-            },
-            _ => unreachable!()
+            Ok(narwhal_types::Certificate::V2(cert)) => cert.into(),
+            _ => unreachable!(),
         }
     }
 
     fn round(&mut self, num_txs: u32) -> (Vec<Vec<Batch>>, Vec<Certificate>) {
-        let (round, headers, batches) = self.fixture.headers_round(
-            self.round,
-            &self.parents,
-            &self.config,
-            num_txs
-        );
+        let (round, headers, batches) =
+            self.fixture
+                .headers_round(self.round, &self.parents, &self.config, num_txs);
 
         self.round = round;
         self.parents = headers
@@ -133,24 +134,16 @@ impl NarwhalFixture {
 
         let mut res_batches: Vec<Vec<Batch>> = Vec::new();
         for batch_list in batches {
-            res_batches.push(
-                batch_list
-                    .into_iter()
-                    .map(convert_batch)
-                    .collect()
-            )
+            res_batches.push(batch_list.into_iter().map(convert_batch).collect())
         }
 
         (res_batches, certificates)
     }
 
     fn leader(&self) -> Certificate {
-        let (_, mut headers, _) = self.fixture.headers_round(
-            self.round,
-            &self.parents,
-            &self.config,
-            0
-        );
+        let (_, mut headers, _) =
+            self.fixture
+                .headers_round(self.round, &self.parents, &self.config, 0);
 
         let idx = (self.round as usize) % headers.len();
         self.certify(headers.remove(idx))
@@ -160,7 +153,7 @@ impl NarwhalFixture {
         let (batches_1, certs_1) = self.round(num_txs);
         let (batches_2, certs_2) = self.round(num_txs);
         let leader = self.leader();
-        
+
         let index = self.index;
         self.index += 1;
 

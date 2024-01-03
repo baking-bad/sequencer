@@ -2,7 +2,10 @@ use pre_block::fixture::NarwhalFixture;
 use tezos_smart_rollup_encoding::{inbox::ExternalMessageFrame, smart_rollup::SmartRollupAddress};
 use tezos_smart_rollup_mock::MockHost;
 
-use crate::{kernel_loop, storage::{write_authorities, read_head}};
+use crate::{
+    kernel_loop,
+    storage::{read_head, write_authorities},
+};
 
 #[test]
 fn test_external_message() {
@@ -23,10 +26,7 @@ fn test_external_message() {
     assert!(contents.len() < 2048);
 
     let message = ExternalMessageFrame::Targetted {
-        address: SmartRollupAddress::from_b58check(
-            "sr163Lv22CdE8QagCwf48PWDTquk6isQwv57",
-        )
-        .unwrap(),
+        address: SmartRollupAddress::from_b58check("sr163Lv22CdE8QagCwf48PWDTquk6isQwv57").unwrap(),
         contents,
     };
 

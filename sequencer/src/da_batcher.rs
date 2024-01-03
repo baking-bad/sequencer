@@ -3,12 +3,12 @@
 // SPDX-License-Identifier: MIT
 
 use log::info;
-use pre_block::{PreBlock, Certificate, CertificateHeader};
 use pre_block::fixture::NarwhalFixture;
+use pre_block::{Certificate, CertificateHeader, PreBlock};
 use serde::Serialize;
+use std::{sync::mpsc, time::Duration};
 use tezos_data_encoding::enc::BinWriter;
 use tezos_smart_rollup_encoding::{inbox::ExternalMessageFrame, smart_rollup::SmartRollupAddress};
-use std::{sync::mpsc, time::Duration};
 
 use crate::rollup_client::RollupClient;
 
@@ -56,13 +56,13 @@ fn dummy_pre_block(index: u64) -> PreBlock {
             signers: vec![],
         },
         certificates: vec![],
-        batches: vec![]
+        batches: vec![],
     }
 }
 
 pub async fn fetch_pre_blocks(
     prev_index: u64,
-    pre_blocks_tx: mpsc::Sender<PreBlock>
+    pre_blocks_tx: mpsc::Sender<PreBlock>,
 ) -> anyhow::Result<()> {
     let mut index = prev_index;
     let mut fixture = NarwhalFixture::default();
@@ -97,18 +97,18 @@ pub async fn publish_pre_blocks(
     rollup_client: &RollupClient,
     smart_rollup_address: &SmartRollupAddress,
     node_id: u8,
-    pre_blocks_rx: mpsc::Receiver<PreBlock>
+    pre_blocks_rx: mpsc::Receiver<PreBlock>,
 ) -> anyhow::Result<()> {
     let mut prev_inbox_level = 0;
     info!("[DA Publish] Latest inbox level is {}", prev_inbox_level);
-     
+
     loop {
         let inbox_level = rollup_client.get_inbox_level().await?;
         if inbox_level > prev_inbox_level {
             prev_inbox_level = inbox_level;
             info!("[DA Publish] New inbox level {}", inbox_level);
 
-            if is_leader(inbox_level, node_id) {                
+            if is_leader(inbox_level, node_id) {
                 let mut index = rollup_client.get_next_index().await?;
                 let mut batch = DaBatch::new();
                 info!("[DA Publish] Next pre-block index {}", index);
@@ -119,11 +119,15 @@ pub async fn publish_pre_blocks(
                         batch_encode_to(&pre_block, &smart_rollup_address, &mut batch)?;
                         index += 1;
                         if batch.len() > BATCH_SIZE_SOFT_LIMIT {
-                            break
+                            break;
                         }
                     } else if pre_block.index() > index {
-                        return Err(anyhow::anyhow!("Missing pre-blocks #{0}..{1}", index, pre_block.index()));
-                    } else  {
+                        return Err(anyhow::anyhow!(
+                            "Missing pre-blocks #{0}..{1}",
+                            index,
+                            pre_block.index()
+                        ));
+                    } else {
                         info!("[DA publish] Skipping pre-block #{}", pre_block.index());
                     }
                 }

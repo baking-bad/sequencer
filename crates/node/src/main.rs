@@ -10,10 +10,13 @@
 
 use clap::{Parser, Subcommand};
 use config::{ChainIdentifier, Committee, Import, Parameters, WorkerCache, WorkerId};
-use crypto::{KeyPair, NetworkKeyPair, AuthorityKeyPair, get_key_pair_from_rng};
+use crypto::keypair_file::{
+    read_authority_keypair_from_file, read_network_keypair_from_file,
+    write_authority_keypair_to_file, write_network_keypair_to_file,
+};
+use crypto::{get_key_pair_from_rng, AuthorityKeyPair, KeyPair, NetworkKeyPair};
 use eyre::Context;
 use fastcrypto::traits::KeyPair as _;
-use utils::metrics::RegistryService;
 use narwhal_node as node;
 use narwhal_node::primary_node::PrimaryNode;
 use narwhal_node::worker_node::WorkerNode;
@@ -25,13 +28,10 @@ use node::{
 use prometheus::Registry;
 use std::path::{Path, PathBuf};
 use storage::{CertificateStoreCacheMetrics, NodeStorage};
-use crypto::keypair_file::{
-    read_authority_keypair_from_file, read_network_keypair_from_file,
-    write_authority_keypair_to_file, write_network_keypair_to_file,
-};
-use utils::protocol_config::{Chain, ProtocolConfig, ProtocolVersion};
 use tokio::sync::mpsc::channel;
 use tracing::{info, warn};
+use utils::metrics::RegistryService;
+use utils::protocol_config::{Chain, ProtocolConfig, ProtocolVersion};
 use worker::TrivialTransactionValidator;
 
 #[derive(Parser)]
@@ -171,7 +171,6 @@ async fn main() -> Result<(), eyre::Report> {
             write_network_keypair_to_file(&network_keypair, filename).unwrap();
         }
         Commands::GetPubKey { filename } => {
-
             match read_authority_keypair_from_file(filename) {
                 Ok(kp) => println!("{:?}", kp.public()),
                 Err(e) => {
@@ -179,7 +178,7 @@ async fn main() -> Result<(), eyre::Report> {
                 }
             }
 
-/*            match read_network_keypair_from_file(filename) {
+            /*            match read_network_keypair_from_file(filename) {
                 Ok(keypair) => {
                     // Network keypair file is stored as `flag || privkey`.
                     println!("{:?}", keypair.public())
@@ -195,14 +194,12 @@ async fn main() -> Result<(), eyre::Report> {
                 }
             }*/
         }
-        Commands::GetNetworkPubKey { filename } => {
-            match read_network_keypair_from_file(filename) {
-                Ok(kp) => println!("{:?}", kp.public()),
-                Err(e) => {
-                    println!("Failed to read keypair at path {:?} err: {:?}", filename, e)
-                }
+        Commands::GetNetworkPubKey { filename } => match read_network_keypair_from_file(filename) {
+            Ok(kp) => println!("{:?}", kp.public()),
+            Err(e) => {
+                println!("Failed to read keypair at path {:?} err: {:?}", filename, e)
             }
-        }
+        },
         Commands::Run {
             primary_keys,
             primary_network_keys,
@@ -255,7 +252,7 @@ async fn main() -> Result<(), eyre::Report> {
             workers,
             parameters,
             primary_store,
-            worker_store
+            worker_store,
         } => {
             let primary_keypair = read_authority_keypair_from_file(primary_keys)
                 .expect("Failed to load the node's primary keypair");
@@ -396,7 +393,6 @@ async fn run_comb(
     primary_store: &Path,
     worker_store: &Path,
 ) -> Result<(), eyre::Report> {
-
     let authority_id = committee
         .authority_by_key(primary_keypair.public())
         .unwrap()
@@ -416,12 +412,14 @@ async fn run_comb(
 
     // Make primary's data store.
     let primary_registry_service = RegistryService::new(Registry::new());
-    let primary_store_cache_metrics = CertificateStoreCacheMetrics::new(&primary_registry_service.default_registry());
+    let primary_store_cache_metrics =
+        CertificateStoreCacheMetrics::new(&primary_registry_service.default_registry());
     let primary_store = NodeStorage::reopen(primary_store, Some(primary_store_cache_metrics));
 
     // Make worker's data store.
     let worker_registry_service = RegistryService::new(Registry::new());
-    let worker_store_cache_metrics = CertificateStoreCacheMetrics::new(&worker_registry_service.default_registry());
+    let worker_store_cache_metrics =
+        CertificateStoreCacheMetrics::new(&worker_registry_service.default_registry());
     let worker_store = NodeStorage::reopen(worker_store, Some(worker_store_cache_metrics));
 
     let client = NetworkClient::new_from_keypair(&primary_network_keypair);
@@ -470,12 +468,13 @@ async fn run_comb(
     let prom_address = parameters.prometheus_metrics.socket_addr;
     info!("Starting Prometheus HTTP metrics endpoint at {prom_address}");
     let _primary_metrics_server_handle = start_prometheus_server(prom_address, &primary_registry);
-    
+
     // spin up prometheus server exporter
     let worker_registry = worker_metrics_registry(0, authority_id);
     let worker_prom_address = parameters.worker_prometheus_metrics.socket_addr;
     info!("Starting Worker Prometheus HTTP metrics endpoint at {worker_prom_address}");
-    let _worker_metrics_server_handle = start_prometheus_server(worker_prom_address, &worker_registry);
+    let _worker_metrics_server_handle =
+        start_prometheus_server(worker_prom_address, &worker_registry);
 
     primary.wait().await;
     worker.wait().await;

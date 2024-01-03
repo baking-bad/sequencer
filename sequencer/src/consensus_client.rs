@@ -2,9 +2,9 @@
 //
 // SPDX-License-Identifier: MIT
 
-use narwhal_types::{TransactionsClient, TransactionProto};
-use tonic::transport::Channel;
 use bytes::Bytes;
+use narwhal_types::{TransactionProto, TransactionsClient};
+use tonic::transport::Channel;
 
 #[derive(Clone, Debug)]
 pub struct WorkerClient {
@@ -14,14 +14,19 @@ pub struct WorkerClient {
 
 impl WorkerClient {
     pub fn new(endpoint: String) -> Self {
-        Self { endpoint, client: None }
+        Self {
+            endpoint,
+            client: None,
+        }
     }
 
     async fn client(&mut self) -> anyhow::Result<&mut TransactionsClient<Channel>> {
         if self.client.is_none() {
             self.client = Some(TransactionsClient::connect(self.endpoint.clone()).await?);
         }
-        self.client.as_mut().ok_or_else(|| anyhow::anyhow!("Failed to initialize gRPC client"))
+        self.client
+            .as_mut()
+            .ok_or_else(|| anyhow::anyhow!("Failed to initialize gRPC client"))
     }
 
     pub async fn send_transaction(&mut self, payload: Vec<u8>) -> anyhow::Result<()> {
