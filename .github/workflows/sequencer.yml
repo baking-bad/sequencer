@@ -42,7 +42,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: build/sequencer/Dockerfile
+          file: docker/sequencer/Dockerfile
           push: true
           cache-from: type=gha
           cache-to: type=gha,mode=max

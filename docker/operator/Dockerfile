@@ -17,6 +17,6 @@ COPY --from=octez /usr/local/bin/octez-smart-rollup-node-${OCTEZ_PROTO} /usr/bin
 COPY --from=octez /usr/local/bin/octez-client /usr/bin/octez-client
 COPY --from=builder /build/bin/wasm_2_0_0/ /root/wasm_2_0_0/
 COPY --from=builder /build/bin/kernel_installer.wasm /root/kernel.wasm
-COPY ./docker/kernel/entrypoint.sh .
+COPY ./docker/operator/entrypoint.sh .
 RUN chmod +x entrypoint.sh && ln ./entrypoint.sh /usr/bin/operator
 ENTRYPOINT [ "./entrypoint.sh" ]

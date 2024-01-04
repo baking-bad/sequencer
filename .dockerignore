@@ -1,6 +1,4 @@
 target/
 benchmark/
-bin/
-.tezos-client/
 .db/
 .git/

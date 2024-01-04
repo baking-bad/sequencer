@@ -40,7 +40,7 @@ build-sequencer:
 	cargo build --package sequencer
 
 image-operator:
-	docker build -t dsn/operator:$(OCTEZ_TAG) --file ./docker/kernel/local.dockerfile \
+	docker build -t dsn/operator:$(OCTEZ_TAG) --file ./docker/operator/local.dockerfile \
 		--build-arg OCTEZ_TAG=$(OCTEZ_TAG) \
 		--build-arg OCTEZ_PROTO=$(OCTEZ_PROTO) \
 		.
