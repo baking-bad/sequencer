@@ -151,10 +151,10 @@ struct Args {
     #[arg(long, default_value_t = String::from("http://localhost:8932"))]
     rollup_node_url: String,
 
-    #[arg(long, default_value_t = String::from("http://localhost:9090"))]
+    #[arg(long, default_value_t = String::from("http://localhost:64013"))]
     worker_node_url: String,
 
-    #[arg(long, default_value_t = String::from("http://localhost:9091"))]
+    #[arg(long, default_value_t = String::from("http://localhost:64011"))]
     primary_node_url: String,
 
     #[arg(long, default_value_t = String::from("0.0.0.0"))]

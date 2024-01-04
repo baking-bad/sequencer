@@ -18,7 +18,6 @@ members = [
     "crates/worker",
     "crates/pre-block",
     
-    "executor",
     "launcher",
     "playground",
     "kernel",

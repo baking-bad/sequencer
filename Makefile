@@ -45,6 +45,9 @@ image-operator:
 		--build-arg OCTEZ_PROTO=$(OCTEZ_PROTO) \
 		.
 
+image-sequencer:
+	docker build -t dsn/sequencer --file ./docker/sequencer/Dockerfile .
+
 run-operator:
 	$(MAKE) build-operator
 	$(MAKE) image-operator OCTEZ_TAG=$(OCTEZ_TAG) OCTEZ_PROTO=$(OCTEZ_PROTO)
@@ -61,3 +64,7 @@ run-operator:
 run-sequencer:
 	$(MAKE) build-sequencer
 	RUST_LOG=info ./target/debug/sequencer
+
+run-consensus:
+	cargo build --package launcher
+	./target/debug/launcher
