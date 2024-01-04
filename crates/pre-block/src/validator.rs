@@ -60,10 +60,10 @@ pub fn validate_certificate_chain(
 
         match store.get_certificate_index(parent) {
             Some(prev_index) if prev_index + 1 != index => {
-                anyhow::bail!("Parent certificate is not from a preceding sub dag")
+                anyhow::bail!("Parent certificate is not from a preceding sub dag {}", hex::encode(parent))
             }
             None => {
-                anyhow::bail!("Parent certificate cannot be not found");
+                anyhow::bail!("Parent certificate cannot be not found {}", hex::encode(parent));
             }
             _ => (),
         }

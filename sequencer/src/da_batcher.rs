@@ -4,7 +4,7 @@
 
 use log::info;
 use pre_block::fixture::NarwhalFixture;
-use pre_block::{Certificate, CertificateHeader, PreBlock};
+use pre_block::PreBlock;
 use serde::Serialize;
 use std::{sync::mpsc, time::Duration};
 use tezos_data_encoding::enc::BinWriter;
@@ -47,19 +47,6 @@ pub fn batch_encode_to<T: Serialize>(
     Ok(())
 }
 
-fn dummy_pre_block(index: u64) -> PreBlock {
-    PreBlock {
-        index,
-        leader: Certificate {
-            header: CertificateHeader::default(),
-            signature: vec![],
-            signers: vec![],
-        },
-        certificates: vec![],
-        batches: vec![],
-    }
-}
-
 pub async fn fetch_pre_blocks(
     prev_index: u64,
     pre_blocks_tx: mpsc::Sender<PreBlock>,
@@ -71,7 +58,6 @@ pub async fn fetch_pre_blocks(
     // while let Some(pre_block) = stream.next().await {
 
     loop {
-        // let pre_block = dummy_pre_block(index);
         let pre_block = fixture.next_pre_block(1);
         if pre_block.index() == index {
             info!("[DA fetch] received pre-block #{}", index);

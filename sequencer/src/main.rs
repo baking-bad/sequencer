@@ -47,16 +47,31 @@ async fn broadcast_transaction(mut req: tide::Request<State>) -> tide::Result<St
     Ok(hex::encode(tx_digest))
 }
 
-async fn get_block_by_level(req: tide::Request<State>) -> tide::Result<tide::Body> {
+async fn get_block_by_level(req: tide::Request<State>) -> tide::Result<String> {
     let level: u32 = req.param("level")?.parse().unwrap_or(0);
     let block = req.state().rollup_client.get_block_by_level(level).await?;
 
     if let Some(txs) = block {
         let res: Vec<String> = txs.iter().map(|tx_digest| hex::encode(tx_digest)).collect();
-        tide::Body::from_json(&res)
+        Ok(serde_json::to_string(&res)?)
     } else {
         Err(tide::Error::new(404, anyhow::anyhow!("Block not found")))
     }
+}
+
+async fn get_head(req: tide::Request<State>) -> tide::Result<String> {
+    let head = req.state().rollup_client.get_head().await?;
+    Ok(head.to_string())
+}
+
+async fn get_authorities(req: tide::Request<State>) -> tide::Result<String> {
+    let epoch: u64 = req.param("epoch")?.parse().unwrap_or(0);
+    let authorities = req.state().rollup_client.get_authorities(epoch).await?;
+    let res: Vec<String> = authorities
+        .into_iter()
+        .map(|a| hex::encode(a))
+        .collect();
+    Ok(serde_json::to_string(&res)?)
 }
 
 async fn run_api_server(
@@ -71,6 +86,8 @@ async fn run_api_server(
     let mut app = tide::with_state(State::new(rollup_node_url, worker_node_url));
     app.at("/broadcast").post(broadcast_transaction);
     app.at("/blocks/:level").get(get_block_by_level);
+    app.at("/authorities/:epoch").get(get_authorities);
+    app.at("/head").get(get_head);
     app.listen(rpc_host).await?;
     Ok(())
 }

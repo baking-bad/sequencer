@@ -37,65 +37,78 @@ pub enum DurableStorageResponse {
 #[derive(Clone, Debug)]
 pub struct RollupClient {
     pub base_url: String,
-    client: reqwest::Client,
+    client: surf::Client,
 }
 
 impl RollupClient {
     pub fn new(base_url: String) -> Self {
         Self {
             base_url,
-            client: reqwest::Client::new(),
+            client: surf::Client::new(),
         }
     }
 
     pub async fn get_rollup_address(&self) -> anyhow::Result<SmartRollupAddress> {
-        let res = self
+        let mut res = self
             .client
             .get(format!("{}/global/smart_rollup_address", self.base_url))
             .send()
-            .await?;
+            .await
+            .map_err(|e| anyhow::anyhow!("{}", e))?;
 
         if res.status() == 200 {
-            let value: String = res.json().await?;
+            let value: String = res
+                .body_json()
+                .await
+                .map_err(|e| anyhow::anyhow!("{}", e))?;
             Ok(SmartRollupAddress::from_b58check(&value)?)
         } else {
             Err(anyhow::anyhow!(
-                "Get rollup address: response status {0}",
-                res.status().as_u16()
+                "Get rollup address: response status {}",
+                res.status()
             ))
         }
     }
 
     pub async fn get_inbox_level(&self) -> anyhow::Result<u32> {
-        let res = self
+        let mut res = self
             .client
             .get(format!("{}/global/block/head/level", self.base_url))
             .send()
-            .await?;
+            .await
+            .map_err(|e| anyhow::anyhow!("{}", e))?;
 
         if res.status() == 200 {
-            let value: u32 = res.json().await?;
+            let value: u32 = res
+                .body_json()
+                .await
+                .map_err(|e| anyhow::anyhow!("{}", e))?;
             Ok(value)
         } else {
             Err(anyhow::anyhow!(
-                "Get inbox level: response status {0}",
-                res.status().as_u16()
+                "Get inbox level: response status {}",
+                res.status()
             ))
         }
     }
 
     pub async fn store_get(&self, key: String) -> anyhow::Result<Option<Vec<u8>>> {
-        let res = self
+        let mut res = self
             .client
             .get(format!(
                 "{}/global/block/head/durable/wasm_2_0_0/value?key={}",
                 self.base_url, key
             ))
             .send()
-            .await?;
+            .await
+            .map_err(|e| anyhow::anyhow!("{}", e))?;
 
         if res.status() == 200 || res.status() == 500 {
-            let content: Option<DurableStorageResponse> = res.json().await?;
+            let content: Option<DurableStorageResponse> = res
+                .body_json()
+                .await
+                .map_err(|e| anyhow::anyhow!("{}", e))?;
+
             match content {
                 Some(DurableStorageResponse::Value(value)) => {
                     let payload = hex::decode(value)?;
@@ -110,8 +123,8 @@ impl RollupClient {
             }
         } else {
             Err(anyhow::anyhow!(
-                "Store get: response status {0}",
-                res.status().as_u16()
+                "Store get: response status {}",
+                res.status()
             ))
         }
     }
@@ -119,30 +132,43 @@ impl RollupClient {
     pub async fn inject_batch(&self, batch: DaBatch) -> anyhow::Result<()> {
         let messages: Vec<String> = batch.into_iter().map(|msg| hex::encode(msg)).collect();
 
-        let res = self
+        let mut res = self
             .client
             .post(format!("{}/local/batcher/injection", self.base_url))
-            .json(&messages)
-            .send()
-            .await?;
+            .body_json(&messages)
+            .map_err(|e| anyhow::anyhow!("{}", e))?
+            .await
+            .map_err(|e| anyhow::anyhow!("{}", e))?;
 
         if res.status() == 200 {
             Ok(())
         } else {
             Err(anyhow::anyhow!(
-                "Inject batch: response status {0} - {1}",
-                res.status().as_u16(),
-                res.text().await?,
+                "Inject batch: response status {} - {}",
+                res.status(),
+                res.body_string().await.unwrap()
             ))
         }
     }
 
-    pub async fn get_block_by_level(&self, level: u32) -> anyhow::Result<Option<Vec<[u8; 32]>>> {
+    pub async fn get_block_by_level(&self, level: u32) -> anyhow::Result<Option<Vec<Vec<u8>>>> {
         let res = self.store_get(format!("/blocks/{level}")).await?;
         if let Some(bytes) = res {
-            Ok(bcs::from_bytes(&bytes)?)
+            Ok(Some(bcs::from_bytes(&bytes)?))
         } else {
             Ok(None)
+        }
+    }
+
+    pub async fn get_head(&self) -> anyhow::Result<u32> {
+        let res = self.store_get("/head".into()).await?;
+        if let Some(bytes) = res {
+            let index = u32::from_be_bytes(bytes.try_into().map_err(|b| {
+                anyhow::anyhow!("Failed to parse head: {}", hex::encode(b))
+            })?);
+            Ok(index + 1)
+        } else {
+            Ok(0)
         }
     }
 

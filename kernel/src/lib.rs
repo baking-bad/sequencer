@@ -33,6 +33,7 @@ pub fn apply_pre_block<Host: Runtime>(host: &mut Host, pre_block: PreBlock) {
 
 fn process_external_message<Host: Runtime>(host: &mut Host, contents: &[u8], level: u32) {
     let pre_block: PreBlock = bcs::from_bytes(contents).expect("Failed to parse consensus output");
+    host.write_debug(&format!("Incoming pre-block #{}", pre_block.index()));
 
     let epoch = 0; // (level % LEVELS_PER_EPOCH) as u64;
     let authorities = read_authorities(host, epoch);
@@ -43,6 +44,7 @@ fn process_external_message<Host: Runtime>(host: &mut Host, contents: &[u8], lev
         match pre_block.verify(&config, &store) {
             Ok(()) => {
                 pre_block.commit(&mut store);
+                host.write_debug(&format!("Handled pre-block #{}", pre_block.index()));
             }
             Err(err) => {
                 host.write_debug(&format!("Skipping pre-block: {}", err));

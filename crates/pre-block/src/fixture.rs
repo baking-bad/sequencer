@@ -2,11 +2,10 @@ use std::collections::HashMap;
 use std::{collections::BTreeSet, num::NonZeroUsize};
 
 use narwhal_test_utils::{latest_protocol_version, CommitteeFixture};
-use narwhal_types::{CertificateDigest, CertificateV2, Header, VoteAPI};
+use narwhal_types::{CertificateDigest, CertificateV2, Header, VoteAPI, HeaderV2Builder};
 use narwhal_utils::protocol_config::ProtocolConfig;
 
-use crate::conversion::convert_batch;
-use crate::{Batch, Certificate, Digest, PreBlock, PreBlockStore, PublicKey};
+use crate::{Certificate, Digest, Batch, PreBlock, PreBlockStore, PublicKey};
 
 pub const COMMITTEE_SIZE: usize = 4;
 
@@ -117,11 +116,30 @@ impl NarwhalFixture {
     }
 
     fn round(&mut self, num_txs: u32) -> (Vec<Vec<Batch>>, Vec<Certificate>) {
-        let (round, headers, batches) =
-            self.fixture
-                .headers_round(self.round, &self.parents, &self.config, num_txs);
+        let mut headers: Vec<Header> = Vec::new();
+        let mut batches: Vec<Vec<Batch>> = Vec::new();
 
-        self.round = round;
+        for authority in self.fixture.authorities() {
+            let txs: Batch = (0..num_txs)
+                .into_iter()
+                .map(|i| i.to_be_bytes().to_vec())
+                .collect();
+
+            let builder = HeaderV2Builder::default();
+            let header = builder
+                .author(authority.id())
+                .round(self.round)
+                .epoch(0)
+                .parents(self.parents.clone())
+                .with_payload_batch(narwhal_types::Batch::new(txs.clone(), &self.config), 0, 0)
+                .build()
+                .unwrap();
+
+            headers.push(header.into());
+            batches.push(vec![txs]);
+        }
+
+        self.round += 1;
         self.parents = headers
             .iter()
             .map(|header| CertificateDigest::new(header.digest().0))
@@ -132,12 +150,7 @@ impl NarwhalFixture {
             .map(|header| self.certify(header))
             .collect();
 
-        let mut res_batches: Vec<Vec<Batch>> = Vec::new();
-        for batch_list in batches {
-            res_batches.push(batch_list.into_iter().map(convert_batch).collect())
-        }
-
-        (res_batches, certificates)
+        (batches, certificates)
     }
 
     fn leader(&self) -> Certificate {
