@@ -2,7 +2,7 @@ ARG OCTEZ_TAG
 FROM tezos/tezos:${OCTEZ_TAG} AS octez
 
 FROM rust:slim-buster AS builder
-RUN apt update && apt install -y wget make libc-dev clang
+RUN apt update && apt install -y wget make libc-dev clang protobuf-compiler
 RUN rustup target add wasm32-unknown-unknown
 WORKDIR /build
 COPY Makefile ./
