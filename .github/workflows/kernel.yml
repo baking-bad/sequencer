@@ -12,7 +12,7 @@ on:
 
 jobs:
   build:
-    name: Build and push DSN operator images
+    name: Build and push docker images
     runs-on: ubuntu-latest
     env:
       ACTIONS_ALLOW_UNSECURE_COMMANDS: true
@@ -56,7 +56,7 @@ jobs:
 
   deploy:
     if: (github.event_name == 'pull_request' && github.event.pull_request.draft == false) || (github.event_name == 'push' && github.ref == 'refs/heads/master')
-    name: Deploy DSN rollup to testnet
+    name: Deploy mockup rollup to testnet
     needs: build
     runs-on: ubuntu-latest
     env:

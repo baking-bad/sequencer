@@ -1,13 +1,13 @@
 ARG OCTEZ_TAG
 FROM tezos/tezos:${OCTEZ_TAG} AS octez
 
-FROM rust:slim-buster AS builder
-RUN apt update && apt install -y wget make libc-dev clang protobuf-compiler
-RUN rustup target add wasm32-unknown-unknown
+FROM rust:1.73-bullseye AS builder
 WORKDIR /build
+RUN apt-get update && apt-get install -y cmake clang protobuf-compiler
+RUN rustup target add wasm32-unknown-unknown
 COPY Makefile ./
 RUN make install CARGO_BIN_PATH=/usr/local/cargo/bin
-COPY . .
+COPY . ./
 RUN make build-operator
 
 FROM alpine:3.15 AS rollup
