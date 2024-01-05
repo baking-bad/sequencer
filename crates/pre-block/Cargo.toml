@@ -32,6 +32,7 @@ narwhal-config.workspace = true
 indexmap.workspace = true
 fastcrypto.workspace = true
 rand.workspace = true
+pretty_assertions.workspace = true
 
 [features]
 default = []

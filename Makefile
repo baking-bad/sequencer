@@ -67,10 +67,10 @@ run-operator:
 
 run-sequencer:
 	$(MAKE) build-sequencer
-	RUST_LOG=debug ./target/debug/sequencer
+	RUST_LOG=info ./target/debug/sequencer
 
 run-dsn:
-	./target/debug/launcher --id 1 --log-level 3 &
+	./target/debug/launcher --id 1 --log-level 2 &
 	./target/debug/launcher --id 2 --log-level 0 &
 	./target/debug/launcher --id 3 --log-level 0 &
 	./target/debug/launcher --id 4 --log-level 0 &

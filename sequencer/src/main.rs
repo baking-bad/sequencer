@@ -2,22 +2,22 @@
 //
 // SPDX-License-Identifier: MIT
 
-use clap::Parser;
-use consensus_client::WorkerClient;
-use log::{error, info, warn};
-use rollup_client::RollupClient;
-use std::sync::mpsc;
-use std::sync::Arc;
-use std::time::Duration;
-use tokio::signal;
-use tokio::task::JoinHandle;
-use serde::{Serialize, Deserialize};
 use axum::{
     extract::{Path, State},
     http::StatusCode,
     routing::{get, post},
     Json, Router,
 };
+use clap::Parser;
+use consensus_client::WorkerClient;
+use log::{error, info, warn};
+use rollup_client::RollupClient;
+use serde::{Deserialize, Serialize};
+use std::sync::mpsc;
+use std::sync::Arc;
+use std::time::Duration;
+use tokio::signal;
+use tokio::task::JoinHandle;
 
 use crate::consensus_client::PrimaryClient;
 use crate::da_batcher::publish_pre_blocks;
@@ -43,7 +43,7 @@ impl AppState {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct Transaction {
-    pub data: String
+    pub data: String,
 }
 
 async fn broadcast_transaction(
@@ -51,10 +51,10 @@ async fn broadcast_transaction(
     Json(tx): Json<Transaction>,
 ) -> Result<Json<String>, StatusCode> {
     info!("Broadcasting tx `{}`", tx.data);
-    let tx_payload = hex::decode(tx.data)
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    let tx_payload = hex::decode(tx.data).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
-    state.worker_client
+    state
+        .worker_client
         .as_ref()
         .clone() // cloning channel is cheap and encouraged
         .send_transaction(tx_payload)
@@ -68,7 +68,8 @@ async fn get_block_by_level(
     State(state): State<AppState>,
     Path(level): Path<u32>,
 ) -> Result<Json<Vec<String>>, StatusCode> {
-    let block = state.rollup_client
+    let block = state
+        .rollup_client
         .get_block_by_level(level)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
@@ -82,7 +83,8 @@ async fn get_block_by_level(
 }
 
 async fn get_head(State(state): State<AppState>) -> Result<Json<u32>, StatusCode> {
-    let head = state.rollup_client
+    let head = state
+        .rollup_client
         .get_head()
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
@@ -93,15 +95,13 @@ async fn get_authorities(
     State(state): State<AppState>,
     Path(epoch): Path<u64>,
 ) -> Result<Json<Vec<String>>, StatusCode> {
-    let authorities = state.rollup_client
+    let authorities = state
+        .rollup_client
         .get_authorities(epoch)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
-    let res: Vec<String> = authorities
-        .into_iter()
-        .map(|a| hex::encode(a))
-        .collect();
+    let res: Vec<String> = authorities.into_iter().map(|a| hex::encode(a)).collect();
     Ok(Json(res))
 }
 

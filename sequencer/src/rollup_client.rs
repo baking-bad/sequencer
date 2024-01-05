@@ -149,9 +149,11 @@ impl RollupClient {
     pub async fn get_head(&self) -> anyhow::Result<u32> {
         let res = self.store_get("/head".into()).await?;
         if let Some(bytes) = res {
-            let index = u32::from_be_bytes(bytes.try_into().map_err(|b| {
-                anyhow::anyhow!("Failed to parse head: {}", hex::encode(b))
-            })?);
+            let index = u32::from_be_bytes(
+                bytes
+                    .try_into()
+                    .map_err(|b| anyhow::anyhow!("Failed to parse head: {}", hex::encode(b)))?,
+            );
             Ok(index + 1)
         } else {
             Ok(0)

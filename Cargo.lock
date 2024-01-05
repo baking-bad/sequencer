@@ -3779,6 +3779,7 @@ dependencies = [
  "narwhal-test-utils",
  "narwhal-types",
  "narwhal-utils",
+ "pretty_assertions",
  "rand 0.8.5",
  "serde",
  "tezos_crypto_rs",

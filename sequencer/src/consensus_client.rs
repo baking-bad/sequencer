@@ -3,10 +3,10 @@
 // SPDX-License-Identifier: MIT
 
 use bytes::Bytes;
-use log::{info, debug};
-use std::{sync::mpsc, collections::BTreeSet};
+use log::{debug, info};
 use narwhal_types::{TransactionProto, TransactionsClient};
-use pre_block::{PreBlock, Certificate, CertificateHeader};
+use pre_block::{Certificate, CertificateHeader, PreBlock, SystemMessage};
+use std::{collections::BTreeSet, sync::mpsc};
 use tonic::transport::Channel;
 
 mod exporter {
@@ -43,10 +43,7 @@ impl WorkerClient {
         let tx = TransactionProto {
             transaction: Bytes::from(payload),
         };
-        let res = self.client()
-            .await?
-            .submit_transaction(tx)
-            .await?;
+        let res = self.client().await?.submit_transaction(tx).await?;
         debug!("[Worker client] Response {:#?}", res.metadata());
         Ok(())
     }
@@ -80,9 +77,10 @@ impl PrimaryClient {
     pub async fn subscribe_pre_blocks(
         &mut self,
         from_id: u64,
-        pre_blocks_tx: mpsc::Sender<PreBlock>
+        pre_blocks_tx: mpsc::Sender<PreBlock>,
     ) -> anyhow::Result<()> {
-        let mut stream = self.client()
+        let mut stream = self
+            .client()
             .await?
             .export(exporter::ExportRequest { from_id })
             .await?
@@ -94,14 +92,25 @@ impl PrimaryClient {
 
             pre_blocks_tx.send(pre_block)?;
         }
-      
+
         Ok(())
+    }
+}
+
+impl From<exporter::SystemMessage> for SystemMessage {
+    fn from(msg: exporter::SystemMessage) -> Self {
+        match msg.message.unwrap() {
+            exporter::system_message::Message::DkgConfirmation(msg) => Self::DkgConfirmation(msg),
+            exporter::system_message::Message::DkgMessage(msg) => Self::DkgMessage(msg),
+            exporter::system_message::Message::RandomnessSignature(sig) => {
+                Self::RandomnessSignature(sig.randomness_round, sig.bytes)
+            }
+        }
     }
 }
 
 impl From<exporter::Header> for CertificateHeader {
     fn from(header: exporter::Header) -> Self {
-        assert!(header.system_messages.is_empty());
         Self {
             author: header.author as u16,
             round: header.round,
@@ -117,7 +126,11 @@ impl From<exporter::Header> for CertificateHeader {
                     )
                 })
                 .collect(),
-            system_messages: vec![],
+            system_messages: header
+                .system_messages
+                .into_iter()
+                .map(|msg| msg.into())
+                .collect(),
             parents: BTreeSet::from_iter(
                 header
                     .parents

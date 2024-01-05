@@ -2,11 +2,21 @@
 //
 // SPDX-License-Identifier: MIT
 
-use std::collections::BTreeSet;
+use narwhal_types::{CertificateAPI, CertificateV2, HeaderV2, SystemMessage};
 
-use narwhal_types::{CertificateAPI, CertificateV2, HeaderV2};
+use crate::{Batch, Certificate, CertificateHeader};
 
-use crate::{Batch, Certificate, CertificateHeader, PreBlock};
+impl From<SystemMessage> for crate::SystemMessage {
+    fn from(message: SystemMessage) -> Self {
+        match message {
+            SystemMessage::DkgConfirmation(msg) => Self::DkgConfirmation(msg),
+            SystemMessage::DkgMessage(msg) => Self::DkgMessage(msg),
+            SystemMessage::RandomnessSignature(round, msg) => {
+                Self::RandomnessSignature(round.0, msg)
+            }
+        }
+    }
+}
 
 impl From<HeaderV2> for CertificateHeader {
     fn from(narwhal_header: HeaderV2) -> Self {
@@ -20,7 +30,11 @@ impl From<HeaderV2> for CertificateHeader {
                 .into_iter()
                 .map(|x| (x.0 .0, x.1))
                 .collect(),
-            system_messages: vec![],
+            system_messages: narwhal_header
+                .system_messages
+                .into_iter()
+                .map(|x| x.into())
+                .collect(),
             parents: narwhal_header.parents.into_iter().map(|x| x.0).collect(),
         }
     }
