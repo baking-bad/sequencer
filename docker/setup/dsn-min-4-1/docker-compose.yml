@@ -1,0 +1,53 @@
+version: "3.9"
+
+services:
+  validator_1:
+    image: dsn/narwhal:latest
+    environment:
+      - VALIDATOR_ID=1
+      - LOG_LEVEL=-vvv
+    expose:
+      - "64010" # Port to listen on messages from other primary nodes
+      - "64012" # Port to listen on messages from our worker nodes
+    ports:
+      - "127.0.0.1:64011:64011" # gRPC server serving pre-blocks (primary)
+      - "127.0.0.1:64013:64013" # gRPC server accepting transactions (worker)
+    volumes:
+      - ./committee.json:/config/committee.json
+      - ./workers.json:/config/workers.json
+      
+  validator_2:
+    image: dsn/narwhal:latest
+    environment:
+      - VALIDATOR_ID=2
+      - LOG_LEVEL=-vvv
+    expose:
+      - "64020" # Port to listen on messages from other primary nodes
+      - "64022" # Port to listen on messages from our worker nodes
+    volumes:
+      - ./committee.json:/config/committee.json
+      - ./workers.json:/config/workers.json
+  
+  validator_3:
+    image: dsn/narwhal:latest
+    environment:
+      - VALIDATOR_ID=3
+      - LOG_LEVEL=-vvv
+    expose:
+      - "64030" # Port to listen on messages from other primary nodes
+      - "64032" # Port to listen on messages from our worker nodes
+    volumes:
+      - ./committee.json:/config/committee.json
+      - ./workers.json:/config/workers.json
+
+  validator_4:
+    image: dsn/narwhal:latest
+    environment:
+      - VALIDATOR_ID=4
+      - LOG_LEVEL=-vvv
+    expose:
+      - "64040" # Port to listen on messages from other primary nodes
+      - "64042" # Port to listen on messages from our worker nodes
+    volumes:
+      - ./committee.json:/config/committee.json
+      - ./workers.json:/config/workers.json

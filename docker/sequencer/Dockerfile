@@ -13,7 +13,7 @@ ENV LD_PRELOAD /usr/lib/x86_64-linux-gnu/libjemalloc.so
 ARG PROFILE=release
 COPY --from=builder build/target/${PROFILE}/narwhal-node /usr/bin/narwhal-node
 COPY --from=builder build/target/${PROFILE}/sequencer /usr/bin/sequencer
-COPY ./launcher/defaults/* /narwhal/
+COPY ./docker/setup/keys /keys
 COPY ./docker/sequencer/entrypoint.sh .
 RUN chmod +x entrypoint.sh && ln ./entrypoint.sh /usr/bin/narwhal
 ENTRYPOINT [ "./entrypoint.sh" ]

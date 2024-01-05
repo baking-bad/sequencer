@@ -14,11 +14,11 @@ if [ -z "$VALIDATOR_ID" ]; then
 fi
 
 LOG_LEVEL=${LOG_LEVEL:="-v"}
-PRIMARY_KEYS_PATH=${KEYS_PATH:="/narwhal/primary-$VALIDATOR_ID.key"}
-PRIMARY_NETWORK_KEYS_PATH=${KEYS_PATH:="/narwhal/primary-network-$VALIDATOR_ID.key"}
-WORKER_NETWORK_KEYS_PATH=${KEYS_PATH:="/narwhal/worker-network-$VALIDATOR_ID.key"}
-COMMITTEE_PATH=${COMMITTEE_PATH:="/narwhal/committee.json"}
-WORKERS_PATH=${WORKERS_PATH:="/narwhal/workers.json"}
+PRIMARY_KEYS_PATH=${KEYS_PATH:="/keys/primary-$VALIDATOR_ID.key"}
+PRIMARY_NETWORK_KEYS_PATH=${KEYS_PATH:="/keys/primary-network-$VALIDATOR_ID.key"}
+WORKER_NETWORK_KEYS_PATH=${KEYS_PATH:="/keys/worker-network-$VALIDATOR_ID.key"}
+COMMITTEE_PATH=${COMMITTEE_PATH:="/config/committee.json"}
+WORKERS_PATH=${WORKERS_PATH:="/config/workers.json"}
 DATA_PATH=${DATA_PATH:="/data"}
 
 $NARWHAL_NODE_BIN $LOG_LEVEL run-comb \

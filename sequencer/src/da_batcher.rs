@@ -47,15 +47,12 @@ pub fn batch_encode_to<T: Serialize>(
     Ok(())
 }
 
-pub async fn fetch_pre_blocks(
+pub async fn generate_pre_blocks(
     prev_index: u64,
     pre_blocks_tx: mpsc::Sender<PreBlock>,
 ) -> anyhow::Result<()> {
     let mut index = prev_index;
     let mut fixture = NarwhalFixture::default();
-
-    // let stream = primary_client.get_sub_dag_stream(sub_dag_index);
-    // while let Some(pre_block) = stream.next().await {
 
     loop {
         let pre_block = fixture.next_pre_block(1);
@@ -67,8 +64,6 @@ pub async fn fetch_pre_blocks(
             tokio::time::sleep(Duration::from_secs(1)).await;
         }
     }
-
-    //}
 }
 
 pub fn is_leader(level: u32, node_id: u8) -> bool {
@@ -118,8 +113,10 @@ pub async fn publish_pre_blocks(
                     }
                 }
 
-                info!("[DA publish] Sending inbox messages");
-                rollup_client.inject_batch(batch).await?;
+                if !batch.is_empty() {
+                    info!("[DA publish] Sending inbox messages");
+                    rollup_client.inject_batch(batch).await?;
+                }
             }
         }
 

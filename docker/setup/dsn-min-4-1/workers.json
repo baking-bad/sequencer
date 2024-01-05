@@ -1,0 +1,33 @@
+{
+    "workers": {
+        "j2E78yYevoGYOlTLu3WhL688vkH2intlhq1QANSiIoy4Z1KMwV/tZXOvQjWaCDa7CKrADeu/DUB06CMBoc+RTnj9wT2AhSs52IskxL6ad/vXOw+Lz/XkTmSJZpHjO8Gv": {
+            "0": {
+                "name": "MjSbc/NbT4TG5IoHwhKABltnxhwB48dHY1qro68besw=",
+                "worker_address": "/dns/validator_1/udp/64012",
+                "transactions": "/dns/validator_1/tcp/64013/http"
+            }
+        },
+        "ghfvsNGcuZYPhWMZ0lw9V8aClmFTP0icfbfjPRWgGVASCFovOHS5HkPtkQ+yl11pGNs9Yxk785r0DGnOV1nK2XlPpktV98nQkkmKr0+BunpLhl6PUc1pppZpyM2OkwTK": {
+            "0": {
+                "name": "wvQ+r+dG1Y7RWEwftMRjje5KaWb1KEMuWr8j3wWlNK0=",
+                "worker_address": "/dns/validator_2/udp/64022",
+                "transactions": "/dns/validator_2/tcp/64023/http"
+            }
+        },
+        "lRQGsoVv2rvg5r3HLFt6rHd7fST8kCK1vAB4vrpbXYpOe1THFtlI2wLtaGG4jU4gGXBBXG46VRLaiVwuyT/WhuyfO/GQ/pv/XIc5RGtANtfsi8866ZN6HpVKuNf76gXZ": {
+            "0": {
+                "name": "N1kMsGhS5+/kxsnhrG8hHxXaIbkhn7c9t5fh6s3L/8w=",
+                "worker_address": "/dns/validator_3/udp/64032",
+                "transactions": "/dns/validator_3/tcp/64033/http"
+            }
+        },
+        "tsm6p0wJ54S5Vw9jZS5CuST7du38DXltxDJrIA6/O+qQw3Omj7c7dhvzemuLvFgpAWImyKIXZ+63tiWwOQkz2lKweSwCCb1zahViUWjqe3WvcwrhzUUta4bcDCUpsThI": {
+            "0": {
+                "name": "PLZG683Oo6UA/UgkG7oieXe0LVucFsYOd/fBUg/RALk=",
+                "worker_address": "/dns/validator_4/udp/64042",
+                "transactions": "/dns/validator_4/tcp/64043/http"
+            }
+        }
+    },
+    "epoch": 0
+}
