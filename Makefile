@@ -37,13 +37,20 @@ build-operator:
 	$(MAKE) build-installer
 
 build-sequencer:
-	cargo build --package sequencer
+	cargo build --bin sequencer
+
+build-narwhal:
+	cargo build --bin narwhal-node
+	cp ./target/debug/narwhal-node ./bin/
 
 image-operator:
-	docker build -t dsn/operator:$(OCTEZ_TAG) --file ./docker/kernel/local.dockerfile \
+	docker build -t dsn/operator:$(OCTEZ_TAG) --file ./docker/operator/local.dockerfile \
 		--build-arg OCTEZ_TAG=$(OCTEZ_TAG) \
 		--build-arg OCTEZ_PROTO=$(OCTEZ_PROTO) \
 		.
+
+image-narwhal:
+	docker build -t dsn/narwhal:latest --file ./docker/sequencer/local.dockerfile .
 
 run-operator:
 	$(MAKE) build-operator
@@ -61,3 +68,26 @@ run-operator:
 run-sequencer:
 	$(MAKE) build-sequencer
 	RUST_LOG=info ./target/debug/sequencer
+
+run-dsn:
+	./target/debug/launcher --id 1 --log-level 2 &
+	./target/debug/launcher --id 2 --log-level 0 &
+	./target/debug/launcher --id 3 --log-level 0 &
+	./target/debug/launcher --id 4 --log-level 0 &
+	./target/debug/launcher --id 5 --log-level 0 &
+	./target/debug/launcher --id 6 --log-level 0 &
+	./target/debug/launcher --id 7 --log-level 0 &
+
+kill-dsn:
+	killall narwhal-node
+
+start-dsn-min:
+	$(MAKE) build-narwhal
+	$(MAKE) image-narwhal
+	cd docker/setup/dsn-min-4-1 && docker-compose up -d
+
+stop-dsn-min:
+	cd docker/setup/dsn-min-4-1 && docker-compose down -v
+
+broadcast:
+	curl -d '{"data":"deadbeef"}' -H "Content-Type: application/json" -X POST http://localhost:8080/broadcast

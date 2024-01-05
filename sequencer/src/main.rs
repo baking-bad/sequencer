@@ -2,18 +2,24 @@
 //
 // SPDX-License-Identifier: MIT
 
+use axum::{
+    extract::{Path, State},
+    http::StatusCode,
+    routing::{get, post},
+    Json, Router,
+};
 use clap::Parser;
 use consensus_client::WorkerClient;
-use fastcrypto::hash::{HashFunction, Keccak256};
 use log::{error, info, warn};
 use rollup_client::RollupClient;
+use serde::{Deserialize, Serialize};
 use std::sync::mpsc;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::signal;
 use tokio::task::JoinHandle;
 
-use crate::da_batcher::fetch_pre_blocks;
+use crate::consensus_client::PrimaryClient;
 use crate::da_batcher::publish_pre_blocks;
 
 mod consensus_client;
@@ -21,12 +27,12 @@ mod da_batcher;
 mod rollup_client;
 
 #[derive(Clone)]
-struct State {
+struct AppState {
     pub rollup_client: Arc<RollupClient>,
     pub worker_client: Arc<WorkerClient>,
 }
 
-impl State {
+impl AppState {
     pub fn new(rollup_node_url: String, worker_node_url: String) -> Self {
         Self {
             rollup_client: Arc::new(RollupClient::new(rollup_node_url)),
@@ -35,43 +41,68 @@ impl State {
     }
 }
 
-async fn broadcast_transaction(mut req: tide::Request<State>) -> tide::Result<String> {
-    let tx_payload = hex::decode(req.body_string().await?)?;
-    let tx_digest = Keccak256::digest(&tx_payload);
-    req.state()
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct Transaction {
+    pub data: String,
+}
+
+async fn broadcast_transaction(
+    State(state): State<AppState>,
+    Json(tx): Json<Transaction>,
+) -> Result<Json<String>, StatusCode> {
+    info!("Broadcasting tx `{}`", tx.data);
+    let tx_payload = hex::decode(tx.data).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    state
         .worker_client
         .as_ref()
         .clone() // cloning channel is cheap and encouraged
         .send_transaction(tx_payload)
-        .await?;
-    Ok(hex::encode(tx_digest))
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    Ok(Json(format!("OK")))
 }
 
-async fn get_block_by_level(req: tide::Request<State>) -> tide::Result<String> {
-    let level: u32 = req.param("level")?.parse().unwrap_or(0);
-    let block = req.state().rollup_client.get_block_by_level(level).await?;
+async fn get_block_by_level(
+    State(state): State<AppState>,
+    Path(level): Path<u32>,
+) -> Result<Json<Vec<String>>, StatusCode> {
+    let block = state
+        .rollup_client
+        .get_block_by_level(level)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     if let Some(txs) = block {
         let res: Vec<String> = txs.iter().map(|tx_digest| hex::encode(tx_digest)).collect();
-        Ok(serde_json::to_string(&res)?)
+        Ok(Json(res))
     } else {
-        Err(tide::Error::new(404, anyhow::anyhow!("Block not found")))
+        Err(StatusCode::NOT_FOUND)
     }
 }
 
-async fn get_head(req: tide::Request<State>) -> tide::Result<String> {
-    let head = req.state().rollup_client.get_head().await?;
-    Ok(head.to_string())
+async fn get_head(State(state): State<AppState>) -> Result<Json<u32>, StatusCode> {
+    let head = state
+        .rollup_client
+        .get_head()
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    Ok(Json(head))
 }
 
-async fn get_authorities(req: tide::Request<State>) -> tide::Result<String> {
-    let epoch: u64 = req.param("epoch")?.parse().unwrap_or(0);
-    let authorities = req.state().rollup_client.get_authorities(epoch).await?;
-    let res: Vec<String> = authorities
-        .into_iter()
-        .map(|a| hex::encode(a))
-        .collect();
-    Ok(serde_json::to_string(&res)?)
+async fn get_authorities(
+    State(state): State<AppState>,
+    Path(epoch): Path<u64>,
+) -> Result<Json<Vec<String>>, StatusCode> {
+    let authorities = state
+        .rollup_client
+        .get_authorities(epoch)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    let res: Vec<String> = authorities.into_iter().map(|a| hex::encode(a)).collect();
+    Ok(Json(res))
 }
 
 async fn run_api_server(
@@ -82,13 +113,17 @@ async fn run_api_server(
 ) -> anyhow::Result<()> {
     info!("[RPC server] Starting...");
 
-    let rpc_host = format!("http://{}:{}", rpc_addr, rpc_port);
-    let mut app = tide::with_state(State::new(rollup_node_url, worker_node_url));
-    app.at("/broadcast").post(broadcast_transaction);
-    app.at("/blocks/:level").get(get_block_by_level);
-    app.at("/authorities/:epoch").get(get_authorities);
-    app.at("/head").get(get_head);
-    app.listen(rpc_host).await?;
+    let rpc_host = format!("{}:{}", rpc_addr, rpc_port);
+
+    let app = Router::new()
+        .route("/broadcast", post(broadcast_transaction))
+        .route("/blocks/:level", get(get_block_by_level))
+        .route("/authorities/:epoch", get(get_authorities))
+        .route("/head", get(get_head))
+        .with_state(AppState::new(rollup_node_url, worker_node_url));
+
+    let listener = tokio::net::TcpListener::bind(rpc_host).await?;
+    axum::serve(listener, app).await?;
     Ok(())
 }
 
@@ -122,15 +157,15 @@ async fn run_da_task(
         smart_rollup_address, rollup_node_url
     );
 
-    // let primary_client = PrimaryClient::new(primary_node_url);
+    let mut primary_client = PrimaryClient::new(primary_node_url);
 
     loop {
-        let index = rollup_client.get_next_index().await?;
+        let from_id = rollup_client.get_next_index().await?;
         let (tx, rx) = mpsc::channel();
-        info!("[DA task] Starting from index #{}", index);
+        info!("[DA task] Starting from index #{}", from_id);
 
         tokio::select! {
-            res = fetch_pre_blocks(index, tx) => {
+            res = primary_client.subscribe_pre_blocks(from_id, tx) => {
                 if let Err(err) = res {
                     error!("[DA fetch] Failed with: {}", err);
                 }
@@ -151,10 +186,10 @@ struct Args {
     #[arg(long, default_value_t = String::from("http://localhost:8932"))]
     rollup_node_url: String,
 
-    #[arg(long, default_value_t = String::from("http://localhost:9090"))]
+    #[arg(long, default_value_t = String::from("http://localhost:64013"))]
     worker_node_url: String,
 
-    #[arg(long, default_value_t = String::from("http://localhost:9091"))]
+    #[arg(long, default_value_t = String::from("http://localhost:64011"))]
     primary_node_url: String,
 
     #[arg(long, default_value_t = String::from("0.0.0.0"))]

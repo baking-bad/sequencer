@@ -2,10 +2,10 @@ use std::collections::HashMap;
 use std::{collections::BTreeSet, num::NonZeroUsize};
 
 use narwhal_test_utils::{latest_protocol_version, CommitteeFixture};
-use narwhal_types::{CertificateDigest, CertificateV2, Header, VoteAPI, HeaderV2Builder};
+use narwhal_types::{CertificateDigest, CertificateV2, Header, HeaderV2Builder, VoteAPI};
 use narwhal_utils::protocol_config::ProtocolConfig;
 
-use crate::{Certificate, Digest, Batch, PreBlock, PreBlockStore, PublicKey};
+use crate::{Batch, Certificate, Digest, PreBlock, PreBlockStore, PublicKey};
 
 pub const COMMITTEE_SIZE: usize = 4;
 

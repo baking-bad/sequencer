@@ -29,6 +29,13 @@ pub type AggregateSignature = Vec<u8>;
 /// Blake2B 256 bit
 pub type Digest = [u8; 32];
 
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub enum SystemMessage {
+    DkgMessage(Vec<u8>),
+    DkgConfirmation(Vec<u8>),
+    RandomnessSignature(u64, Vec<u8>),
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct CertificateHeader {
     pub author: u16,
@@ -36,7 +43,7 @@ pub struct CertificateHeader {
     pub epoch: u64,
     pub created_at: u64,
     pub payload: Vec<(Digest, (u32, u64))>,
-    pub system_messages: Vec<()>, // not used
+    pub system_messages: Vec<SystemMessage>,
     pub parents: BTreeSet<Digest>,
 }
 

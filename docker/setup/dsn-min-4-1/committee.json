@@ -1,0 +1,41 @@
+{
+    "authorities": {
+        "j2E78yYevoGYOlTLu3WhL688vkH2intlhq1QANSiIoy4Z1KMwV/tZXOvQjWaCDa7CKrADeu/DUB06CMBoc+RTnj9wT2AhSs52IskxL6ad/vXOw+Lz/XkTmSJZpHjO8Gv": {
+            "protocol_key": "j2E78yYevoGYOlTLu3WhL688vkH2intlhq1QANSiIoy4Z1KMwV/tZXOvQjWaCDa7CKrADeu/DUB06CMBoc+RTnj9wT2AhSs52IskxL6ad/vXOw+Lz/XkTmSJZpHjO8Gv",
+            "protocol_key_bytes": "j2E78yYevoGYOlTLu3WhL688vkH2intlhq1QANSiIoy4Z1KMwV/tZXOvQjWaCDa7CKrADeu/DUB06CMBoc+RTnj9wT2AhSs52IskxL6ad/vXOw+Lz/XkTmSJZpHjO8Gv",
+            "network_key": "S3/y4Anx/eyjrG2PtI67P50YQnhA9mcdKY6+lOD3QJc=",
+            "primary_address": "/dns/validator_1/udp/64010",
+            "grpc_address": "/ip4/127.0.0.1/tcp/64011",
+            "hostname": "/dns/validator_1/udp/64010",
+            "stake": 1000
+        },
+        "ghfvsNGcuZYPhWMZ0lw9V8aClmFTP0icfbfjPRWgGVASCFovOHS5HkPtkQ+yl11pGNs9Yxk785r0DGnOV1nK2XlPpktV98nQkkmKr0+BunpLhl6PUc1pppZpyM2OkwTK": {
+            "protocol_key": "ghfvsNGcuZYPhWMZ0lw9V8aClmFTP0icfbfjPRWgGVASCFovOHS5HkPtkQ+yl11pGNs9Yxk785r0DGnOV1nK2XlPpktV98nQkkmKr0+BunpLhl6PUc1pppZpyM2OkwTK",
+            "protocol_key_bytes": "ghfvsNGcuZYPhWMZ0lw9V8aClmFTP0icfbfjPRWgGVASCFovOHS5HkPtkQ+yl11pGNs9Yxk785r0DGnOV1nK2XlPpktV98nQkkmKr0+BunpLhl6PUc1pppZpyM2OkwTK",
+            "network_key": "AGCg+dafe69vI1RmNBOWPBd7Tey9IefFq2VfxBYiL2s=",
+            "primary_address": "/dns/validator_2/udp/64020",
+            "grpc_address": "/ip4/127.0.0.1/tcp/64021",
+            "hostname": "/dns/validator_2/udp/64020",
+            "stake": 1000
+        },
+        "lRQGsoVv2rvg5r3HLFt6rHd7fST8kCK1vAB4vrpbXYpOe1THFtlI2wLtaGG4jU4gGXBBXG46VRLaiVwuyT/WhuyfO/GQ/pv/XIc5RGtANtfsi8866ZN6HpVKuNf76gXZ": {
+            "protocol_key": "lRQGsoVv2rvg5r3HLFt6rHd7fST8kCK1vAB4vrpbXYpOe1THFtlI2wLtaGG4jU4gGXBBXG46VRLaiVwuyT/WhuyfO/GQ/pv/XIc5RGtANtfsi8866ZN6HpVKuNf76gXZ",
+            "protocol_key_bytes": "lRQGsoVv2rvg5r3HLFt6rHd7fST8kCK1vAB4vrpbXYpOe1THFtlI2wLtaGG4jU4gGXBBXG46VRLaiVwuyT/WhuyfO/GQ/pv/XIc5RGtANtfsi8866ZN6HpVKuNf76gXZ",
+            "network_key": "W3Hy6rvEQvBvbyRTGJMVapWfLqy2UEsp0LS0bsMgDr8=",
+            "primary_address": "/dns/validator_3/udp/64030",
+            "grpc_address": "/ip4/127.0.0.1/tcp/64031",
+            "hostname": "/dns/validator_3/udp/64030",
+            "stake": 1000
+        },
+        "tsm6p0wJ54S5Vw9jZS5CuST7du38DXltxDJrIA6/O+qQw3Omj7c7dhvzemuLvFgpAWImyKIXZ+63tiWwOQkz2lKweSwCCb1zahViUWjqe3WvcwrhzUUta4bcDCUpsThI": {
+            "protocol_key": "tsm6p0wJ54S5Vw9jZS5CuST7du38DXltxDJrIA6/O+qQw3Omj7c7dhvzemuLvFgpAWImyKIXZ+63tiWwOQkz2lKweSwCCb1zahViUWjqe3WvcwrhzUUta4bcDCUpsThI",
+            "protocol_key_bytes": "tsm6p0wJ54S5Vw9jZS5CuST7du38DXltxDJrIA6/O+qQw3Omj7c7dhvzemuLvFgpAWImyKIXZ+63tiWwOQkz2lKweSwCCb1zahViUWjqe3WvcwrhzUUta4bcDCUpsThI",
+            "network_key": "Hm5RXTIZIOmqHdFaXSfxUdt5353L3UkGAHdWkFbId5I=",
+            "primary_address": "/dns/validator_4/udp/64040",
+            "grpc_address": "/ip4/127.0.0.1/tcp/64041",
+            "hostname": "/dns/validator_4/udp/64040",
+            "stake": 1000
+        }
+    },
+    "epoch": 0
+}

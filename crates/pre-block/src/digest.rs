@@ -38,7 +38,10 @@ mod tests {
     use indexmap::IndexMap;
     use narwhal_config::{AuthorityIdentifier, WorkerId};
     use narwhal_test_utils::latest_protocol_version;
-    use narwhal_types::{BatchDigest, BatchV2, CertificateDigest, HeaderV2, TimestampMs};
+    use narwhal_types::{
+        BatchDigest, BatchV2, CertificateDigest, HeaderV2, RandomnessRound, SystemMessage,
+        TimestampMs,
+    };
 
     use crate::CertificateHeader;
 
@@ -69,14 +72,21 @@ mod tests {
             2u64,
             3u64,
             payload,
-            vec![],
+            vec![
+                SystemMessage::DkgConfirmation(vec![12u8]),
+                SystemMessage::DkgMessage(vec![13u8]),
+                SystemMessage::RandomnessSignature(RandomnessRound(123), vec![14u8]),
+            ],
             parents,
         );
+        let expected_payload = bcs::to_bytes(&header_v2).unwrap();
         let expected = header_v2.digest().0;
 
         let header: CertificateHeader = header_v2.into();
+        let actual_payload = bcs::to_bytes(&header).unwrap();
         let actual = header.digest();
 
+        pretty_assertions::assert_eq!(hex::encode(expected_payload), hex::encode(actual_payload));
         assert_eq!(expected, actual);
     }
 }

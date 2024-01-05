@@ -21,12 +21,10 @@ narwhal-types = { workspace = true, optional = true }
 narwhal-utils = { workspace = true, optional = true }
 narwhal-test-utils = { workspace = true, optional = true }
 rand = { workspace = true, optional = true }
-narwhal-exporter = { workspace = true, optional = true }
 
 [dev-dependencies]
 narwhal-types.workspace = true
 narwhal-crypto.workspace = true
-narwhal-exporter.workspace = true
 narwhal-utils.workspace = true
 narwhal-test-utils.workspace = true
 narwhal-config.workspace = true
@@ -34,12 +32,12 @@ narwhal-config.workspace = true
 indexmap.workspace = true
 fastcrypto.workspace = true
 rand.workspace = true
+pretty_assertions.workspace = true
 
 [features]
 default = []
 conversions = [
     "dep:rand",
-    "dep:narwhal-exporter",
     "dep:narwhal-types",
     "dep:narwhal-utils",
     "dep:narwhal-test-utils"
