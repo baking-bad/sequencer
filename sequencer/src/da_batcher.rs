@@ -7,6 +7,7 @@ use pre_block::fixture::NarwhalFixture;
 use pre_block::PreBlock;
 use serde::Serialize;
 use std::{sync::mpsc, time::Duration};
+use tezos_crypto_rs::blake2b::digest_256;
 use tezos_data_encoding::enc::BinWriter;
 use tezos_smart_rollup_encoding::{inbox::ExternalMessageFrame, smart_rollup::SmartRollupAddress};
 
@@ -15,7 +16,7 @@ use crate::rollup_client::RollupClient;
 pub const MAX_MESSAGE_SIZE: usize = 2048;
 // minus endian tag, smart rollup address, external message tag
 pub const MAX_MESSAGE_PAYLOAD_SIZE: usize = 2020;
-pub const BATCH_SIZE_SOFT_LIMIT: usize = 100;
+pub const BATCH_SIZE_SOFT_LIMIT: usize = 1;
 
 pub type DaBatch = Vec<Vec<u8>>;
 
@@ -25,11 +26,17 @@ pub fn batch_encode_to<T: Serialize>(
     batch: &mut DaBatch,
 ) -> anyhow::Result<()> {
     let payload = bcs::to_bytes(&value)?;
-    let num_messages = payload.len().div_ceil(MAX_MESSAGE_PAYLOAD_SIZE);
+    let mut header: Vec<u8> = vec![1u8];
 
-    for (idx, chunk) in payload.chunks(MAX_MESSAGE_PAYLOAD_SIZE).enumerate() {
+    let num_chunks = payload.len().div_ceil(MAX_MESSAGE_PAYLOAD_SIZE);
+    assert!(num_chunks < 60); // this is the max we can afford with a single header (w/o recursion)
+
+    for chunk in payload.chunks(MAX_MESSAGE_PAYLOAD_SIZE) {
+        let hash = digest_256(chunk).unwrap();
+        header.extend_from_slice(&hash);
+
         let mut contents = Vec::with_capacity(MAX_MESSAGE_SIZE);
-        contents.push(if idx == num_messages - 1 { 1u8 } else { 0u8 });
+        contents.push(0u8);
         contents.extend_from_slice(chunk);
 
         let message = ExternalMessageFrame::Targetted {
@@ -43,6 +50,17 @@ pub fn batch_encode_to<T: Serialize>(
 
         batch.push(output);
     }
+
+    let message = ExternalMessageFrame::Targetted {
+        address: smart_rollup_address.clone(),
+        contents: header,
+    };
+
+    let mut output = Vec::with_capacity(MAX_MESSAGE_SIZE);
+    message.bin_write(&mut output)?;
+    assert!(output.len() <= MAX_MESSAGE_SIZE);
+
+    batch.push(output);
 
     Ok(())
 }
@@ -114,7 +132,7 @@ pub async fn publish_pre_blocks(
                 }
 
                 if !batch.is_empty() {
-                    info!("[DA publish] Sending inbox messages");
+                    info!("[DA publish] Sending {} messages to the inbox", batch.len());
                     rollup_client.inject_batch(batch).await?;
                 }
             }

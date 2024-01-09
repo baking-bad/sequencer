@@ -34,7 +34,9 @@ pre-block = { workspace = true, features = ["conversions"] }
 serde_yaml = "0.9.29"
 hex = "*"
 
+serde_json.workspace = true
 serde.workspace = true
 bcs.workspace = true
 
+narwhal-config.workspace = true
 pre-block = { workspace = true, features = ["conversions"] }

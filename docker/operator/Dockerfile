@@ -11,7 +11,7 @@ COPY . ./
 RUN make build-operator
 
 FROM alpine:3.15 AS rollup
-RUN apk --no-cache add binutils gcc gmp libgmpxx hidapi libc-dev libev libffi sudo
+RUN apk --no-cache add binutils gcc gmp libgmpxx hidapi libc-dev libev libffi sudo jq
 ARG OCTEZ_PROTO
 COPY --from=octez /usr/local/bin/octez-smart-rollup-node-${OCTEZ_PROTO} /usr/bin/octez-smart-rollup-node
 COPY --from=octez /usr/local/bin/octez-client /usr/bin/octez-client

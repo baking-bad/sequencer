@@ -11,13 +11,19 @@ rollup_dir="/root/.tezos-smart-rollup-node"
 endpoint=$NODE_URI
 faucet="https://faucet.$NETWORK.teztnets.xyz"
 
+min_batch_elements=1
+max_batch_elements=15
+min_batch_size=1
+max_batch_size=32607
+batcher_config="{ \"batcher\": { \"min_batch_elements\": $min_batch_elements, \"max_batch_elements\": $max_batch_elements, \"min_batch_size\": $min_batch_size, \"max_batch_size\": $max_batch_size }}"
+
 if [ -z "$NODE_URI" ]; then
     if [ -z "$NETWORK" ]; then
         echo "NETWORK is not set"
         exit 1
     fi
-    endpoint="https://rpc.$NETWORK.teztnets.xyz"
-    #endpoint="https://$NETWORK.ecadinfra.com"
+    #endpoint="https://rpc.$NETWORK.teztnets.xyz"
+    endpoint="https://$NETWORK.ecadinfra.com"
     #endpoint="https://rpc.tzkt.io/$NETWORK"
 fi
 
@@ -33,6 +39,11 @@ import_key() {
         fi
         octez-client --endpoint "$endpoint" import secret key operator "$OPERATOR_KEY"
     fi
+}
+
+update_config() {
+    cmd="jq '. += $batcher_config' $rollup_dir/config.json"
+    echo "$($cmd)" > $rollup_dir/config.json
 }
 
 run_node() {
@@ -65,7 +76,10 @@ deploy_rollup() {
         echo "Found existing rollup config"
         if [ "$1" == "--force" ]; then
             echo "Overriding with new kernel"
-            rm -rf "$rollup_dir/*"
+            rm -rf "$rollup_dir/context"
+            rm -rf "$rollup_dir/storage"
+            rm "$rollup_dir/metadata"
+            rm "$rollup_dir/config.json"
             octez-client --endpoint "$endpoint" forget all smart rollups --force
         else
             exit 0
@@ -115,6 +129,9 @@ case $command in
         ;;
     send_message)
         send_message $@
+        ;;
+    update_config)
+        update_config
         ;;
     *)
         cat <<EOF

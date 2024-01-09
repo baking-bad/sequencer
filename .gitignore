@@ -16,3 +16,6 @@ bin/
 
 # Tezos wallet
 .tezos-client
+
+# Jupyter checkpoints
+.ipynb_checkpoints

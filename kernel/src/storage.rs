@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: MIT
 
 use pre_block::{Digest, PreBlockStore, PublicKey};
+use tezos_crypto_rs::blake2b::digest_256;
 use tezos_smart_rollup_host::{
     path::{concat, OwnedPath, Path, RefPath},
     runtime::Runtime,
@@ -10,6 +11,7 @@ use tezos_smart_rollup_host::{
 
 const HEAD_PATH: RefPath = RefPath::assert_from(b"/head");
 const BLOCKS_PATH: RefPath = RefPath::assert_from(b"/blocks");
+const CHUNKS_PATH: RefPath = RefPath::assert_from(b"/chunks");
 const INDEX_PATH: RefPath = RefPath::assert_from(b"/index");
 const AUTHORITIES_PATH: RefPath = RefPath::assert_from(b"/authorities");
 const CERTIFICATES_PATH: RefPath = RefPath::assert_from(b"/certificates");
@@ -68,11 +70,16 @@ fn authorities_path(epoch: u64) -> OwnedPath {
     concat(&AUTHORITIES_PATH, &suffix).unwrap()
 }
 
-pub fn read_authorities<Host: Runtime>(host: &Host, epoch: u64) -> Vec<PublicKey> {
-    let bytes = host
-        .store_read_all(&authorities_path(epoch))
-        .expect("Failed to read authorities");
-    bcs::from_bytes(&bytes).expect("Failed to parse authorities")
+pub fn read_authorities<Host: Runtime>(host: &Host, epoch: u64) -> Option<Vec<PublicKey>> {
+    let path = authorities_path(epoch);
+    if host.store_has(&path).unwrap().is_some() {
+        let bytes = host
+            .store_read_all(&path)
+            .expect("Failed to read authorities");
+        Some(bcs::from_bytes(&bytes).expect("Failed to parse authorities"))
+    } else {
+        None
+    }
 }
 
 pub fn write_authorities<Host: Runtime>(host: &mut Host, epoch: u64, authorities: &[PublicKey]) {
@@ -103,4 +110,25 @@ fn block_path(level: u32) -> OwnedPath {
 pub fn write_block<Host: Runtime>(host: &mut Host, level: u32, block: Vec<Vec<u8>>) {
     let payload = bcs::to_bytes(&block).unwrap();
     host.store_write_all(&block_path(level), &payload).unwrap();
+}
+
+fn chunk_path(hash: &[u8]) -> OwnedPath {
+    let suffix = OwnedPath::try_from(format!("/{}", hex::encode(hash))).unwrap();
+    concat(&CHUNKS_PATH, &suffix).unwrap()
+}
+
+pub fn write_chunk(host: &mut impl Runtime, data: &[u8]) -> Vec<u8> {
+    let hash = digest_256(data).expect("Failed to get chunk digest");
+    host.store_write_all(&chunk_path(&hash), data).unwrap();
+    hash
+}
+
+pub fn read_chunk(host: &impl Runtime, hash: &[u8]) -> Option<Vec<u8>> {
+    let path = chunk_path(hash);
+    if host.store_has(&path).unwrap().is_some() {
+        let bytes = host.store_read_all(&path).unwrap();
+        Some(bytes)
+    } else {
+        None
+    }
 }

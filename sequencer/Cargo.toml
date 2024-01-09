@@ -19,6 +19,7 @@ bytes.workspace = true
 bcs.workspace = true
 prost.workspace = true
 
+tezos_crypto_rs = { version = "0.5.2", default-features = false }
 tezos_data_encoding = { version = "0.5.2" }
 tezos-smart-rollup-encoding = { version = "0.2.2", default_features = false, features = ["alloc", "tezos-encoding" ] }
 hex = "*"

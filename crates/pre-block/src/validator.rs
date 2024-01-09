@@ -22,7 +22,7 @@ pub fn validate_certificate_signature(
         .iter()
         .any(|x| (*x as usize) >= config.authorities.len())
     {
-        anyhow::bail!("Unknown authority");
+        anyhow::bail!("Unknown authority {:?}", cert.signers);
     }
 
     if cert.signers.len() < config.quorum_threshold() {

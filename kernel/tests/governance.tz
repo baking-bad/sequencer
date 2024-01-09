@@ -1,0 +1,18 @@
+parameter (pair address bytes);
+storage unit;
+code
+{
+    CAR;
+    UNPAIR;
+    CONTRACT bytes;
+    IF_NONE { PUSH string "Invalid address"; FAILWITH } {};
+    PUSH mutez 0;
+    DIG 2;
+    TRANSFER_TOKENS;
+    NIL operation;
+    SWAP;
+    CONS;
+    UNIT;
+    SWAP;
+    PAIR;
+}

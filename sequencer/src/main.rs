@@ -165,7 +165,7 @@ async fn run_da_task(
         info!("[DA task] Starting from index #{}", from_id);
 
         tokio::select! {
-            res = primary_client.subscribe_pre_blocks(from_id, tx) => {
+            res = primary_client.subscribe_pre_blocks(from_id - 1, tx) => {
                 if let Err(err) = res {
                     error!("[DA fetch] Failed with: {}", err);
                 }
