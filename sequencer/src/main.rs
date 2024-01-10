@@ -19,12 +19,13 @@ use std::time::Duration;
 use tokio::signal;
 use tokio::task::JoinHandle;
 
-use crate::consensus_client::PrimaryClient;
+use crate::{consensus_client::PrimaryClient, fixture::verify_pre_blocks};
 use crate::da_batcher::publish_pre_blocks;
 
 mod consensus_client;
 mod da_batcher;
 mod rollup_client;
+mod fixture;
 
 #[derive(Clone)]
 struct AppState {
@@ -160,7 +161,7 @@ async fn run_da_task(
     let mut primary_client = PrimaryClient::new(primary_node_url);
 
     loop {
-        let from_id = rollup_client.get_next_index().await?;
+        let from_id = 1; // rollup_client.get_next_index().await?;
         let (tx, rx) = mpsc::channel();
         info!("[DA task] Starting from index #{}", from_id);
 
@@ -170,6 +171,11 @@ async fn run_da_task(
                     error!("[DA fetch] Failed with: {}", err);
                 }
             },
+            // res = verify_pre_blocks(rx) => {
+            //     if let Err(err) = res {
+            //         error!("[DA verify] Failed with: {}", err);
+            //     }
+            // },
             res = publish_pre_blocks(&rollup_client, &smart_rollup_address, node_id, rx) => {
                 if let Err(err) = res {
                     error!("[DA publish] Failed with: {}", err);

@@ -1,4 +1,3 @@
-use roaring::RoaringBitmap;
 use std::collections::HashMap;
 use types::{BatchAPI, CertificateAPI, HeaderAPI};
 
@@ -58,7 +57,7 @@ impl Certificate {
                     | types::SignatureVerificationState::Unsigned(bytes) => Vec::from(bytes.0),
                     types::SignatureVerificationState::Genesis => Vec::new(),
                 },
-                signers: rb_to_bytes(&c.signed_authorities),
+                signers: c.signed_authorities.iter().map(|x| x as u8).collect(),
             },
             _ => panic!("CertificateV1 is not expected"),
         }
@@ -113,8 +112,3 @@ impl Header {
     }
 }
 
-fn rb_to_bytes(rb: &RoaringBitmap) -> Vec<u8> {
-    let mut bytes = Vec::with_capacity(rb.serialized_size());
-    rb.serialize_into(&mut bytes).unwrap();
-    bytes
-}

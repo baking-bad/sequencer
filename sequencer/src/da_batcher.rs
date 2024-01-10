@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: MIT
 
 use log::info;
-use pre_block::fixture::NarwhalFixture;
 use pre_block::PreBlock;
 use serde::Serialize;
 use std::{sync::mpsc, time::Duration};
@@ -63,25 +62,6 @@ pub fn batch_encode_to<T: Serialize>(
     batch.push(output);
 
     Ok(())
-}
-
-pub async fn generate_pre_blocks(
-    prev_index: u64,
-    pre_blocks_tx: mpsc::Sender<PreBlock>,
-) -> anyhow::Result<()> {
-    let mut index = prev_index;
-    let mut fixture = NarwhalFixture::default();
-
-    loop {
-        let pre_block = fixture.next_pre_block(1);
-        if pre_block.index() == index {
-            info!("[DA fetch] received pre-block #{}", index);
-            pre_blocks_tx.send(pre_block)?;
-            index += 1;
-
-            tokio::time::sleep(Duration::from_secs(1)).await;
-        }
-    }
 }
 
 pub fn is_leader(level: u32, node_id: u8) -> bool {

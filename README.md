@@ -12,3 +12,44 @@ The consensus part is based on the Narwhal codebase from [Sui](https://github.co
 4. No transaction validation, as we assume a closed network;
 
 ![image](https://github.com/baking-bad/sequencer/assets/44951260/7f7604c9-af1b-4c57-8daa-c2d330979b7f)
+
+## Installation
+
+Install Rust toolchain:
+```
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+
+Add Wasm32 target:
+```
+rustup target add wasm32-unknown-unknown
+```
+
+Install kernel build dependencies:
+```
+make install
+```
+
+Install `protobuf` and `clang` system packages:
+```
+sudo apt install protobuf-compiler clang
+```
+
+## How to run
+
+### Local consensus benchmark
+
+Check out the [instructions](./benchmark/README.md)
+
+### Remote consensus benchmark
+
+
+### Local DSN setup
+
+
+
+#### Operator
+
+#### DSN
+
+#### Sequencer

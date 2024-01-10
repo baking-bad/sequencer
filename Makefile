@@ -56,6 +56,7 @@ run-operator:
 	$(MAKE) build-operator
 	$(MAKE) image-operator OCTEZ_TAG=$(OCTEZ_TAG) OCTEZ_PROTO=$(OCTEZ_PROTO)
 	docker stop dsn-operator || true
+	docker volume rm dsn-operator
 	docker run --rm -it \
 		--name dsn-operator \
 		--entrypoint=/bin/sh \
@@ -70,6 +71,7 @@ run-sequencer:
 	RUST_LOG=info ./target/debug/sequencer
 
 run-dsn:
+	rm -rf ./db
 	./target/debug/launcher --id 1 --log-level 2 &
 	./target/debug/launcher --id 2 --log-level 0 &
 	./target/debug/launcher --id 3 --log-level 0 &
@@ -91,3 +93,11 @@ stop-dsn-min:
 
 broadcast:
 	curl -d '{"data":"deadbeef"}' -H "Content-Type: application/json" -X POST http://localhost:8080/broadcast
+
+run-listener:
+	cargo build --bin simple-listener
+	RUST_LOG=info ./target/debug/simple-listener --endpoint $(ENDPOINT) --from-id $(FROM_ID)
+
+run-spammer:
+	cargo build --bin simple-spammer
+	RUST_LOG=info ./target/debug/simple-spammer --endpoint $(ENDPOINT) --sleep $(SLEEP)

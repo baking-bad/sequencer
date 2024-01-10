@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: MIT
 
 use narwhal_config::{Committee, Import};
-use pre_block::{fixture::NarwhalFixture, PublicKey};
+use pre_block::{fixture::NarwhalFixture, PublicKey, DsnConfig};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
@@ -48,9 +48,9 @@ fn real_setup() -> std::result::Result<KernelSetup, Box<dyn std::error::Error>> 
         .authorities()
         .map(|auth| auth.protocol_key_bytes().0.to_vec())
         .collect();
-    let value = bcs::to_bytes(&authorities)?;
+    let authorities_value = bcs::to_bytes(&authorities)?;
 
-    let setup = KernelSetup {
+    let mut setup = KernelSetup {
         instructions: vec![
             // Instruction {
             //     set: Set {
@@ -66,6 +66,21 @@ fn real_setup() -> std::result::Result<KernelSetup, Box<dyn std::error::Error>> 
             },
         ],
     };
+
+    let config = DsnConfig {
+        epoch: 0,
+        authorities
+    };
+
+    for digest in config.genesis() {
+        setup.instructions.push(Instruction {
+            set: Set {
+                value: hex::encode(&(0u64.to_be_bytes())),
+                to: format!("/certificates/{}", hex::encode(&digest)),
+            },
+        });
+    }
+
     Ok(setup)
 }
 

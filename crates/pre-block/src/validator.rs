@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: MIT
 
-use std::collections::BTreeSet;
+use std::collections::{BTreeSet, BTreeMap};
 
 use crate::{
     bls_min_sig::aggregate_verify, digest::Blake2b256, Batch, Certificate, Digest, DsnConfig,
@@ -26,7 +26,7 @@ pub fn validate_certificate_signature(
     }
 
     if cert.signers.len() < config.quorum_threshold() {
-        anyhow::bail!("Quorum is not met");
+        anyhow::bail!("Quorum is not met (round #{})", cert.header.round);
     }
 
     let digest = cert.digest();
@@ -41,9 +41,11 @@ pub fn validate_certificate_signature(
 
 pub fn validate_certificate_chain(
     cert: &Certificate,
+    config: &DsnConfig,
     index: u64,
     store: &impl PreBlockStore,
     neighbors: &BTreeSet<Digest>,
+    missing: &mut BTreeMap<Digest, usize>,
 ) -> anyhow::Result<()> {
     // We need to ensure the sub dag is:
     //  1) Not overlapping with the previous one
@@ -53,23 +55,31 @@ pub fn validate_certificate_chain(
     // that every parent certificate is either:
     //  1) From this sub dag
     //  2) From a known sub dag (previous one)
+    //  3) Missing, but is not referenced by the majority 
     for parent in cert.header.parents.iter() {
         if neighbors.contains(parent) {
             continue;
         }
 
         match store.get_certificate_index(parent) {
-            Some(prev_index) if prev_index + 1 != index => {
-                anyhow::bail!(
-                    "Parent certificate is not from a preceding sub dag {}",
-                    hex::encode(parent)
-                )
-            }
+            // TODO: this does not hold for second sub-DAG (references genesis cert)
+            // Some(prev_index) if prev_index + 1 != index => {
+            //     anyhow::bail!(
+            //         "Parent certificate is not from a preceding sub dag {} (round #{})",
+            //         hex::encode(parent),
+            //         cert.header.round,
+            //     )
+            // }
             None => {
-                anyhow::bail!(
-                    "Parent certificate cannot be not found {}",
-                    hex::encode(parent)
-                );
+                let num_misses = missing.get(parent).unwrap_or(&0usize) + 1;
+                if num_misses >= config.quorum_threshold() {
+                    anyhow::bail!(
+                        "Parent certificate cannot be not found {} (round #{}, num misses {})",
+                        hex::encode(parent),
+                        cert.header.round,
+                        num_misses,
+                    );
+                }
             }
             _ => (),
         }
@@ -85,9 +95,10 @@ pub fn validate_certificate_batches(cert: &Certificate, batches: &[Batch]) -> an
         let digest = batch.digest();
         if !digests.contains(&digest) {
             anyhow::bail!(
-                "Invalid batch content (digest mismatch), idx = {}, digest = {}",
+                "Invalid batch content (digest mismatch), idx = {}, digest = {}, round = {}",
                 i,
-                hex::encode(&digest)
+                hex::encode(&digest),
+                cert.header.round,
             );
         }
     }

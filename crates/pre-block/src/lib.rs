@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: MIT
 
-use std::collections::BTreeSet;
+use std::collections::{BTreeSet, BTreeMap};
 
 use digest::Blake2b256;
 use serde::{Deserialize, Serialize};
@@ -77,7 +77,7 @@ impl PreBlock {
             // NOTE that index is not enforced by any signature, so technically one can craft a
             // pre-block with a mismatched (sub dag) index.
             // The validation would fail either way, because of the parents check.
-            anyhow::bail!("Non-sequential index");
+            anyhow::bail!("Non-sequential index: expected {}", self.index + 1);
         }
 
         // TODO: check that leader is actually leader — or is it implied by consensus?
@@ -85,12 +85,17 @@ impl PreBlock {
 
         let digests: BTreeSet<Digest> =
             self.certificates.iter().map(|cert| cert.digest()).collect();
+        let mut missing: BTreeMap<Digest, usize> = BTreeMap::new();
 
-        validate_certificate_chain(&self.leader, self.index, store, &digests)?;
+        validate_certificate_chain(&self.leader, config, self.index, store, &digests, &mut missing)?;
 
         for (idx, cert) in self.certificates.iter().enumerate() {
-            validate_certificate_chain(cert, self.index, store, &digests)?;
+            validate_certificate_chain(cert, config, self.index, store, &digests, &mut missing)?;
             validate_certificate_batches(cert, self.batches.get(idx).unwrap())?;
+
+            if cert.header.round == 165 {
+                println!("{:?}", cert.header);
+            }
         }
 
         Ok(())
@@ -119,6 +124,18 @@ impl DsnConfig {
     pub fn quorum_threshold(&self) -> usize {
         self.authorities.len() * 2 / 3 + 1
     }
+
+    pub fn genesis(&self) -> Vec<Digest> {
+        self.authorities
+            .iter()
+            .enumerate()
+            .map(|(i, _)| CertificateHeader {
+                epoch: self.epoch,
+                author: i as u16,
+                ..Default::default()
+            }.digest())
+            .collect()
+    }
 }
 
 pub trait PreBlockStore {
@@ -126,4 +143,36 @@ pub trait PreBlockStore {
     fn set_certificate_index(&mut self, digest: &Digest, index: u64);
     fn get_latest_index(&self) -> Option<u64>;
     fn set_latest_index(&mut self, index: u64);
+}
+
+#[cfg(test)]
+mod tests {
+    use narwhal_crypto::traits::ToFromBytes;
+    use narwhal_test_utils::CommitteeFixture;
+    use narwhal_types::CertificateV2;
+
+    use crate::DsnConfig;
+
+    #[test]
+    fn test_genesis_certificate_digests() {
+        let fixture = CommitteeFixture::builder().build();
+        let committee = fixture.committee();
+        
+        let genesis_digests: Vec<[u8; 32]> = CertificateV2::genesis(&committee, true)
+            .iter()
+            .map(|cert| cert.header.digest().0)
+            .collect();
+
+        let config = DsnConfig::new(
+            0,
+            fixture
+                .authorities()
+                .map(|auth| auth.public_key().as_bytes().to_vec())
+                .collect(),
+        );
+
+        let digests = config.genesis();
+
+        pretty_assertions::assert_eq!(genesis_digests, digests);
+    }
 }

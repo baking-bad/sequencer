@@ -15,6 +15,9 @@ futures.workspace = true
 fastcrypto.workspace = true
 roaring.workspace = true
 
+env_logger = "0.10.0"
+log = "0.4"
+
 [target.'cfg(not(target_env = "msvc"))'.build-dependencies]
 protobuf-src.workspace = true
 

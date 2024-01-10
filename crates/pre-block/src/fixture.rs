@@ -54,8 +54,8 @@ impl Default for NarwhalFixture {
 
 #[derive(Debug, Default)]
 pub struct SimpleStore {
-    latest_index: Option<u64>,
-    certificate_indexes: HashMap<Digest, u64>,
+    pub latest_index: Option<u64>,
+    pub certificate_indexes: HashMap<Digest, u64>,
 }
 
 impl PreBlockStore for SimpleStore {
