@@ -2,6 +2,9 @@
 //
 // SPDX-License-Identifier: MIT
 
+use std::time::Duration;
+
+use log::{warn, info, error};
 use pre_block::PublicKey;
 use serde::Deserialize;
 use tezos_smart_rollup_encoding::smart_rollup::SmartRollupAddress;
@@ -46,6 +49,33 @@ impl RollupClient {
             base_url,
             client: reqwest::Client::new(),
         }
+    }
+
+    pub async fn connect(&self) -> anyhow::Result<SmartRollupAddress> {
+        let mut connection_attempts = 0;
+
+        let smart_rollup_address = loop {
+            match self.get_rollup_address().await {
+                Ok(res) => break res,
+                Err(err) => {
+                    connection_attempts += 1;
+                    if connection_attempts == 10 {
+                        error!("[DA task] Max attempts to connect to SR node: {}", err);
+                        return Err(err);
+                    } else {
+                        warn!("[DA task] Attempt #{} {}", connection_attempts, err);
+                        tokio::time::sleep(Duration::from_secs(connection_attempts)).await;
+                    }
+                }
+            }
+        };
+
+        info!(
+            "Connected to SR node: {} at {}",
+            smart_rollup_address, self.base_url
+        );
+
+        Ok(smart_rollup_address)
     }
 
     pub async fn get_rollup_address(&self) -> anyhow::Result<SmartRollupAddress> {

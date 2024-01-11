@@ -4900,6 +4900,7 @@ dependencies = [
  "env_logger",
  "fastcrypto",
  "futures",
+ "hex",
  "log",
  "prost",
  "protobuf-src",

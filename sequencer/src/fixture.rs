@@ -8,14 +8,18 @@ use pre_block::{PreBlock, PublicKey, DsnConfig};
 use std::path::PathBuf;
 use std::sync::mpsc;
 use std::time::Duration;
-use log::info;
+use log::{info, error};
+
+use crate::consensus_client::PrimaryClient;
+use crate::da_batcher::publish_pre_blocks;
+use crate::rollup_client::RollupClient;
 
 pub async fn generate_pre_blocks(
     prev_index: u64,
     pre_blocks_tx: mpsc::Sender<PreBlock>,
 ) -> anyhow::Result<()> {
     let mut index = prev_index;
-    let mut fixture = NarwhalFixture::default();
+    let mut fixture = NarwhalFixture::new(7);
 
     loop {
         let pre_block = fixture.next_pre_block(1);
@@ -66,5 +70,65 @@ pub async fn verify_pre_blocks(
         }
 
         tokio::time::sleep(Duration::from_secs(1)).await;
+    }
+}
+
+pub async fn run_da_task_with_mocked_consensus(
+    node_id: u8,
+    rollup_node_url: String,
+) -> anyhow::Result<()> {
+    info!("[DA task] Starting...");
+
+    let rollup_client = RollupClient::new(rollup_node_url.clone());
+    let smart_rollup_address = rollup_client.connect().await?;
+
+    loop {
+        let from_id = rollup_client.get_next_index().await?;
+        let (tx, rx) = mpsc::channel();
+        info!("[DA task] Starting from index #{}", from_id);
+
+        tokio::select! {
+            res = generate_pre_blocks(from_id - 1, tx) => {
+                if let Err(err) = res {
+                    error!("[DA generate] Failed with: {}", err);
+                }
+            },
+            res = publish_pre_blocks(&rollup_client, &smart_rollup_address, node_id, rx) => {
+                if let Err(err) = res {
+                    error!("[DA publish] Failed with: {}", err);
+                }
+            },
+        };
+
+        tokio::time::sleep(Duration::from_secs(5)).await;
+    }
+}
+
+pub async fn run_da_task_with_mocked_rollup(
+    primary_node_url: String,
+) -> anyhow::Result<()> {
+    info!("[DA task] Starting...");
+
+    let mut primary_client = PrimaryClient::new(primary_node_url);
+
+    loop {
+        let from_id = 1;
+        let (tx, rx) = mpsc::channel();
+        info!("[DA task] Starting from index #{}", from_id);
+
+        tokio::select! {
+            res = primary_client.subscribe_pre_blocks(from_id - 1, tx) => {
+                if let Err(err) = res {
+                    error!("[DA fetch] Failed with: {}", err);
+                }
+            },
+            res = verify_pre_blocks(rx) => {
+                if let Err(err) = res {
+                    error!("[DA verify] Failed with: {}", err);
+                }
+            },
+        };
+
+        tokio::time::sleep(Duration::from_secs(5)).await;
     }
 }

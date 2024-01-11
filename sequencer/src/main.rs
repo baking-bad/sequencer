@@ -10,7 +10,8 @@ use axum::{
 };
 use clap::Parser;
 use consensus_client::WorkerClient;
-use log::{error, info, warn};
+use fixture::{run_da_task_with_mocked_consensus, run_da_task_with_mocked_rollup};
+use log::{error, info};
 use rollup_client::RollupClient;
 use serde::{Deserialize, Serialize};
 use std::sync::mpsc;
@@ -19,7 +20,7 @@ use std::time::Duration;
 use tokio::signal;
 use tokio::task::JoinHandle;
 
-use crate::{consensus_client::PrimaryClient, fixture::verify_pre_blocks};
+use crate::consensus_client::PrimaryClient;
 use crate::da_batcher::publish_pre_blocks;
 
 mod consensus_client;
@@ -128,7 +129,7 @@ async fn run_api_server(
     Ok(())
 }
 
-async fn run_da_task(
+async fn run_da_task_real(
     node_id: u8,
     rollup_node_url: String,
     primary_node_url: String,
@@ -136,32 +137,12 @@ async fn run_da_task(
     info!("[DA task] Starting...");
 
     let rollup_client = RollupClient::new(rollup_node_url.clone());
-    let mut connection_attempts = 0;
-
-    let smart_rollup_address = loop {
-        match rollup_client.get_rollup_address().await {
-            Ok(res) => break res,
-            Err(err) => {
-                connection_attempts += 1;
-                if connection_attempts == 10 {
-                    error!("[DA task] Max attempts to connect to SR node: {}", err);
-                    return Err(err);
-                } else {
-                    warn!("[DA task] Attempt #{} {}", connection_attempts, err);
-                    tokio::time::sleep(Duration::from_secs(connection_attempts)).await;
-                }
-            }
-        }
-    };
-    info!(
-        "Connected to SR node: {} at {}",
-        smart_rollup_address, rollup_node_url
-    );
+    let smart_rollup_address = rollup_client.connect().await?;
 
     let mut primary_client = PrimaryClient::new(primary_node_url);
 
     loop {
-        let from_id = 1; // rollup_client.get_next_index().await?;
+        let from_id = rollup_client.get_next_index().await?;
         let (tx, rx) = mpsc::channel();
         info!("[DA task] Starting from index #{}", from_id);
 
@@ -171,11 +152,6 @@ async fn run_da_task(
                     error!("[DA fetch] Failed with: {}", err);
                 }
             },
-            // res = verify_pre_blocks(rx) => {
-            //     if let Err(err) = res {
-            //         error!("[DA verify] Failed with: {}", err);
-            //     }
-            // },
             res = publish_pre_blocks(&rollup_client, &smart_rollup_address, node_id, rx) => {
                 if let Err(err) = res {
                     error!("[DA publish] Failed with: {}", err);
@@ -184,6 +160,21 @@ async fn run_da_task(
         };
 
         tokio::time::sleep(Duration::from_secs(5)).await;
+    }
+}
+
+async fn run_da_task(
+    node_id: u8,
+    rollup_node_url: String,
+    primary_node_url: String,
+    mock_consensus: bool,
+    mock_rollup: bool,
+) -> anyhow::Result<()> {
+    match (mock_consensus, mock_rollup) {
+        (false, false) => run_da_task_real(node_id, rollup_node_url, primary_node_url).await,
+        (true, false) => run_da_task_with_mocked_consensus(node_id, rollup_node_url).await,
+        (false, true) => run_da_task_with_mocked_rollup(primary_node_url).await,
+        (true, true) => unimplemented!()
     }
 }
 
@@ -206,6 +197,12 @@ struct Args {
 
     #[arg(long, default_value_t = 1)]
     node_id: u8,
+
+    #[arg(long, default_value_t = false)]
+    mock_consensus: bool,
+
+    #[arg(long, default_value_t = false)]
+    mock_rollup: bool,
 }
 
 async fn flatten(handle: JoinHandle<anyhow::Result<()>>) -> anyhow::Result<()> {
@@ -231,7 +228,7 @@ async fn main() {
                 args.rpc_addr,
                 args.rpc_port,
                 rollup_node_url,
-                args.worker_node_url
+                args.worker_node_url,
             ) => res,
         }
     });
@@ -239,7 +236,13 @@ async fn main() {
     let da_task = tokio::spawn(async move {
         tokio::select! {
             _ = signal::ctrl_c() => Ok(()),
-            res = run_da_task(args.node_id, args.rollup_node_url, args.primary_node_url) => res,
+            res = run_da_task(
+                args.node_id,
+                args.rollup_node_url,
+                args.primary_node_url,
+                args.mock_consensus,
+                args.mock_rollup,
+            ) => res,
         }
     });
 

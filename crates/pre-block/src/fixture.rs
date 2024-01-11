@@ -103,15 +103,16 @@ impl NarwhalFixture {
         let committee = self.fixture.committee();
         let mut signatures = Vec::new();
 
-        // 3 Signers satisfies the 2F + 1 signed stake requirement
-        for authority in self.fixture.authorities().take(3) {
+        let num_signers = 2 * (committee.size() - 1) / 3 + 1;
+        for authority in self.fixture.authorities().take(num_signers) {
             let vote = authority.vote(&header);
             signatures.push((vote.author(), vote.signature().clone()));
         }
 
         match CertificateV2::new_unverified(&committee, header, signatures) {
             Ok(narwhal_types::Certificate::V2(cert)) => cert.into(),
-            _ => unreachable!(),
+            Ok(_) => unreachable!(),
+            Err(err) => panic!("Failed to create cert: {}", err),
         }
     }
 

@@ -167,6 +167,8 @@ class Committee:
             host = hosts.pop(0)
             primary_addr = f'/ip4/{host}/udp/{port}'
             port += 1
+            grpc_address = f'/ip4/127.0.0.1/tcp/{port}'
+            port += 1
 
             self.json['authorities'][name] = {
                 'stake': 1,
@@ -174,7 +176,8 @@ class Committee:
                 'protocol_key_bytes': name,
                 'primary_address': primary_addr,
                 'network_key': network_name,
-                'hostname': host
+                'hostname': host,
+                'grpc_address': grpc_address,
             }
 
     def primary_addresses(self, faults=0):
