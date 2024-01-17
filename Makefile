@@ -56,7 +56,7 @@ run-operator:
 	$(MAKE) build-operator
 	$(MAKE) image-operator OCTEZ_TAG=$(OCTEZ_TAG) OCTEZ_PROTO=$(OCTEZ_PROTO)
 	docker stop dsn-operator || true
-	docker volume rm dsn-operator
+	docker volume rm dsn-operator || true
 	docker run --rm -it \
 		--name dsn-operator \
 		--entrypoint=/bin/sh \
@@ -72,6 +72,7 @@ run-sequencer:
 
 run-dsn:
 	rm -rf ./db
+	cargo build --bin launcher
 	./target/debug/launcher --id 1 --log-level 2 &
 	./target/debug/launcher --id 2 --log-level 0 &
 	./target/debug/launcher --id 3 --log-level 0 &
