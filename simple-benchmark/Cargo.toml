@@ -1,0 +1,27 @@
+[package]
+name = "simple-benchmark"
+edition = "2021"
+version.workspace = true
+
+[dependencies]
+async-trait.workspace = true
+clap.workspace = true
+prost.workspace = true
+tokio = { workspace = true, features = ["rt-multi-thread"] }
+tokio-stream.workspace = true
+tonic.workspace = true
+tracing.workspace = true
+futures.workspace = true
+fastcrypto.workspace = true
+roaring.workspace = true
+rand.workspace = true
+
+env_logger = "0.10.0"
+log = "0.4"
+hex = "*"
+
+[target.'cfg(not(target_env = "msvc"))'.build-dependencies]
+protobuf-src.workspace = true
+
+[build-dependencies]
+tonic-build.workspace = true

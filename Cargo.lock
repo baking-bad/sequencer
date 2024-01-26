@@ -4913,6 +4913,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "simple-benchmark"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "clap",
+ "env_logger",
+ "fastcrypto",
+ "futures",
+ "hex",
+ "log",
+ "prost",
+ "protobuf-src",
+ "rand 0.8.5",
+ "roaring",
+ "tokio",
+ "tokio-stream",
+ "tonic",
+ "tonic-build",
+ "tracing",
+]
+
+[[package]]
 name = "simple-listener"
 version = "0.1.0"
 dependencies = [
