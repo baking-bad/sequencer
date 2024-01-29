@@ -12,7 +12,7 @@ use super::SpammerArgs;
 pub async fn run(args: SpammerArgs) {
     let mut rng = rand::thread_rng();
     loop {
-        info!("Connecting to {}...", args.endpoint.clone());
+        info!("Connecting to {}...", args.endpoint);
         match connect(args.endpoint.clone()).await {
             Ok(mut client) => {
                 let payload: Vec<u8> = (1..rng.gen_range(args.min_size..args.max_size))

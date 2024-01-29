@@ -9,12 +9,13 @@ use super::ListenerArgs;
 use std::time::Duration;
 
 pub async fn run(args: ListenerArgs) {
+    env_logger::init();
     loop {
-        info!("Connecting to {}...", args.endpoint.clone());
+        info!("Connecting to {}...", args.endpoint);
         match connect(args.endpoint.clone()).await {
             Ok(client) => {
                 info!("Connected. Exporting subdags from #{}...", args.from_id);
-                match export(client, args.from_id, args.tx_output.clone()).await {
+                match export(client, args.from_id, &args.tx_output).await {
                     Ok(_) => {
                         info!("Exit");
                         break;
@@ -39,7 +40,7 @@ async fn connect(endpoint: String) -> Result<ExporterClient<Channel>, tonic::tra
 async fn export(
     mut client: ExporterClient<Channel>,
     from_id: u64,
-    tx_output: Option<String>,
+    tx_output: &Option<String>,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let mut stream = client.export(ExportRequest { from_id }).await?.into_inner();
 
