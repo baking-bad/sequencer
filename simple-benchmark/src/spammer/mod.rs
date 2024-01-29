@@ -10,7 +10,6 @@ use crate::narwhal::{transactions_client::TransactionsClient, Transaction};
 use super::SpammerArgs;
 
 pub async fn run(args: SpammerArgs) {
-    env_logger::init();
     let mut rng = rand::thread_rng();
     loop {
         info!("Connecting to {}...", args.endpoint.clone());

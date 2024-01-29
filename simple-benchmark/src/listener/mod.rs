@@ -9,7 +9,6 @@ use super::ListenerArgs;
 use std::time::Duration;
 
 pub async fn run(args: ListenerArgs) {
-    env_logger::init();
     loop {
         info!("Connecting to {}...", args.endpoint.clone());
         match connect(args.endpoint.clone()).await {

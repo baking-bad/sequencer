@@ -58,6 +58,8 @@ struct ListenerArgs {
 
 #[tokio::main]
 async fn main() {
+    env_logger::init();
+
     let cli = Cli::parse();
     match cli.command {
         Commands::Spammer(args) => spammer::run(args).await,
