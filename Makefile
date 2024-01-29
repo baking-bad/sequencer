@@ -102,3 +102,7 @@ run-listener:
 run-spammer:
 	cargo build --bin simple-benchmark
 	RUST_LOG=info ./target/debug/simple-benchmark spammer ${ENDPOINT:+--endpoint "$ENDPOINT"} ${SLEEP:+--sleep "$SLEEP"}
+
+run-benchmark:
+	cargo build --bin simple-benchmark
+        RUST_LOG=info ./target/debug/simple-benchmark benchmark ${ENDPOINT:+--endpoint "$ENDPOINT} ${SLEEP:+--sleep "$SLEEP"} ${FROM_ID:+--from_id "$FROM_ID"} ${TX_OUTPUT:+--tx-output "$TX_OUTPUT"} 
