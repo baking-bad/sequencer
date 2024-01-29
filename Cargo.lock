@@ -4918,6 +4918,7 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "clap",
+ "csv",
  "env_logger",
  "fastcrypto",
  "futures",

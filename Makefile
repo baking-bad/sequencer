@@ -96,9 +96,9 @@ broadcast:
 	curl -d '{"data":"deadbeef"}' -H "Content-Type: application/json" -X POST http://localhost:8080/broadcast
 
 run-listener:
-	cargo build --bin simple-listener
-	RUST_LOG=info ./target/debug/simple-listener --endpoint $(ENDPOINT) --from-id $(FROM_ID)
+	cargo build --bin simple-benchmark
+	RUST_LOG=info ./target/debug/simple-benchmark listener --endpoint $(ENDPOINT) --from-id $(FROM_ID)
 
 run-spammer:
-	cargo build --bin simple-spammer
-	RUST_LOG=info ./target/debug/simple-spammer --endpoint $(ENDPOINT) --sleep $(SLEEP)
+	cargo build --bin simple-benchmark
+	RUST_LOG=info ./target/debug/simple-benchmark --endpoint $(ENDPOINT) --sleep $(SLEEP)

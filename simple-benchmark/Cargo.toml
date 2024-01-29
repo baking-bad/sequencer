@@ -19,6 +19,7 @@ rand.workspace = true
 env_logger = "0.10.0"
 log = "0.4"
 hex = "*"
+csv = "1.3.0"
 
 [target.'cfg(not(target_env = "msvc"))'.build-dependencies]
 protobuf-src.workspace = true
