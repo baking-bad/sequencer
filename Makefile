@@ -97,8 +97,8 @@ broadcast:
 
 run-listener:
 	cargo build --bin simple-benchmark
-	RUST_LOG=info ./target/debug/simple-benchmark listener --endpoint $(ENDPOINT) --from-id $(FROM_ID)
+	RUST_LOG=info ./target/debug/simple-benchmark listener ${ENDPOINT:+--endpoint "$ENDPOINT"} ${FROM_ID:+--from-id "$FROM_ID"}
 
 run-spammer:
 	cargo build --bin simple-benchmark
-	RUST_LOG=info ./target/debug/simple-benchmark spammer --endpoint $(ENDPOINT) --sleep $(SLEEP)
+	RUST_LOG=info ./target/debug/simple-benchmark spammer ${ENDPOINT:+--endpoint "$ENDPOINT"} ${SLEEP:+--sleep "$SLEEP"}
