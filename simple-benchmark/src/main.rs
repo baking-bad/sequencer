@@ -1,10 +1,10 @@
-use clap::Parser;
+use clap::{command, Args, Parser, Subcommand};
+use log::{error, info};
 use rand::Rng;
 use std::time::Duration;
+use std::time::{SystemTime, UNIX_EPOCH};
 use tokio::time::sleep;
 use tonic::transport::Channel;
-use log::{error, info};
-use std::time::{SystemTime, UNIX_EPOCH};
 
 mod narwhal {
     tonic::include_proto!("narwhal");
@@ -12,11 +12,24 @@ mod narwhal {
 use narwhal::transactions_client::TransactionsClient;
 use narwhal::Transaction;
 
+#[derive(Parser)]
+#[command(author, version, about, long_about = None)]
+#[command(propagate_version = true)]
+struct Cli {
+    #[command(subcommand)]
+    command: Commands,
+}
+
+#[derive(Subcommand)]
+enum Commands {
+    /// Adds files to myapp
+    Spammer(SpammerArgs),
+}
+
 /// Simple transactions generator that connects to a worker
 /// and sends generated transactions with a given interval
-#[derive(Parser)]
-#[command(author, version, about)]
-struct Args {
+#[derive(Args)]
+struct SpammerArgs {
     /// Worker's gRPC endpoint to connect to
     #[arg(short, long, default_value_t=("http://127.0.0.1:64013".parse()).unwrap())]
     endpoint: String,
@@ -33,8 +46,14 @@ struct Args {
 
 #[tokio::main]
 async fn main() {
+    let cli = Cli::parse();
+    match cli.command {
+        Commands::Spammer(args) => spammer(args).await,
+    }
+}
+
+async fn spammer(args: SpammerArgs) {
     env_logger::init();
-    let args = Args::parse();
     let mut rng = rand::thread_rng();
     loop {
         info!("Connecting to {}...", args.endpoint.clone());
