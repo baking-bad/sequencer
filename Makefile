@@ -101,4 +101,4 @@ run-listener:
 
 run-spammer:
 	cargo build --bin simple-benchmark
-	RUST_LOG=info ./target/debug/simple-benchmark --endpoint $(ENDPOINT) --sleep $(SLEEP)
+	RUST_LOG=info ./target/debug/simple-benchmark spammer --endpoint $(ENDPOINT) --sleep $(SLEEP)
