@@ -3,7 +3,6 @@ use std::{error::Error, fs::File, time::Duration};
 use clap::{command, Args, Parser, Subcommand};
 use csv::Reader;
 use log::{error, info};
-use serde::Deserialize;
 use stats::{mean, median, stddev};
 use tokio::{join, time::sleep};
 mod narwhal {
