@@ -26,7 +26,7 @@ pub async fn run(args: SpammerArgs, mut rx_stop: Receiver<()>) {
     pin!(time_to_next_tx);
     loop {
         tokio::select! {
-            () = &mut time_to_next_tx => {
+        () = &mut time_to_next_tx => {
             info!("Connecting to {}...", args.endpoint);
             match connect(args.endpoint.clone()).await {
                 Ok(mut client) => {
