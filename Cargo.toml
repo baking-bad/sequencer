@@ -17,13 +17,14 @@ members = [
     "crates/utils",
     "crates/worker",
     "crates/pre-block",
-    
+
     "launcher",
     "playground",
     "kernel",
     "sequencer",
     "simple-listener",
     "simple-spammer",
+    "simple-benchmark",
 ]
 
 [workspace.package]
